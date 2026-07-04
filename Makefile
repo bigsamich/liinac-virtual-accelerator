@@ -21,3 +21,16 @@ lattice:       ## regenerate + numerically re-match the lattice
 
 smoke:         ## verify a running compose stack end to end
 	.venv/bin/python scripts/smoke_compose.py
+
+reset:         ## nuclear reset: wipe all machine state, reboot to design
+	docker compose down
+	docker compose up -d
+	@echo "waiting for MPS baseline capture..."
+	@until .venv/bin/python -c "import redis,sys; r=redis.Redis(); \
+	sys.exit(0 if any(f.get(b'kind')==b'armed' for _,f in \
+	r.xrevrange('stream:mps.events',count=5)) else 1)" 2>/dev/null; \
+	do sleep 3; done
+	@.venv/bin/python -c "import redis; r=redis.Redis(); \
+	st={k.decode():v.decode() for k,v in r.hgetall('state:beam').items()}; \
+	print('MACHINE READY: W=%.1f MeV  T=%.4f' % \
+	(float(st['w_out']), float(st['transmission'])))" 
