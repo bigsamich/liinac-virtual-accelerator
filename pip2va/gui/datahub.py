@@ -174,6 +174,10 @@ class DataHub(QThread):
     def request_wire_scan(self, name: str, plane: str = "x"):
         self.r.hset(f"req:wire:{name}", "plane", plane)
 
+    def select_3d_station(self, name: str):
+        """Choose the scanner station where the GPU tracker dumps a 3D cloud."""
+        self.r.hset(keys.settings("wf3d", "main"), "station", name)
+
     def select_waveforms(self, names: list[str]):
         """Choose up to 8 devices for continuous intra-pulse capture."""
         self.r.hset(keys.settings("wfsel", "main"),
