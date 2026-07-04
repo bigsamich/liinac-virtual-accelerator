@@ -70,7 +70,8 @@ class MagnetSimService(Service):
                     dev.trip()
                     self.publish_event(keys.CH_FAULT, {"key": rkey})
                 elif fl.get("type") == "drift":
-                    dev.drift += float(fl.get("magnitude", 0.0)) * self.dt
+                    # magnitude is in amps per MINUTE of injected drift
+                    dev.drift += float(fl.get("magnitude", 0.0)) * self.dt / 60.0
             elif dev.tripped and st is not None and st.get("reset"):
                 dev.try_reset()
                 pipe.hdel(skey, "reset")
