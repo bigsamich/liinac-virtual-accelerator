@@ -172,7 +172,11 @@ class MacroTracker:
                 bgr = (beta * gamma) / (b2 * g2)
                 X[1] *= bgr
                 X[3] *= bgr
+                if w_new < 0.05:   # reference decelerated to a stop
+                    w_new = 0.05
+                    alive[:] = False
                 w = w_new
+                b2, g2 = beta_gamma(w_new)
                 beta, gamma = b2, g2
                 X = self._apply(drift(L / 2, beta, gamma), X)
             elif typ == "rfq":

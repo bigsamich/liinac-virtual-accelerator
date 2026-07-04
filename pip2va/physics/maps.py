@@ -71,8 +71,10 @@ def rfgap_kick(w_in: float, v_mv: float, phi_deg: float, freq_mhz: float
     Returns (W_out, M6, k_t) with M6 evaluated at the mid-gap energy.
     """
     phi = math.radians(phi_deg)
-    w_out = w_in + v_mv * math.cos(phi)
-    w_mid = 0.5 * (w_in + w_out)
+    # a badly mis-phased gap decelerates the beam; floor at rest energy
+    # scale so the transport stays finite (the beam is lost, not NaN)
+    w_out = max(w_in + v_mv * math.cos(phi), 0.05)
+    w_mid = max(0.5 * (w_in + w_out), 0.05)
     beta, gamma = beta_gamma(w_mid)
     lam = 299.792458 / freq_mhz  # wavelength in m
 

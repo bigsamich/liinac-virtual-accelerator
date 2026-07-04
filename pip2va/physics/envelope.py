@@ -230,6 +230,9 @@ class EnvelopeEngine:
                 apply_sc(L / 2.0)
                 t += (L / 2.0) / (beta * C)
                 w, gap, _ = rfgap_kick(w, amp, phi_set + dphi, el.params["freq_mhz"])
+                if w < 0.05:   # decelerated to a stop: beam is lost, not NaN
+                    w = 0.05
+                    f_surv = 0.0
                 c6 = gap @ c6
                 sig = gap @ sig @ gap.T
                 beta, gamma = beta_gamma(w)
