@@ -34,14 +34,16 @@ def scrape_fraction(ax: float, cx: float, sx: float,
 def hminus_baseline_frac_per_m(i_ma: float, beta: float, gamma: float,
                                sx: float, sy: float, sz: float,
                                thx: float = 1e-3, thy: float = 1e-3,
-                               ths: float = 1e-3) -> float:
+                               ths: float = 1e-3, ibst_scale: float = 1.0,
+                               gas_scale: float = 1.0,
+                               pressure_torr: float = PRESSURE_TORR) -> float:
     """Intrabeam stripping (Lebedev) + residual-gas stripping, frac/m.
 
     i_ma: in-pulse line current [mA]; th*: rms divergences x'/y' and dp/p.
     """
     # residual gas: sigma = 1e-19/beta^2 cm^2/atom, 2 atoms per H2 molecule,
     # n = 3.3e8 cm^-3 per 1e-8 Torr -> per metre factor 100
-    gas = 100.0 * 3.3e8 * (PRESSURE_TORR / 1e-8) * 2.0 \
+    gas = gas_scale * 100.0 * 3.3e8 * (pressure_torr / 1e-8) * 2.0 \
         * 1e-19 / max(beta * beta, 1e-6)
     # intrabeam stripping
     n_bunch = (i_ma * 1e-3) / (F_BUNCH_HZ * E_CHARGE)
@@ -51,6 +53,6 @@ def hminus_baseline_frac_per_m(i_ma: float, beta: float, gamma: float,
         return gas
     form = 1.0 + 0.155 * ((a + b + c) / (math.sqrt(3.0) * norm) - 1.0)
     vol = max(sx * sy * sz, 1e-15)
-    ibst = (n_bunch * SIGMA_IBST_M2 * norm * form
-            / (8.0 * math.pi ** 2 * gamma ** 2 * vol))
+    ibst = ibst_scale * (n_bunch * SIGMA_IBST_M2 * norm * form
+                         / (8.0 * math.pi ** 2 * gamma ** 2 * vol))
     return gas + ibst

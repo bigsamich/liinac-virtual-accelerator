@@ -59,6 +59,9 @@ class RfSimService(Service):
         self._pos = {c.name: j for j, c in enumerate(self.cavs)}
         self._dirty: set = set()
         self._t_wf = np.arange(NSTEP) * DT * 1e3   # ms axis
+        # field-emission: per-cavity FN onset (E_acc where radiation ~1 unit)
+        self._fe_onset = self.rng.uniform(1.2, 2.0, n) \
+            * np.maximum(self.model.bank.v_max / self.model.bank.leff, 0.5)
 
     def on_event(self, channel, data):
         if isinstance(data, dict) and "key" in data:
@@ -155,7 +158,12 @@ class RfSimService(Service):
                 "detuning_hz": float(det[j]), "forward_pw": float(fwd[j]),
                 "status": "tripped" if self.tripped[j] else "ok"})
         pipe.execute()
+        # FN-like radiation signal: exponential in gradient above onset
+        e_now = amp / self.model.bank.leff
+        rad = np.exp(6.0 * (e_now / self._fe_onset - 1.0)).astype(np.float32)
+        rad = np.where(e_now > 0.3 * self._fe_onset, rad, 0.0)
         self.publish_stream("rf.cavity", pulse_id, {
+            "rad": rad,
             "amp": amp.astype(np.float32),
             "phase": phase.astype(np.float32),
             "detuning_hz": det.astype(np.float32),
