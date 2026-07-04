@@ -53,6 +53,11 @@ class AutotuneService(Service):
         u, s, vt = np.linalg.svd(self._resp, full_matrices=False)
         lam = 0.15 * s.max()
         self._pinv = (vt.T * (s / (s ** 2 + lam ** 2))) @ u.T
+        # correctors with almost no downstream lever arm (e.g. the last one
+        # before the dump) have near-degenerate response columns: the solver
+        # winds them up chasing noise. Freeze them out.
+        col = np.linalg.norm(self._resp, axis=0)
+        self._weak = col < 0.1 * np.median(col)
         self.r.hset("state:autotune", mapping={
             "status": "idle", "orbit_rms_um": -1.0})
         log.info("response matrix %s, pinv ready", self._resp.shape)
@@ -108,16 +113,26 @@ class AutotuneService(Service):
                 remaining = max(remaining, abs(tgt - cur - step) / max(abs(tgt), 1.0))
                 pipe.hset(skey, "current", cur + step)
                 audit.log_setting(self.r, skey, "current", cur + step, "autotune")
+        # correctors restore toward the "golden" snapshot (the steered
+        # as-built baseline) when one exists — zeroing trims on a machine
+        # with real misalignments throws the orbit away
+        from pip2va.common import snapshots as _snap
+        try:
+            golden = _snap.load("golden")["settings"]
+        except (FileNotFoundError, OSError, KeyError, ValueError):
+            golden = {}
         for el in self.correctors:
             skey = keys.settings("magnet", el.name)
             h = self.read_hash(skey)
+            g = golden.get(skey, {})
             for fld in ("current_x", "current_y"):
                 cur = float(h.get(fld, 0.0))
-                if abs(cur) > 0.01:
-                    remaining = max(remaining, abs(cur) * 0.01)
-                    pipe.hset(skey, fld, cur * (1.0 - 2 * RESTORE_FRAC))
-                    audit.log_setting(self.r, skey, fld,
-                                      cur * (1.0 - 2 * RESTORE_FRAC), "autotune")
+                tgt = float(g.get(fld, 0.0))
+                if abs(cur - tgt) > 0.01:
+                    remaining = max(remaining, abs(cur - tgt) * 0.01)
+                    new = cur + (tgt - cur) * 2 * RESTORE_FRAC
+                    pipe.hset(skey, fld, new)
+                    audit.log_setting(self.r, skey, fld, new, "autotune")
         for el in self.cavities:
             skey = keys.settings("rf", el.name)
             p = el.params
@@ -179,14 +194,41 @@ class AutotuneService(Service):
             ys.append(d["y"])
         meas = np.concatenate([np.mean(xs, axis=0), np.mean(ys, axis=0)])
         rms_um = float(np.sqrt(np.mean(meas ** 2)) * 1e6)
-        d_i = -GAIN * (self._pinv @ meas)
+        if rms_um < 250.0:
+            # at the BPM noise/offset floor: correcting further just random-
+            # walks the trims until one rails (the BTL:C12 runaway). Hold,
+            # but keep bleeding any frozen-out weak correctors toward zero.
+            k = 0
+            pipe = self.r.pipeline(transaction=False)
+            for el in self.correctors:
+                skey = keys.settings("magnet", el.name)
+                h = None
+                for fld in ("current_x", "current_y"):
+                    if self._weak[k]:
+                        h = h or self.read_hash(skey)
+                        cur = float(h.get(fld, 0.0))
+                        if abs(cur) > 0.05:
+                            pipe.hset(skey, fld, cur * 0.85)
+                    k += 1
+            pipe.execute()
+            self.publish_event(keys.CH_SETTINGS, {"key": "bulk:autotune"})
+            self.r.hset("state:autotune", mapping={
+                "status": "orbit trim: at noise floor (holding)",
+                "orbit_rms_um": rms_um})
+            return
+        d_i = np.clip(-GAIN * (self._pinv @ meas), -0.3, 0.3)
+        d_i[self._weak] = 0.0
         pipe = self.r.pipeline(transaction=False)
         k = 0
         for el in self.correctors:
             skey = keys.settings("magnet", el.name)
             h = self.read_hash(skey)
             for fld in ("current_x", "current_y"):
-                new = float(np.clip(float(h.get(fld, 0.0)) + d_i[k],
+                cur = float(h.get(fld, 0.0))
+                # leak toward zero (hard for frozen-out weak correctors):
+                # bleeds any accumulated noise-walk
+                leak = 0.90 if self._weak[k] else 0.995
+                new = float(np.clip(cur * leak + d_i[k],
                                     -MAX_CORR_A, MAX_CORR_A))
                 pipe.hset(skey, fld, new)
                 audit.log_setting(self.r, skey, fld, new, "autotune")

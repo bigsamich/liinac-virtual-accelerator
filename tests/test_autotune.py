@@ -82,7 +82,10 @@ def test_orbit_correction_reduces_rms(stack):
 
     rms0 = orbit_rms()
     r.hset(keys.settings("autotune", "main"), "enable", 1)
-    run_pulses(stack, 3 * 12, start=20_000)
+    run_pulses(stack, 3 * 30, start=20_000)
     rms1 = orbit_rms()
     r.hset(keys.settings("autotune", "main"), "enable", 0)
-    assert rms1 < 0.5 * rms0, f"orbit rms {rms0*1e6:.0f} -> {rms1*1e6:.0f} um"
+    # converges to the noise-floor deadband (250 um) and holds there —
+    # continuing past the floor is the corrector-runaway failure mode
+    assert rms1 < 300e-6, f"orbit rms {rms0*1e6:.0f} -> {rms1*1e6:.0f} um"
+    assert rms1 < 0.8 * rms0
