@@ -22,7 +22,7 @@ import numpy as np
 from pip2va.common.lattice import Lattice
 from . import losses as loss_mod
 from .kinematics import beta_gamma, brho as brho_of
-from .maps import corrector_kick, drift, quad, rfgap_kick, solenoid
+from .maps import corrector_kick, drift, quad, rfgap_kick, sbend, solenoid
 
 C = 299_792_458.0
 I_ALFVEN = 3.13e7  # A, protons/H-
@@ -63,6 +63,10 @@ class EnvelopeEngine:
         self.lat = lattice
         self.meta = lattice.meta
         self.errors = errors or {}
+        # live-tunable physics parameters (Physics dashboard)
+        self.phys = {"sc_scale": 1.0, "ibst_scale": 1.0, "gas_scale": 1.0,
+                     "pressure_torr": 1e-8, "sc_form_factor": 1.0,
+                     "disp_scale": 0.1}  # residual arc dispersion (achromat)
         self.els = lattice.elements
         self.n = len(self.els)
         self.w_init = w_init
@@ -147,9 +151,11 @@ class EnvelopeEngine:
                 bgj = bj * gj
                 lam_b = bj * C / f_bunch
                 bfac = min(30.0, lam_b / max(math.sqrt(2 * math.pi) * sz, 1e-6))
-                kperv = 2.0 * (i_ma * 1e-3 * bfac) / (I_ALFVEN * bgj ** 3)
+                kperv = 2.0 * (i_ma * 1e-3 * bfac) / (I_ALFVEN * bgj ** 3) \
+                    * self.phys.get("sc_scale", 1.0)
                 p_ell = gj * sz / math.sqrt(sx * sy)
-                f_ell = min(0.5, 1.0 / (3.0 * max(p_ell, 0.05)))
+                f_ell = min(0.5, 1.0 / (3.0 * max(p_ell, 0.05))) \
+                    * self.phys.get("sc_form_factor", 1.0)
                 msc = np.eye(6)
                 msc[1, 0] = kperv * (1 - f_ell) / (sx * (sx + sy)) * Ls
                 msc[3, 2] = kperv * (1 - f_ell) / (sy * (sx + sy)) * Ls
@@ -258,7 +264,15 @@ class EnvelopeEngine:
                     i_ma = i_ma * duty_keep
             elif typ == "source":
                 pass
-            elif L > 0.0:  # drift, dipole, aperture, wire_scanner, toroid body
+            elif typ == "dipole":
+                ang = math.radians(el.params.get("angle_deg", 0.0))
+                mtx = sbend(L, ang, beta, gamma,
+                            self.phys.get("disp_scale", 0.1))
+                c6 = mtx @ c6
+                sig = mtx @ sig @ mtx.T
+                apply_sc(L)
+                sc_done = True
+            elif L > 0.0:  # drift, aperture, wire_scanner, toroid body
                 nsl = max(1, int(L / 0.4))
                 for _ in range(nsl):
                     mtx = drift(L / nsl, beta, gamma)
@@ -284,7 +298,10 @@ class EnvelopeEngine:
                         i_ma * f_surv, beta, gamma, sx, sy, sz,
                         thx=math.sqrt(max(sig[1, 1], 0.0)),
                         thy=math.sqrt(max(sig[3, 3], 0.0)),
-                        ths=math.sqrt(max(sig[5, 5], 0.0))) * L
+                        ths=math.sqrt(max(sig[5, 5], 0.0)),
+                        ibst_scale=self.phys.get("ibst_scale", 1.0),
+                        gas_scale=self.phys.get("gas_scale", 1.0),
+                        pressure_torr=self.phys.get("pressure_torr", 1e-8)) * L
                 f_lost = min(1.0, f_scrape + f_base)
                 if f_lost > 0.0:
                     p_w = (f_lost * f_surv * i_ma * 1e-3 * self.duty

@@ -83,7 +83,12 @@ def rfgap_kick(w_in: float, v_mv: float, phi_deg: float, freq_mhz: float
     # longitudinal: particle at z (early, sees phi - kz*z) ->
     # d(dW) = +V sin(phi) kz z ; delta kick = d(dW)/(m beta^2 gamma)
     kz = 2.0 * math.pi / (beta * lam)
-    m[5, 4] = v_mv * math.sin(phi) * kz / (M_MEV * beta**2 * gamma)
+    m54 = v_mv * math.sin(phi) * kz / (M_MEV * beta**2 * gamma)
+    # cap per-gap synchrotron focusing at ~60 deg per metre-cell: stands in
+    # for the adiabatic phase/voltage ramp real designs use — without it the
+    # longitudinal plane over-focuses (>180 deg/period) and debunches
+    cap = 1.1 * gamma * gamma
+    m[5, 4] = max(-cap, min(cap, m54))
     # adiabatic damping of transverse angles from acceleration
     bg_ratio = (beta * gamma) / _bg(w_out)
     m[1, 1] *= bg_ratio
@@ -94,6 +99,23 @@ def rfgap_kick(w_in: float, v_mv: float, phi_deg: float, freq_mhz: float
 def _bg(w: float) -> float:
     b, g = beta_gamma(w)
     return b * g
+
+
+def sbend(L: float, angle_rad: float, beta: float, gamma: float,
+          disp_scale: float = 1.0) -> np.ndarray:
+    """Sector dipole with dispersion (x-plane weak focusing, R16/R51/R56)."""
+    if abs(angle_rad) < 1e-9:
+        return drift(L, beta, gamma)
+    rho = L / angle_rad
+    h = 1.0 / rho
+    c, s = math.cos(angle_rad), math.sin(angle_rad)
+    m = np.eye(6)
+    m[0, 0], m[0, 1], m[0, 5] = c, rho * s, disp_scale * rho * (1 - c)
+    m[1, 0], m[1, 1], m[1, 5] = -h * s, c, disp_scale * s
+    m[2, 3] = L
+    m[4, 0], m[4, 1] = -disp_scale * s, -disp_scale * rho * (1 - c)
+    m[4, 5] = L / (gamma * gamma) - (L - rho * s)
+    return m
 
 
 def corrector_kick(angle_x: float, angle_y: float) -> np.ndarray:

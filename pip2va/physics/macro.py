@@ -17,7 +17,7 @@ import numpy as np
 from pip2va.common.lattice import Lattice
 from . import backend as bk
 from .kinematics import beta_gamma, brho as brho_of
-from .maps import drift, quad, rfgap_kick, solenoid
+from .maps import drift, quad, rfgap_kick, sbend, solenoid
 
 C = 299_792_458.0
 I_ALFVEN = 3.13e7
@@ -151,9 +151,15 @@ class MacroTracker:
                 lam = 299.792458 / el.params["freq_mhz"]
                 kz = 2.0 * math.pi / (beta * lam)
                 mbg = 939.294 * beta * beta * gamma
-                # per-particle nonlinear kick around the synchronous gain
-                dw_i = amp * xp.cos(phi + kz * X[4])
+                # per-particle longitudinal kick, linearized with the same
+                # ramp cap as the envelope (the synthetic lattice's uniform
+                # phase law has no adiabatic capture; uncapped dynamics
+                # debunch the beam entirely)
+                m54_raw = amp * math.sin(phi) * kz / mbg
+                cap = 1.1 * gamma * gamma
+                m54 = max(-cap, min(cap, m54_raw))
                 dw_s = amp * math.cos(phi)
+                dw_i = dw_s + m54 * mbg * X[4]
                 w_new = w + dw_s
                 b2, g2 = beta_gamma(w_new)
                 mbg2 = 939.294 * b2 * b2 * g2
@@ -180,6 +186,10 @@ class MacroTracker:
                     newly = kill & alive
                     loss_count[i] += int(xp.count_nonzero(newly))
                     alive = alive & ~kill
+            elif typ == "dipole":
+                import math as _m
+                X = self._apply(sbend(L, _m.radians(
+                    el.params.get("angle_deg", 0.0)), beta, gamma, 0.1), X)
             elif L > 0.0:
                 X = self._apply(drift(L, beta, gamma), X)
 
