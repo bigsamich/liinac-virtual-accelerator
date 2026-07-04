@@ -1,0 +1,607 @@
+seed: 20260704
+errors:
+  LEBT:SOL1:
+    dx: -6.408e-05
+    dy: 7.665e-05
+  LEBT:SOL2:
+    dx: 7.86e-06
+    dy: -2.279e-05
+  LEBT:SOL3:
+    dx: 6.271e-05
+    dy: -7.854e-05
+  MEBT:Q1:
+    dx: 8.66e-06
+    dy: -1.481e-05
+  MEBT:Q2:
+    dx: 5.294e-05
+    dy: 1.02e-06
+  MEBT:BPM1:
+    offset_x: 0.00011239
+    offset_y: -5.386e-05
+    scale: 0.990196
+  MEBT:Q3:
+    dx: 8.852e-05
+    dy: 0.00011705
+  MEBT:Q4:
+    dx: -1.891e-05
+    dy: -2.662e-05
+  MEBT:Q5:
+    dx: -2.414e-05
+    dy: -1.14e-06
+  MEBT:BPM2:
+    offset_x: -0.00017293
+    offset_y: -1.678e-05
+    scale: 0.967063
+  MEBT:BPM3:
+    offset_x: 0.00014056
+    offset_y: -0.00013079
+    scale: 1.008622
+  MEBT:Q6:
+    dx: 1.507e-05
+    dy: -4.706e-05
+  MEBT:Q7:
+    dx: -5.9e-06
+    dy: -1.341e-05
+  MEBT:Q8:
+    dx: 5.739e-05
+    dy: -1.088e-05
+  MEBT:BPM4:
+    offset_x: -0.00013955
+    offset_y: 7.835e-05
+    scale: 0.997627
+  MEBT:BPM5:
+    offset_x: 7.523e-05
+    offset_y: 2.327e-05
+    scale: 1.000875
+  MEBT:Q9:
+    dx: 8.0e-07
+    dy: -5.284e-05
+  MEBT:Q10:
+    dx: 5.47e-05
+    dy: -5.424e-05
+  MEBT:Q11:
+    dx: 6.804e-05
+    dy: -2.913e-05
+  MEBT:BPM6:
+    offset_x: -5.04e-05
+    offset_y: -3.08e-06
+    scale: 0.995278
+  MEBT:Q12:
+    dx: 2.13e-05
+    dy: 1.068e-05
+  MEBT:Q13:
+    dx: -1.702e-05
+    dy: -5.049e-05
+  MEBT:Q14:
+    dx: 4.552e-05
+    dy: -4.779e-05
+  MEBT:BPM7:
+    offset_x: 7.613e-05
+    offset_y: -3.09e-06
+    scale: 1.010819
+  MEBT:Q15:
+    dx: 7.297e-05
+    dy: -2.538e-05
+  MEBT:Q16:
+    dx: 0.000125
+    dy: 2.081e-05
+  MEBT:Q17:
+    dx: -4.415e-05
+    dy: 7.5e-06
+  MEBT:BPM8:
+    offset_x: 5.419e-05
+    offset_y: 4.23e-06
+    scale: 1.032663
+  MEBT:Q18:
+    dx: -0.00010261
+    dy: 4.65e-06
+  MEBT:Q19:
+    dx: 1.256e-05
+    dy: -2.542e-05
+  MEBT:Q20:
+    dx: 8.22e-06
+    dy: -7.099e-05
+  MEBT:BPM9:
+    offset_x: -1.725e-05
+    offset_y: -0.00012042
+    scale: 0.989763
+  MEBT:Q21:
+    dx: -3.244e-05
+    dy: 6.558e-05
+  MEBT:Q22:
+    dx: 5.92e-06
+    dy: -3.119e-05
+  MEBT:Q23:
+    dx: 4.561e-05
+    dy: 4.16e-05
+  MEBT:BPM10:
+    offset_x: -3.771e-05
+    offset_y: 0.00013548
+    scale: 1.007834
+  MEBT:Q24:
+    dx: -0.000125
+    dy: -2.268e-05
+  MEBT:Q25:
+    dx: -1.321e-05
+    dy: -9.592e-05
+  MEBT:BPM11:
+    offset_x: 3.223e-05
+    offset_y: 0.00010051
+    scale: 1.001604
+  MEBT:BPM12:
+    offset_x: -3.014e-05
+    offset_y: -0.00017169
+    scale: 0.991548
+  HWR:SOL1:
+    dx: 4.41e-06
+    dy: 4.833e-05
+  HWR:BPM1:
+    offset_x: -0.00015592
+    offset_y: 0.00017362
+    scale: 1.003683
+  HWR:SOL2:
+    dx: -4.511e-05
+    dy: 1.433e-05
+  HWR:BPM2:
+    offset_x: 1.61e-06
+    offset_y: 0.00020139
+    scale: 1.006898
+  HWR:SOL3:
+    dx: 3.92e-05
+    dy: 6.351e-05
+  HWR:BPM3:
+    offset_x: 0.00015524
+    offset_y: 7.78e-06
+    scale: 1.01816
+  HWR:SOL4:
+    dx: -3.606e-05
+    dy: 2.185e-05
+  HWR:BPM4:
+    offset_x: -1.269e-05
+    offset_y: 7.528e-05
+    scale: 1.007532
+  HWR:SOL5:
+    dx: -3.56e-05
+    dy: 5.338e-05
+  HWR:BPM5:
+    offset_x: -9.98e-06
+    offset_y: 6.497e-05
+    scale: 0.996473
+  HWR:SOL6:
+    dx: 7.544e-05
+    dy: 4.686e-05
+  HWR:BPM6:
+    offset_x: -6.897e-05
+    offset_y: -9.018e-05
+    scale: 0.996687
+  HWR:SOL7:
+    dx: 8.696e-05
+    dy: 8.44e-06
+  HWR:BPM7:
+    offset_x: -0.00010165
+    offset_y: -2.634e-05
+    scale: 1.036957
+  HWR:SOL8:
+    dx: -0.00015
+    dy: -2.737e-05
+  HWR:BPM8:
+    offset_x: -8.686e-05
+    offset_y: 8.778e-05
+    scale: 0.969206
+  SSR1:SOL1:
+    dx: -6.9e-07
+    dy: 1.102e-05
+  SSR1:BPM1:
+    offset_x: -0.00020816
+    offset_y: -8.352e-05
+    scale: 1.000695
+  SSR1:SOL2:
+    dx: -2.24e-06
+    dy: -2.099e-05
+  SSR1:BPM2:
+    offset_x: -0.00014176
+    offset_y: -0.00013916
+    scale: 1.004069
+  SSR1:SOL3:
+    dx: -1.99e-06
+    dy: 0.00010317
+  SSR1:BPM3:
+    offset_x: -0.00010305
+    offset_y: 5.509e-05
+    scale: 1.011512
+  SSR1:SOL4:
+    dx: -2.306e-05
+    dy: -6.68e-05
+  SSR1:BPM4:
+    offset_x: 0.00014252
+    offset_y: 4.764e-05
+    scale: 1.018264
+  SSR1:SOL5:
+    dx: 9.88e-06
+    dy: 4.434e-05
+  SSR1:BPM5:
+    offset_x: -4.13e-05
+    offset_y: 0.00011576
+    scale: 1.002078
+  SSR1:SOL6:
+    dx: -1.653e-05
+    dy: -8.871e-05
+  SSR1:BPM6:
+    offset_x: -7.421e-05
+    offset_y: 8.939e-05
+    scale: 1.020193
+  SSR1:SOL7:
+    dx: 6.038e-05
+    dy: -3.426e-05
+  SSR1:BPM7:
+    offset_x: 9.234e-05
+    offset_y: 0.00015456
+    scale: 1.021252
+  SSR1:SOL8:
+    dx: -7.019e-05
+    dy: 5.139e-05
+  SSR1:BPM8:
+    offset_x: 0.00015624
+    offset_y: 4.199e-05
+    scale: 1.009234
+  SSR2:SOL1:
+    dx: -6.356e-05
+    dy: 7.073e-05
+  SSR2:BPM1:
+    offset_x: 4.262e-05
+    offset_y: 7.118e-05
+    scale: 0.959738
+  SSR2:SOL2:
+    dx: 2.472e-05
+    dy: -1.36e-06
+  SSR2:BPM2:
+    offset_x: 0.00015793
+    offset_y: -0.00011786
+    scale: 1.001412
+  SSR2:SOL3:
+    dx: -2.486e-05
+    dy: -4.291e-05
+  SSR2:BPM3:
+    offset_x: -0.00010867
+    offset_y: 0.00020358
+    scale: 1.005581
+  SSR2:SOL4:
+    dx: -4.958e-05
+    dy: -6.103e-05
+  SSR2:BPM4:
+    offset_x: 1.497e-05
+    offset_y: 0.00011294
+    scale: 0.990819
+  SSR2:SOL5:
+    dx: 1.76e-05
+    dy: 4.3e-06
+  SSR2:BPM5:
+    offset_x: 0.00020139
+    offset_y: 7.081e-05
+    scale: 1.008652
+  SSR2:SOL6:
+    dx: -1.797e-05
+    dy: 2.77e-06
+  SSR2:BPM6:
+    offset_x: -4.041e-05
+    offset_y: 9.856e-05
+    scale: 1.03097
+  SSR2:SOL7:
+    dx: 6.29e-06
+    dy: -1.092e-05
+  SSR2:BPM7:
+    offset_x: -0.00015857
+    offset_y: -0.00013429
+    scale: 1.047794
+  SSR2:SOL8:
+    dx: -3.109e-05
+    dy: 0.00012497
+  SSR2:BPM8:
+    offset_x: 8.397e-05
+    offset_y: 0.00011479
+    scale: 0.996097
+  SSR2:SOL9:
+    dx: 5.517e-05
+    dy: -2.146e-05
+  SSR2:BPM9:
+    offset_x: 0.00012884
+    offset_y: 4.073e-05
+    scale: 1.023357
+  SSR2:SOL10:
+    dx: -2.772e-05
+    dy: -5.829e-05
+  SSR2:BPM10:
+    offset_x: 7.628e-05
+    offset_y: 4.93e-06
+    scale: 1.000487
+  SSR2:SOL11:
+    dx: 4.562e-05
+    dy: 2.256e-05
+  SSR2:BPM11:
+    offset_x: 7.504e-05
+    offset_y: 6.899e-05
+    scale: 1.020353
+  SSR2:SOL12:
+    dx: -3.133e-05
+    dy: -1.93e-05
+  SSR2:BPM12:
+    offset_x: 2.855e-05
+    offset_y: 6.824e-05
+    scale: 0.978657
+  SSR2:SOL13:
+    dx: 8.99e-06
+    dy: -5.925e-05
+  SSR2:BPM13:
+    offset_x: -9.033e-05
+    offset_y: 8.073e-05
+    scale: 0.996824
+  SSR2:SOL14:
+    dx: -6.385e-05
+    dy: 7.83e-06
+  SSR2:BPM14:
+    offset_x: -5.122e-05
+    offset_y: 0.00014138
+    scale: 1.011331
+  SSR2:SOL15:
+    dx: -5.012e-05
+    dy: 6.13e-06
+  SSR2:BPM15:
+    offset_x: 7.273e-05
+    offset_y: -6.605e-05
+    scale: 0.994413
+  SSR2:SOL16:
+    dx: -4.656e-05
+    dy: 0.00011021
+  SSR2:BPM16:
+    offset_x: -3.05e-05
+    offset_y: 0.00010378
+    scale: 1.004675
+  SSR2:SOL17:
+    dx: 3.68e-06
+    dy: -7.632e-05
+  SSR2:BPM17:
+    offset_x: -8.214e-05
+    offset_y: -0.00012208
+    scale: 1.028637
+  SSR2:SOL18:
+    dx: -5.187e-05
+    dy: 0.00010264
+  SSR2:BPM18:
+    offset_x: -5.944e-05
+    offset_y: 9.163e-05
+    scale: 1.007898
+  SSR2:SOL19:
+    dx: 5.69e-06
+    dy: -4.59e-05
+  SSR2:BPM19:
+    offset_x: -2.73e-05
+    offset_y: 0.00011519
+    scale: 0.99383
+  SSR2:SOL20:
+    dx: -9.24e-06
+    dy: 1.397e-05
+  SSR2:BPM20:
+    offset_x: -0.00025
+    offset_y: -2.536e-05
+    scale: 0.979539
+  SSR2:SOL21:
+    dx: -2.041e-05
+    dy: -3.327e-05
+  SSR2:BPM21:
+    offset_x: 4.269e-05
+    offset_y: -7.321e-05
+    scale: 0.973904
+  LB650:Q1:
+    dx: 4.421e-05
+    dy: 8.813e-05
+  LB650:Q2:
+    dx: -4.902e-05
+    dy: 6.843e-05
+  LB650:BPM1:
+    offset_x: 0.00023014
+    offset_y: -7.306e-05
+    scale: 1.006042
+  LB650:Q3:
+    dx: 4.107e-05
+    dy: -6.957e-05
+  LB650:Q4:
+    dx: 6.19e-06
+    dy: 4.891e-05
+  LB650:BPM2:
+    offset_x: 0.00025
+    offset_y: 1.132e-05
+    scale: 0.989485
+  LB650:Q5:
+    dx: 9.784e-05
+    dy: 1.335e-05
+  LB650:Q6:
+    dx: -3.317e-05
+    dy: 7.014e-05
+  LB650:BPM3:
+    offset_x: 7.102e-05
+    offset_y: 3.039e-05
+    scale: 1.006106
+  LB650:Q7:
+    dx: -4.748e-05
+    dy: 5.4e-07
+  LB650:Q8:
+    dx: -3.773e-05
+    dy: -8.861e-05
+  LB650:BPM4:
+    offset_x: 0.00014099
+    offset_y: 0.00014919
+    scale: 0.992134
+  LB650:Q9:
+    dx: 5.306e-05
+    dy: 4.061e-05
+  LB650:Q10:
+    dx: 5.814e-05
+    dy: -4.854e-05
+  LB650:BPM5:
+    offset_x: -2.102e-05
+    offset_y: 6.157e-05
+    scale: 1.008815
+  LB650:Q11:
+    dx: 3.957e-05
+    dy: -1.35e-05
+  LB650:Q12:
+    dx: 4.282e-05
+    dy: -1.701e-05
+  LB650:BPM6:
+    offset_x: 5.405e-05
+    offset_y: -3.089e-05
+    scale: 1.0256
+  LB650:Q13:
+    dx: 6.05e-06
+    dy: -3.11e-06
+  LB650:Q14:
+    dx: -6.376e-05
+    dy: -1.29e-06
+  LB650:BPM7:
+    offset_x: 4.546e-05
+    offset_y: 8.249e-05
+    scale: 0.99367
+  LB650:Q15:
+    dx: -2.43e-06
+    dy: -4.71e-05
+  LB650:Q16:
+    dx: -3.699e-05
+    dy: 1.451e-05
+  LB650:BPM8:
+    offset_x: 0.00016688
+    offset_y: 1.992e-05
+    scale: 1.020515
+  LB650:Q17:
+    dx: 3.83e-06
+    dy: -7.024e-05
+  LB650:Q18:
+    dx: -4.6e-06
+    dy: -5.646e-05
+  LB650:BPM9:
+    offset_x: 6.673e-05
+    offset_y: 8.569e-05
+    scale: 1.002629
+  HB650:Q1:
+    dx: -3.357e-05
+    dy: 6.782e-05
+  HB650:Q2:
+    dx: 4.929e-05
+    dy: -7.01e-06
+  HB650:BPM1:
+    offset_x: -0.00019441
+    offset_y: 0.00021507
+    scale: 0.9857
+  HB650:Q3:
+    dx: -1.99e-05
+    dy: 4.728e-05
+  HB650:Q4:
+    dx: -5.658e-05
+    dy: -3.481e-05
+  HB650:BPM2:
+    offset_x: 2.136e-05
+    offset_y: -3.051e-05
+    scale: 0.985195
+  HB650:Q5:
+    dx: -0.00011063
+    dy: 1.185e-05
+  HB650:Q6:
+    dx: 2.727e-05
+    dy: 1.9e-06
+  HB650:BPM3:
+    offset_x: -3.43e-05
+    offset_y: -0.00025
+    scale: 1.019948
+  HB650:Q7:
+    dx: -1.866e-05
+    dy: -2.025e-05
+  HB650:Q8:
+    dx: 7.198e-05
+    dy: -8.36e-06
+  HB650:BPM4:
+    offset_x: 9.03e-06
+    offset_y: 6.94e-05
+    scale: 1.010989
+  BTL:Q1:
+    dx: -3.092e-05
+    dy: -7.248e-05
+  BTL:BPM1:
+    offset_x: 8.966e-05
+    offset_y: 3.923e-05
+    scale: 1.012057
+  BTL:Q2:
+    dx: -1.027e-05
+    dy: 1.464e-05
+  BTL:BPM2:
+    offset_x: -0.000142
+    offset_y: 1.93e-05
+    scale: 1.05
+  BTL:Q3:
+    dx: -5.118e-05
+    dy: -1.697e-05
+  BTL:BPM3:
+    offset_x: -0.00014322
+    offset_y: 4.071e-05
+    scale: 1.008738
+  BTL:Q4:
+    dx: 3.227e-05
+    dy: -7.12e-06
+  BTL:BPM4:
+    offset_x: -0.0001753
+    offset_y: -3.481e-05
+    scale: 1.020745
+  BTL:Q5:
+    dx: 3.216e-05
+    dy: -4.794e-05
+  BTL:BPM5:
+    offset_x: -0.00021793
+    offset_y: -0.00013499
+    scale: 1.00008
+  BTL:Q6:
+    dx: -5.906e-05
+    dy: 1.986e-05
+  BTL:BPM6:
+    offset_x: -0.00014778
+    offset_y: 0.000126
+    scale: 0.962217
+  BTL:Q7:
+    dx: -2.987e-05
+    dy: 1.784e-05
+  BTL:BPM7:
+    offset_x: -0.00025
+    offset_y: -0.00012637
+    scale: 1.004515
+  BTL:Q8:
+    dx: 9.707e-05
+    dy: 3.749e-05
+  BTL:BPM8:
+    offset_x: 4.437e-05
+    offset_y: -0.00016387
+    scale: 0.996489
+  BTL:Q9:
+    dx: 6.108e-05
+    dy: -4.568e-05
+  BTL:BPM9:
+    offset_x: -0.00012259
+    offset_y: 5.6e-07
+    scale: 1.011306
+  BTL:Q10:
+    dx: -0.00011106
+    dy: -4.986e-05
+  BTL:BPM10:
+    offset_x: -9.422e-05
+    offset_y: -1.889e-05
+    scale: 1.009751
+  BTL:Q11:
+    dx: 1.831e-05
+    dy: 5.632e-05
+  BTL:BPM11:
+    offset_x: -9.102e-05
+    offset_y: -9.192e-05
+    scale: 0.98085
+  BTL:Q12:
+    dx: 2.031e-05
+    dy: 1.58e-06
+  BTL:BPM12:
+    offset_x: -7.16e-06
+    offset_y: -6.468e-05
+    scale: 0.95

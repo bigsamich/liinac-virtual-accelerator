@@ -43,9 +43,10 @@ class MacroResult:
 class MacroTracker:
     def __init__(self, lattice: Lattice, n: int = 100_000,
                  backend: str | None = None, w_init: float | None = None,
-                 seed: int = 12345):
+                 seed: int = 12345, errors: dict | None = None):
         self.lat = lattice
         self.meta = lattice.meta
+        self.errors = errors or {}
         self.n = n
         self.xp = bk.get_xp(backend)
         self.w_init = w_init
@@ -113,11 +114,25 @@ class MacroTracker:
             if typ == "quad":
                 cur = float(st.get("current", el.params["design_current"]))
                 k1 = cur * el.params["grad_per_amp"] / brho_of(w)
+                err = self.errors.get(el.name)
+                if err:
+                    X[0] -= err["dx"]
+                    X[2] -= err["dy"]
                 X = self._apply(quad(L, k1, beta, gamma), X)
+                if err:
+                    X[0] += err["dx"]
+                    X[2] += err["dy"]
             elif typ == "solenoid":
                 cur = float(st.get("current", el.params["design_current"]))
                 b = cur * el.params["field_per_amp"]
+                err = self.errors.get(el.name)
+                if err:
+                    X[0] -= err["dx"]
+                    X[2] -= err["dy"]
                 X = self._apply(solenoid(L, b, brho_of(w), beta, gamma), X)
+                if err:
+                    X[0] += err["dx"]
+                    X[2] += err["dy"]
             elif typ == "corrector":
                 X = self._apply(drift(L, beta, gamma), X)
                 ix = float(st.get("current_x", 0.0))

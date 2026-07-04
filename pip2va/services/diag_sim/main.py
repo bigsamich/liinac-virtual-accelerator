@@ -27,8 +27,19 @@ class DiagSimService(Service):
     extra_channels = (keys.CH_MPS,)
 
     def on_start(self):
+        from pip2va.common.lattice import load_errors
         self.rng = np.random.default_rng(20260703)
+        self.errors = load_errors()
         self.bpms = self.lat.instruments("bpm")
+        self._bpm_off_x = np.array([
+            self.errors.get(b.name, {}).get("offset_x", 0.0)
+            for b in self.bpms])
+        self._bpm_off_y = np.array([
+            self.errors.get(b.name, {}).get("offset_y", 0.0)
+            for b in self.bpms])
+        self._bpm_scale = np.array([
+            self.errors.get(b.name, {}).get("scale", 1.0)
+            for b in self.bpms])
         self.blms = self.lat.instruments("blm")
         self.tors = self.lat.instruments("toroid")
         self.wss = {e.name: e for e in self.lat.instruments("wire_scanner")}
@@ -62,10 +73,13 @@ class DiagSimService(Service):
                             for b in self.bpms]) * 1e-6 * scale
         ph_sig = np.array([b.params.get("phase_noise_deg", 0.3)
                            for b in self.bpms]) * scale
-        # a BPM cannot report a position beyond its own bore
+        # electrical offset + scale systematics; a BPM cannot report a
+        # position beyond its own bore
         ap = np.array([b.aperture_radius for b in self.bpms])
-        x = np.clip(tr["bpm_x"] + rng.normal(0, pos_sig), -ap, ap)
-        y = np.clip(tr["bpm_y"] + rng.normal(0, pos_sig), -ap, ap)
+        x = np.clip((tr["bpm_x"] + self._bpm_off_x) * self._bpm_scale
+                    + rng.normal(0, pos_sig), -ap, ap)
+        y = np.clip((tr["bpm_y"] + self._bpm_off_y) * self._bpm_scale
+                    + rng.normal(0, pos_sig), -ap, ap)
         ph = tr["bpm_phase"] + rng.normal(0, ph_sig)
         i_noise = np.array([b.params.get("intensity_noise_frac", 0.01)
                             for b in self.bpms])

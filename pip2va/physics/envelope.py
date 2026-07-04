@@ -58,9 +58,11 @@ class EnvelopeResult:
 
 
 class EnvelopeEngine:
-    def __init__(self, lattice: Lattice, w_init: float | None = None):
+    def __init__(self, lattice: Lattice, w_init: float | None = None,
+                 errors: dict | None = None):
         self.lat = lattice
         self.meta = lattice.meta
+        self.errors = errors or {}
         self.els = lattice.elements
         self.n = len(self.els)
         self.w_init = w_init
@@ -160,22 +162,36 @@ class EnvelopeEngine:
                 cur = float(st.get("current", el.params["design_current"]))
                 g = cur * el.params["grad_per_amp"]
                 k1 = g / brho_of(w)
+                err = self.errors.get(el.name)
+                if err:  # transport in the misaligned element's frame
+                    c6[0] -= err["dx"]
+                    c6[2] -= err["dy"]
                 nsl = max(1, int(L / 0.4))
                 for _ in range(nsl):
                     mtx = quad(L / nsl, k1, beta, gamma)
                     c6 = mtx @ c6
                     sig = mtx @ sig @ mtx.T
                     apply_sc(L / nsl)
+                if err:
+                    c6[0] += err["dx"]
+                    c6[2] += err["dy"]
                 sc_done = True
             elif typ == "solenoid":
                 cur = float(st.get("current", el.params["design_current"]))
                 b = cur * el.params["field_per_amp"]
+                err = self.errors.get(el.name)
+                if err:
+                    c6[0] -= err["dx"]
+                    c6[2] -= err["dy"]
                 nsl = max(1, int(L / 0.4))
                 for _ in range(nsl):
                     mtx = solenoid(L / nsl, b, brho_of(w), beta, gamma)
                     c6 = mtx @ c6
                     sig = mtx @ sig @ mtx.T
                     apply_sc(L / nsl)
+                if err:
+                    c6[0] += err["dx"]
+                    c6[2] += err["dy"]
                 sc_done = True
             elif typ == "corrector":
                 mtx = drift(L, beta, gamma)
