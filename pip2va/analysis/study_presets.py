@@ -73,6 +73,57 @@ PRESETS = {
                              "field": "amp", "from": 0.95, "to": 1.02}],
                  "steps": 8, "dwell_s": 2.0, "restore": True},
     },
+    "lb650-doublet-matching-2d": {
+        "teaches": "two-knob doublet matching in LB650 (informs 'Quad "
+                   "supply sag' and envelope-beat diagnostics)",
+        "plan": {"name": "lb650-doublet-matching-2d", "kind": "sweep",
+                 "description": "LB650:Q7 up while Q8 down, +/-4% together",
+                 "sweeps": [{"cls": "magnet", "device": "LB650:Q7",
+                             "field": "current", "from": 0.96, "to": 1.04},
+                            {"cls": "magnet", "device": "LB650:Q8",
+                             "field": "current", "from": 1.04, "to": 0.96}],
+                 "steps": 9, "dwell_s": 2.0, "restore": True,
+                 "_relative_design": True},
+    },
+    "chopper-intensity-frontier": {
+        "teaches": "raising delivered current beyond nominal via duty, with "
+                   "MPS re-baselining at each plateau",
+        "plan": {"name": "chopper-intensity-frontier", "kind": "ramp",
+                 "description": "chopper duty 0.40 -> 0.60 with rebaseline",
+                 "sweeps": [{"cls": "chopper", "device": "main",
+                             "field": "duty", "from": 0.40, "to": 0.60}],
+                 "steps": 5, "dwell_s": 3.0, "restore": True,
+                 "rebaseline": True},
+    },
+    "rfq-amp-fine": {
+        "teaches": "precision location of the RFQ operating optimum",
+        "plan": {"name": "rfq-amp-fine", "kind": "sweep",
+                 "description": "RFQ amplitude 0.98 -> 1.02 fine",
+                 "sweeps": [{"cls": "rf", "device": "RFQ:RFQ",
+                             "field": "amp", "from": 0.98, "to": 1.02}],
+                 "steps": 9, "dwell_s": 2.0, "restore": True},
+    },
+    "hb650-energy-trim": {
+        "teaches": "end-of-linac energy trim vs the BTL-entrance activation "
+                   "constraint (the machine's tightest limit)",
+        "plan": {"name": "hb650-energy-trim", "kind": "sweep",
+                 "description": "HB650:CAV24 phase +/-10 deg vs BTL losses",
+                 "sweeps": [{"cls": "rf", "device": "HB650:CAV24",
+                             "field": "phase", "from": -28.0, "to": -8.0}],
+                 "steps": 9, "dwell_s": 2.0, "restore": True},
+    },
+    "iso-current-2d": {
+        "teaches": "trading source current against chopper duty at constant "
+                   "delivered current (two intensity knobs together)",
+        "plan": {"name": "iso-current-2d", "kind": "ramp",
+                 "description": "source 4.5->5.5 mA with duty 0.45->0.36",
+                 "sweeps": [{"cls": "source", "device": "main",
+                             "field": "current_ma", "from": 4.5, "to": 5.5},
+                            {"cls": "chopper", "device": "main",
+                             "field": "duty", "from": 0.45, "to": 0.36}],
+                 "steps": 5, "dwell_s": 3.0, "restore": True,
+                 "rebaseline": True},
+    },
     "buncher-phase-scan": {
         "teaches": "longitudinal capture sensitivity at the front end "
                    "(informs 'Buncher trip' and HWR loss patterns)",
