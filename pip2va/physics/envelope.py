@@ -130,21 +130,53 @@ class EnvelopeEngine:
             L = el.length
             typ = el.type
             tof_done = False
+            sc_done = False
+
+            def apply_sc(Ls, _w=None):
+                """Thin ellipsoid space-charge kick over length Ls."""
+                nonlocal c6, sig
+                if Ls <= 0.0 or i_ma <= 0.0:
+                    return
+                wj = w if _w is None else _w
+                bj, gj = beta_gamma(wj)
+                sx = math.sqrt(max(sig[0, 0], 1e-12))
+                sy = math.sqrt(max(sig[2, 2], 1e-12))
+                sz = math.sqrt(max(sig[4, 4], 1e-12))
+                bgj = bj * gj
+                lam_b = bj * C / f_bunch
+                bfac = min(30.0, lam_b / max(math.sqrt(2 * math.pi) * sz, 1e-6))
+                kperv = 2.0 * (i_ma * 1e-3 * bfac) / (I_ALFVEN * bgj ** 3)
+                p_ell = gj * sz / math.sqrt(sx * sy)
+                f_ell = min(0.5, 1.0 / (3.0 * max(p_ell, 0.05)))
+                msc = np.eye(6)
+                msc[1, 0] = kperv * (1 - f_ell) / (sx * (sx + sy)) * Ls
+                msc[3, 2] = kperv * (1 - f_ell) / (sy * (sx + sy)) * Ls
+                msc[5, 4] = kperv * f_ell * 2.0 / (gj ** 2 * sz * sz) * Ls
+                c6 = msc @ c6
+                sig = msc @ sig @ msc.T
 
             # ---- element transport
             if typ == "quad":
                 cur = float(st.get("current", el.params["design_current"]))
                 g = cur * el.params["grad_per_amp"]
                 k1 = g / brho_of(w)
-                mtx = quad(L, k1, beta, gamma)
-                c6 = mtx @ c6
-                sig = mtx @ sig @ mtx.T
+                nsl = max(1, int(L / 0.4))
+                for _ in range(nsl):
+                    mtx = quad(L / nsl, k1, beta, gamma)
+                    c6 = mtx @ c6
+                    sig = mtx @ sig @ mtx.T
+                    apply_sc(L / nsl)
+                sc_done = True
             elif typ == "solenoid":
                 cur = float(st.get("current", el.params["design_current"]))
                 b = cur * el.params["field_per_amp"]
-                mtx = solenoid(L, b, brho_of(w), beta, gamma)
-                c6 = mtx @ c6
-                sig = mtx @ sig @ mtx.T
+                nsl = max(1, int(L / 0.4))
+                for _ in range(nsl):
+                    mtx = solenoid(L / nsl, b, brho_of(w), beta, gamma)
+                    c6 = mtx @ c6
+                    sig = mtx @ sig @ mtx.T
+                    apply_sc(L / nsl)
+                sc_done = True
             elif typ == "corrector":
                 mtx = drift(L, beta, gamma)
                 c6 = mtx @ c6
@@ -169,6 +201,7 @@ class EnvelopeEngine:
                 half = drift(L / 2.0, beta, gamma)
                 c6 = half @ c6
                 sig = half @ sig @ half.T
+                apply_sc(L / 2.0)
                 t += (L / 2.0) / (beta * C)
                 w, gap, _ = rfgap_kick(w, amp, phi_set + dphi, el.params["freq_mhz"])
                 c6 = gap @ c6
@@ -177,8 +210,10 @@ class EnvelopeEngine:
                 half = drift(L / 2.0, beta, gamma)
                 c6 = half @ c6
                 sig = half @ sig @ half.T
+                apply_sc(L / 2.0)
                 t += (L / 2.0) / (beta * C)
                 tof_done = True
+                sc_done = True
             elif typ == "rfq":
                 # lumped RFQ: accelerates to fixed output energy and re-forms
                 # the beam; detuned amplitude costs transmission.
@@ -208,28 +243,17 @@ class EnvelopeEngine:
             elif typ == "source":
                 pass
             elif L > 0.0:  # drift, dipole, aperture, wire_scanner, toroid body
-                mtx = drift(L, beta, gamma)
-                c6 = mtx @ c6
-                sig = mtx @ sig @ mtx.T
+                nsl = max(1, int(L / 0.4))
+                for _ in range(nsl):
+                    mtx = drift(L / nsl, beta, gamma)
+                    c6 = mtx @ c6
+                    sig = mtx @ sig @ mtx.T
+                    apply_sc(L / nsl)
+                sc_done = True
 
-            # ---- space charge (thin defocus over element length)
-            if L > 0.0 and i_ma > 0.0 and typ != "rfq":
-                sx = math.sqrt(max(sig[0, 0], 1e-12))
-                sy = math.sqrt(max(sig[2, 2], 1e-12))
-                sz = math.sqrt(max(sig[4, 4], 1e-12))
-                bg = beta * gamma
-                # peak bunch current from average via bunching factor
-                lam_b = beta * C / f_bunch
-                bunch_fac = min(30.0, lam_b / max(math.sqrt(2 * math.pi) * sz, 1e-6))
-                i_eff = i_ma * 1e-3 * bunch_fac
-                kperv = 2.0 * i_eff / (I_ALFVEN * bg ** 3)  # K = 2I/(I_A (bg)^3)
-                ksc_x = kperv / (sx * (sx + sy))
-                ksc_y = kperv / (sy * (sx + sy))
-                msc = np.eye(6)
-                msc[1, 0] = ksc_x * L
-                msc[3, 2] = ksc_y * L
-                c6 = msc @ c6
-                sig = msc @ sig @ msc.T
+            # ---- space charge for any remaining short elements
+            if L > 0.0 and not sc_done and typ not in ("rfq", "source"):
+                apply_sc(L)
 
             # ---- losses at this element
             if L > 0.0 and f_surv > 0.0 and typ not in ("rfq", "source"):

@@ -164,7 +164,9 @@ class MacroTracker:
             elif L > 0.0:
                 X = self._apply(drift(L, beta, gamma), X)
 
-            # space charge from live rms sizes ("PIC-lite")
+            # space charge from live rms sizes ("PIC-lite"): nonlinear radial
+            # Gaussian kick transversely (correct core gradient, 1/r tails)
+            # + linear ellipsoid debunching term longitudinally
             if L > 0.0 and i_ma > 0.0 and typ != "rfq":
                 na = int(xp.count_nonzero(alive))
                 if na > 100:
@@ -177,8 +179,19 @@ class MacroTracker:
                         bfac = min(30.0, lam_b / max(
                             math.sqrt(2 * math.pi) * sz, 1e-6))
                         kperv = 2.0 * (i_ma * 1e-3 * bfac) / (I_ALFVEN * bg ** 3)
-                        X[1] += (kperv / (sx * (sx + sy)) * L) * X[0]
-                        X[3] += (kperv / (sy * (sx + sy)) * L) * X[2]
+                        p_ell = gamma * sz / math.sqrt(sx * sy)
+                        f_ell = min(0.5, 1.0 / (3.0 * max(p_ell, 0.05)))
+                        s2 = sx * sy  # round-equivalent sigma^2
+                        r2 = X[0] ** 2 + X[2] ** 2
+                        u = r2 / (2.0 * s2)
+                        # g(u) = (1 - e^-u)/u -> 1 at r=0, ~2s2/r2 in tails
+                        g = xp.where(u > 1e-6, -xp.expm1(-u) / xp.maximum(u, 1e-12),
+                                     1.0 - u / 2.0)
+                        kt = kperv * (1.0 - f_ell) / (2.0 * s2) * L
+                        X[1] += kt * g * X[0]
+                        X[3] += kt * g * X[2]
+                        kz = kperv * f_ell * 2.0 / (gamma ** 2 * sz * sz) * L
+                        X[5] += kz * X[4]
 
             # hard-aperture collimation
             if L > 0.0 and typ not in ("rfq", "source"):
