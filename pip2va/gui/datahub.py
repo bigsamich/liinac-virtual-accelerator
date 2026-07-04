@@ -173,8 +173,10 @@ class DataHub(QThread):
         raw = self.r.get(f"lattice:{kind}.index")
         return json.loads(raw) if raw else []
 
-    def request_wire_scan(self, name: str, plane: str = "x"):
-        self.r.hset(f"req:wire:{name}", "plane", plane)
+    def request_wire_scan(self, name: str, plane: str = "x",
+                          points: int = 64, ppp: int = 1):
+        self.r.hset(f"req:wire:{name}", mapping={
+            "plane": plane, "points": points, "ppp": ppp})
 
     def select_3d_station(self, name: str):
         """Choose the scanner station where the GPU tracker dumps a 3D cloud."""
@@ -207,6 +209,10 @@ class DataHub(QThread):
 
     def set_autotune(self, enable: bool):
         self.set_setting("autotune", "main", "enable", int(enable))
+
+    def run_bba(self):
+        """Start the beam-based alignment campaign (autotune service)."""
+        self.set_setting("autotune", "main", "bba", 1)
 
     def rescue(self):
         """One-shot restore of the whole machine to design settings."""

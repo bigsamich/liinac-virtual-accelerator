@@ -28,9 +28,14 @@ class OrbitPage(Page):
         bar = QHBoxLayout()
         self.btn_ref = QPushButton("Save reference")
         self.chk_diff = QCheckBox("Show difference")
+        self.btn_bba = QPushButton("Run BBA (learn BPM offsets)")
+        self.btn_bba.setToolTip(
+            "quad-shunt beam-based alignment: ~5 min campaign; orbit "
+            "correction then steers to magnetic centres")
         self.lbl_rms = QLabel("rms: —")
         bar.addWidget(self.btn_ref)
         bar.addWidget(self.chk_diff)
+        bar.addWidget(self.btn_bba)
         bar.addStretch(1)
         bar.addWidget(self.lbl_rms)
         self.body.addLayout(bar)
@@ -73,6 +78,7 @@ class OrbitPage(Page):
         self._latest = None
         self._mag_index = None
         self.btn_ref.clicked.connect(self._save_ref)
+        self.btn_bba.clicked.connect(self.hub.run_bba)
         self.hub.orbit.connect(self._on_orbit)
         self.hub.magnets.connect(self._on_magnets)
 

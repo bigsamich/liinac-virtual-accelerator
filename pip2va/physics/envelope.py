@@ -89,7 +89,8 @@ class EnvelopeEngine:
     # ------------------------------------------------------------------ API
 
     def run(self, device_state: dict, current_ma: float | None = None,
-            beam_on: bool = True, _design_mode: bool = False) -> EnvelopeResult:
+            beam_on: bool = True, _design_mode: bool = False,
+            errant_kick_mrad: float = 0.0) -> EnvelopeResult:
         """Transport one pulse. device_state: {element_name: {field: value}}."""
         m = self.meta
         ds = device_state or {}
@@ -123,6 +124,7 @@ class EnvelopeEngine:
 
         w = self.w_init if self.w_init is not None else 0.030
         c6 = np.zeros(6)
+        c6[1] = errant_kick_mrad * 1e-3   # errant-beam source glitch
         sig = self._init_sigma(w)
         f_surv = 1.0
         i_ma = i_peak

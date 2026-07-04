@@ -120,9 +120,9 @@ def test_wire_scan_lifecycle(stack):
     r.xadd(keys.stream("beam.deep"), {"d": codec.pack(1, {
         f"prof:{ws}:x": prof, f"prof:{ws}:y": prof,
         f"prof:{ws}:edges": edges})})
-    r.hset(f"req:wire:{ws}", "plane", "x")
+    r.hset(f"req:wire:{ws}", mapping={"plane": "x", "points": 32, "ppp": 1})
     done = False
-    for k in range(1, 40):
+    for k in range(1, 60):
         beam.on_tick(k)
         diag.on_tick(k)
         if not r.exists(f"req:wire:{ws}"):
@@ -132,4 +132,4 @@ def test_wire_scan_lifecycle(stack):
     _, scan = latest(r, "profile.scan")
     assert scan["name"] == ws
     assert scan["done"] == 1
-    assert len(scan["pos_mm"]) == 64
+    assert len(scan["pos_mm"]) == 32

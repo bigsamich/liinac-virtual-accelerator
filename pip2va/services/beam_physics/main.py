@@ -25,9 +25,15 @@ log = logging.getLogger(__name__)
 class BeamPhysicsService(Service):
     name = "beam-physics"
 
-    def __init__(self, redis_client=None, settings=None, macro: bool = True):
+    def __init__(self, redis_client=None, settings=None, macro: bool = True,
+                 errant_rate_per_pulse: float = 1.0 / 6000.0):
         super().__init__(redis_client=redis_client, settings=settings)
         self._macro_enabled = macro
+        self._errant_rate = errant_rate_per_pulse
+        self._errant_left = 0
+        self._errant_kick = 0.0
+        import numpy as _np
+        self._rng = _np.random.default_rng(77)
 
     def on_start(self):
         self._errors = load_errors()
@@ -94,7 +100,24 @@ class BeamPhysicsService(Service):
         ds, stale = self._collect_device_state()
         permit = self.r.get("state:mps.permit")
         beam_on = permit is None or permit in (b"1", "1")
-        res = self.engine.run(ds, beam_on=beam_on)
+        # errant-beam events: a source/LEBT glitch mis-steers 2-3 pulses
+        # (PIP2IT-style; the MPS race is to catch it)
+        kick = 0.0
+        if beam_on:
+            if self._errant_left > 0:
+                self._errant_left -= 1
+                kick = self._errant_kick
+            elif self._rng.random() < self._errant_rate:
+                self._errant_left = int(self._rng.integers(2, 4))
+                self._errant_kick = float(self._rng.choice([-1, 1])
+                                          * self._rng.uniform(2.0, 5.0))
+                kick = self._errant_kick
+                self.r.xadd(keys.stream("mps.events"),
+                            {"t": time.time(), "kind": "errant",
+                             "detail": f"source glitch {kick:+.1f} mrad "
+                                       f"x{self._errant_left + 1} pulses"},
+                            maxlen=500, approximate=True)
+        res = self.engine.run(ds, beam_on=beam_on, errant_kick_mrad=kick)
         self._latest = {"ds": ds, "beam_on": beam_on, "pulse_id": pulse_id}
 
         blob = codec.pack(pulse_id, {
