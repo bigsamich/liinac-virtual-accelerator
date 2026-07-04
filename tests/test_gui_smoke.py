@@ -46,7 +46,38 @@ def test_main_window_constructs_and_navigates(qtbot, r):
     hub = DataHub(redis_client=r)
     win = MainWindow(hub)
     qtbot.addWidget(win)
-    # every registered page can be constructed
+    # all 9 registered pages can be constructed
+    assert win.nav.count() == 9
     for i in range(win.nav.count()):
         win.nav.setCurrentRow(i)
         assert win.stack.currentWidget() is not None
+
+
+def test_pages_consume_synthetic_signals(qtbot, r):
+    from pip2va.common.lattice import load_lattice
+    hub = DataHub(redis_client=r)
+    win = MainWindow(hub)
+    qtbot.addWidget(win)
+    lat = load_lattice()
+    for i in range(win.nav.count()):        # build all pages
+        win.nav.setCurrentRow(i)
+
+    nbpm = len(lat.instruments("bpm"))
+    nblm = len(lat.instruments("blm"))
+    ntor = len(lat.instruments("toroid"))
+    hub.orbit.emit(1, {"x": np.zeros(nbpm, dtype=np.float32),
+                       "y": np.zeros(nbpm, dtype=np.float32),
+                       "phase": np.zeros(nbpm, dtype=np.float32),
+                       "sum": np.full(nbpm, 2.0, dtype=np.float32)})
+    hub.losses.emit(1, {"wpm": np.full(nblm, 0.01, dtype=np.float32)})
+    hub.toroids.emit(1, {"i_ma": np.full(ntor, 2.0, dtype=np.float32)})
+    hub.beamState.emit({"pulse_id": 1, "w_out": 800.0,
+                        "transmission": 0.99, "permit": 1.0})
+    hub.mpsEvent.emit({"t": "0", "kind": "trip", "detail": "test"})
+    ncav = sum(1 for e in lat.elements if e.type in ("rfgap", "rfq"))
+    hub.rf.emit(1, {"amp": np.ones(ncav, dtype=np.float32),
+                    "phase": np.zeros(ncav, dtype=np.float32),
+                    "detuning_hz": np.zeros(ncav, dtype=np.float32),
+                    "status": np.zeros(ncav, dtype=np.float32),
+                    "forward_pw": np.ones(ncav, dtype=np.float32)})
+    # no exceptions -> pages consumed the signals
