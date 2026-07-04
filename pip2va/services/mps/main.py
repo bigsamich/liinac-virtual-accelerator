@@ -99,7 +99,10 @@ class MpsService(Service):
             else np.full(len(mean), self.limit)
         learning = self._learn_left > 0
         if learning:
-            thr = thr * 5.0   # commissioning mode: lenient but never unprotected
+            # commissioning mode: BLMs effectively masked except against
+            # catastrophic full-beam loss — the as-built machine's quiescent
+            # hot spots get absorbed into the learned baseline instead
+            thr = np.maximum(thr * 5.0, 500.0)
         excess = mean / thr
         worst = int(np.argmax(excess))
         permit = self.r.get("state:mps.permit") in (b"1", "1", None)
