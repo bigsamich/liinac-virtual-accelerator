@@ -35,7 +35,14 @@ class TrainingPage(Page):
         left = QVBoxLayout()
         left.addWidget(QLabel("Scenario:"))
         self.lst = QListWidget()
-        self.lst.addItems(scenarios.SCENARIOS.keys())
+        stars = {"easy": "★", "medium": "★★", "hard": "★★★"}
+        self._by_display = {}
+        for lvl in ("easy", "medium", "hard"):
+            for name, sc in scenarios.SCENARIOS.items():
+                if sc.get("level", "medium") == lvl:
+                    disp = f"{stars[lvl]}  {name}"
+                    self._by_display[disp] = name
+                    self.lst.addItem(disp)
         self.lst.setCurrentRow(0)
         left.addWidget(self.lst, 1)
         self.btn_start = QPushButton("START scenario")
@@ -68,17 +75,20 @@ class TrainingPage(Page):
         self._timer.start(1000)
         self._show(self.lst.currentItem().text())
 
-    def _show(self, name):
+    def _show(self, disp):
+        name = self._by_display.get(disp, disp)
         sc = scenarios.SCENARIOS.get(name)
         if sc:
             self.txt.setPlainText(
-                f"{name}\n\n{sc['desc']}\n\nPar time: {sc['par']:.0f} s\n\n"
+                f"{name}  [{sc.get('level', 'medium').upper()}]\n\n"
+                f"{sc['desc']}\n\nPar time: {sc['par']:.0f} s\n\n"
                 "Recovery counts when: all injected faults cleared, tripped "
                 "devices reset, beam permit restored, transmission > 99 %.\n"
                 "Use the MPS Fault Analysis tab — the clock is running.")
 
     def _start(self):
-        name = self.lst.currentItem().text()
+        name = self._by_display.get(self.lst.currentItem().text(),
+                                    self.lst.currentItem().text())
         scenarios.start(self.hub.r, self.hub.inject_fault,
                         self.hub.set_setting, name)
         self._reviewed = False

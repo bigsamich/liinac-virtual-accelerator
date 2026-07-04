@@ -14,24 +14,28 @@ from . import llm
 # TTL); settings -> sabotaged setpoints the operator must find and restore.
 SCENARIOS = {
     "Cavity trip in the spokes": {
+        "level": "easy",
         "desc": "An SSR2 cavity quenches. Diagnose which one, reset it, and "
                 "recover the beam permit.",
         "faults": [("rf", "SSR2:CAV17", "trip", 1, 0)],
         "settings": [], "par": 60.0,
     },
     "Stuck tuner (detune)": {
+        "level": "medium",
         "desc": "A cavity tuner walks 300 Hz off resonance. Find it from the "
                 "RF page detuning column before losses trip the machine.",
         "faults": [("rf", "LB650:CAV22", "detune", 300.0, 0)],
         "settings": [], "par": 90.0,
     },
     "Drifting solenoid supply": {
+        "level": "medium",
         "desc": "An HWR solenoid supply drifts at 6 A/min. Watch the orbit "
                 "and losses walk; catch and correct it.",
         "faults": [("magnet", "HWR:SOL4", "drift", 6.0, 120)],
         "settings": [], "par": 120.0,
     },
     "Double fault": {
+        "level": "hard",
         "desc": "A cavity trips WHILE a corrector drifts. Untangle which "
                 "fault explains which symptom.",
         "faults": [("rf", "SSR1:CAV11", "trip", 1, 0),
@@ -39,18 +43,21 @@ SCENARIOS = {
         "settings": [], "par": 180.0,
     },
     "HB650 quench at full gradient": {
+        "level": "easy",
         "desc": "A high-beta cavity quenches at the top of the linac: 284 "
                 "MeV of energy reach is at stake. Recover it.",
         "faults": [("rf", "HB650:CAV7", "trip", 1, 0)],
         "settings": [], "par": 60.0,
     },
     "RFQ running low": {
+        "level": "medium",
         "desc": "The RFQ amplitude has been mis-set 7% low: transmission "
                 "collapses at the front end. Find the knob and restore it.",
         "faults": [], "settings": [("rf", "RFQ:RFQ", "amp", 0.93)],
         "par": 90.0,
     },
     "Chopper misconfigured": {
+        "level": "easy",
         "desc": "Someone left the chopper keep-fraction at 0.75: nearly "
                 "double the current heads downstream and the loss pattern "
                 "scales with it. Restore nominal chopping.",
@@ -58,6 +65,7 @@ SCENARIOS = {
         "par": 90.0,
     },
     "Vacuum event": {
+        "level": "hard",
         "desc": "A pressure burst raises residual-gas stripping machine-"
                 "wide (watch the BLM baseline floor). Find the physics "
                 "parameter that explains it and restore the vacuum.",
@@ -66,12 +74,59 @@ SCENARIOS = {
         "par": 150.0,
     },
     "Source sag": {
+        "level": "easy",
         "desc": "The ion source droops to 3.2 mA: every toroid reads low "
                 "but nothing tripped. Spot it and bring the current back.",
         "faults": [], "settings": [("source", "main", "current_ma", 3.2)],
         "par": 60.0,
     },
+    "Buncher trip": {
+        "level": "easy",
+        "desc": "A MEBT buncher drops out: the bunch lengthens into the HWR "
+                "and low-energy losses climb. One TRIPPED flag on the RF "
+                "page gives it away.",
+        "faults": [("rf", "MEBT:CAV2", "trip", 1, 0)],
+        "settings": [], "par": 60.0,
+    },
+    "Quad supply sag": {
+        "level": "medium",
+        "desc": "An LB650 doublet quad runs 8% low: the envelope beats and "
+                "losses grow over several cryomodules with no fault flag "
+                "anywhere. Compare readbacks against design.",
+        "faults": [],
+        "settings": [("magnet", "LB650:Q7", "current", "DESIGN*0.92")],
+        "par": 120.0,
+    },
+    "Silent detune drift": {
+        "level": "hard",
+        "desc": "A spoke cavity sits 150 Hz off resonance — no trip, no "
+                "alarm, just extra forward power and a whisper of phase "
+                "error. Find it before the He-pressure shift makes it worse.",
+        "faults": [("rf", "SSR2:CAV28", "detune", 150.0, 0)],
+        "settings": [], "par": 180.0,
+    },
+    "Phase sabotage": {
+        "level": "hard",
+        "desc": "One SSR1 cavity phase is 12 degrees off design: energy is "
+                "subtly wrong from that point on and downstream phases "
+                "slip. Nothing is tripped. TOF energy is your friend.",
+        "faults": [],
+        "settings": [("rf", "SSR1:CAV5", "phase", "DESIGN+12")],
+        "par": 240.0,
+    },
+    "Three-corrector walk": {
+        "level": "hard",
+        "desc": "Three trims across different sections were left at wrong "
+                "values: the orbit has a slow wave through the machine. "
+                "Find all three (or steer them out and re-baseline).",
+        "faults": [],
+        "settings": [("magnet", "SSR1:C6", "current_x", 1.8),
+                     ("magnet", "SSR2:C10", "current_y", -1.5),
+                     ("magnet", "LB650:C4", "current_x", 1.2)],
+        "par": 240.0,
+    },
     "Corrector runaway": {
+        "level": "medium",
         "desc": "A BTL corrector supply drifts hard for one minute — the "
                 "orbit walks toward the aperture in the most activation-"
                 "sensitive section of the machine.",
@@ -81,10 +136,27 @@ SCENARIOS = {
 }
 
 
+def _resolve(val, r, cls, dev, fld):
+    """Values like 'DESIGN*0.92' / 'DESIGN+12' resolve against the lattice."""
+    if not isinstance(val, str):
+        return float(val)
+    from pip2va.common.lattice import load_lattice
+    el = load_lattice().by_name(dev)
+    design = (el.params.get("design_current", 0.0) if fld == "current"
+              else el.params.get("phi_deg", 0.0) if fld == "phase"
+              else el.params.get("v_mv", el.params.get("v_design", 1.0)))
+    if "*" in val:
+        return design * float(val.split("*")[1])
+    if "+" in val:
+        return design + float(val.split("+")[1])
+    return design
+
+
 def start(r, hub_inject, hub_set, name: str) -> None:
     sc = SCENARIOS[name]
     orig = []
     for cls, dev, fld, val in sc["settings"]:
+        val = _resolve(val, r, cls, dev, fld)
         key = f"settings:{cls}:{dev}"
         cur = r.hget(key, fld)
         orig.append([cls, dev, fld, float(cur) if cur else 0.0, val])
