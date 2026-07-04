@@ -113,12 +113,20 @@ class CrosshairPlot(QWidget):
             self.pw.addItem(ln, ignoreBounds=True)
         self.pw.scene().sigMouseMoved.connect(self._mouse_moved)
 
-        # rigid auto-Y state
+        # legend always present: any plot(name=...) self-registers
+        self.legend = self.pw.addLegend(offset=(6, 6), labelTextSize="8pt")
+
+        # rigid auto-Y; X shows the FULL span by default
         self._auto = True
         self._yspan: tuple[float, float] | None = None
         self._small_count = 0
-        self.pw.plotItem.vb.sigRangeChangedManually.connect(self._manual_zoom)
-        self.pw.plotItem.vb.disableAutoRange()
+        vb = self.pw.plotItem.vb
+        vb.sigRangeChangedManually.connect(self._manual_zoom)
+        vb.disableAutoRange(axis=vb.YAxis)
+        if self._use_devices and device_names:
+            self.pw.setXRange(-0.5, len(device_names) - 0.5, padding=0.01)
+        else:
+            vb.enableAutoRange(x=True)
 
     # -------------------------------------------------------------- plotting
 
@@ -134,7 +142,13 @@ class CrosshairPlot(QWidget):
             self.pw.addItem(ln, ignoreBounds=True)
 
     def addLegend(self, **kw):
-        return self.pw.addLegend(**kw)
+        return self.legend   # created in the constructor
+
+    def set_xspan(self, x0: float, x1: float):
+        """Pin the X axis to a fixed full span (e.g. the whole lattice)."""
+        self.pw.plotItem.vb.disableAutoRange(
+            axis=self.pw.plotItem.vb.XAxis)
+        self.pw.setXRange(x0, x1, padding=0.01)
 
     def setXLink(self, other: "CrosshairPlot"):
         self.pw.setXLink(other.pw)

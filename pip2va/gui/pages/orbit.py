@@ -44,7 +44,8 @@ class OrbitPage(Page):
             p = CrosshairPlot(f"{name} [{unit}]",
                               device_names=self.bpm_names)
             c = p.plot(pen=pg.mkPen(color, width=1.5), symbol="o",
-                       symbolSize=4, symbolBrush=color, symbolPen=None)
+                       symbolSize=4, symbolBrush=color, symbolPen=None,
+                       name=f"{name} [{unit}]")
             p.on_xmode(self._xmode_changed)
             self.plots.append(p)
             self.curves.append(c)
