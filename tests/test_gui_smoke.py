@@ -47,8 +47,8 @@ def test_main_window_constructs_and_navigates(qtbot, r):
     hub = DataHub(redis_client=r)
     win = MainWindow(hub)
     qtbot.addWidget(win)
-    # 9 registered pages + 9 per-section views
-    assert win.nav.count() == 18
+    # 10 registered pages + 9 per-section views
+    assert win.nav.count() == 19
     for i in range(win.nav.count()):
         win.nav.setCurrentRow(i)
         assert win.stack.currentWidget() is not None

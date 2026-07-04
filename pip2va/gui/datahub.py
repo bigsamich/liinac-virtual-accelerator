@@ -23,6 +23,8 @@ STREAM_SIGNALS = {
     "magnet.readback": "magnets",
     "beam.deep": "deep",
     "profile.scan": "scan",
+    "wf.toroid": "wfToroid",
+    "wf.capture": "wfCapture",
 }
 
 
@@ -34,6 +36,8 @@ class DataHub(QThread):
     magnets = pyqtSignal(int, object)
     deep = pyqtSignal(int, object)
     scan = pyqtSignal(int, object)
+    wfToroid = pyqtSignal(int, object)
+    wfCapture = pyqtSignal(int, object)
     mpsEvent = pyqtSignal(object)
     beamState = pyqtSignal(object)
     connected = pyqtSignal(bool)
@@ -169,6 +173,15 @@ class DataHub(QThread):
 
     def request_wire_scan(self, name: str, plane: str = "x"):
         self.r.hset(f"req:wire:{name}", "plane", plane)
+
+    def select_waveforms(self, names: list[str]):
+        """Choose up to 8 devices for continuous intra-pulse capture."""
+        self.r.hset(keys.settings("wfsel", "main"),
+                    "devices", ",".join(names[:8]))
+
+    def get_postmortem(self):
+        blob = self.r.get("wf:postmortem")
+        return codec.unpack(blob) if blob else None
 
     def mps_reset(self):
         self.r.hset(keys.settings("mps", "main"), "reset", 1)
