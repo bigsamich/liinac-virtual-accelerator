@@ -81,7 +81,9 @@ class AutotuneService(Service):
         if pulse_id % self.cadence:
             return
         st = self.read_hash(keys.settings("autotune", "main"))
-        if st.get("restore"):
+        if self.r.hget("state:study", "run") == b"1":
+            self._study_step()
+        elif st.get("restore"):
             self._restore_step()
         elif st.get("bba"):
             self._bba_step()
@@ -89,6 +91,120 @@ class AutotuneService(Service):
             self._orbit_step()
         else:
             self.r.hset("state:autotune", "status", "idle")
+
+    # ----------------------------------------------------------- studies
+
+    def _study_step(self):
+        """Execute one cadence of the active beam study (plan in
+        state:study.plan): apply the step's setpoints, dwell, capture
+        instrumentation, abort+restore on MPS trip."""
+        import json as _json
+        import time as _time
+        if not hasattr(self, "_study"):
+            try:
+                plan = _json.loads(self.r.hget("state:study", "plan"))
+            except (TypeError, ValueError):
+                self.r.hset("state:study", "run", 0)
+                return
+            originals = []
+            for sw in plan["sweeps"]:
+                skey = keys.settings(sw["cls"], sw["device"])
+                originals.append(float(self.read_hash(skey).get(
+                    sw["field"], sw["from"])))
+            self._study = {"plan": plan, "orig": originals, "k": -1,
+                           "dwell_left": 0, "steps": [], "grace": 15}
+            self.r.hset("state:study", mapping={
+                "status": "running", "step": 0,
+                "total": plan["steps"]})
+        stu = self._study
+        plan = stu["plan"]
+
+        def apply(values):
+            for sw, v in zip(plan["sweeps"], values):
+                skey = keys.settings(sw["cls"], sw["device"])
+                self.r.hset(skey, sw["field"], float(v))
+                audit.log_setting(self.r, skey, sw["field"], float(v),
+                                  f"study:{plan['name']}")
+                self.publish_event(keys.CH_SETTINGS, {"key": skey})
+
+        def finish(status):
+            if plan.get("restore", True) or status != "completed":
+                apply(stu["orig"])
+            self.r.hset("state:study", mapping={
+                "run": 0, "status": status,
+                "result": _json.dumps({"status": status,
+                                       "steps": stu["steps"],
+                                       "t_end": _time.time()})})
+            self.r.xadd(keys.stream("mps.events"),
+                        {"t": _time.time(), "kind": "study",
+                         "detail": f"{plan['name']}: {status} "
+                                   f"({len(stu['steps'])} steps)"},
+                        maxlen=500, approximate=True)
+            del self._study
+
+        # arm the beam first (studies need beam); abort only on a trip
+        # that happens DURING the scan
+        permit_on = self.r.get("state:mps.permit") in (b"1", "1")
+        if stu["k"] < 0 and not permit_on:
+            if stu["grace"] <= 0:
+                finish("aborted-no-beam")
+                return
+            stu["grace"] -= 1
+            self.r.hset(keys.settings("mps", "main"), "reset", 1)
+            self.r.hset("state:study", "status", "arming beam")
+            return
+        if stu["k"] >= 0 and not permit_on:
+            finish("aborted-trip")   # empirical limit found mid-scan
+            return
+
+        if stu["dwell_left"] > 0:
+            stu["dwell_left"] -= 1
+            return
+        # capture the completed step (after its dwell)
+        if stu["k"] >= 0:
+            stu["steps"].append(self._study_capture(plan, stu["k"]))
+            self.r.hset("state:study", "step", stu["k"] + 1)
+        stu["k"] += 1
+        if stu["k"] >= plan["steps"]:
+            finish("completed")
+            return
+        frac = stu["k"] / max(plan["steps"] - 1, 1)
+        values = [sw["from"] + (sw["to"] - sw["from"]) * frac
+                  for sw in plan["sweeps"]]
+        apply(values)
+        stu["values"] = values
+        stu["dwell_left"] = max(
+            1, int(plan["dwell_s"] * self.settings.tick_hz / self.cadence))
+
+    def _study_capture(self, plan, k):
+        n_avg = 10
+        xs, ys, wt = [], [], []
+        for _, f in self.r.xrevrange(keys.stream("bpm.orbit"), count=n_avg):
+            _, d = codec.unpack(f[b"d"])
+            xs.append(d["x"])
+            ys.append(d["y"])
+            if len(d.get("w_tof", [])):
+                wt.append(float(d["w_tof"][-1]))
+        wl = 0.0
+        e = self.r.xrevrange(keys.stream("blm.losses"), count=n_avg)
+        if e:
+            wl = float(np.max([codec.unpack(f[b"d"])[1]["wpm"].max()
+                               for _, f in e]))
+        tor = 0.0
+        e = self.r.xrevrange(keys.stream("toroid.current"), count=1)
+        if e:
+            tor = float(codec.unpack(e[0][1][b"d"])[1]["i_ma"][-1])
+        beam = self.read_hash("state:beam")
+        orbit = float(np.sqrt(np.mean(np.concatenate(
+            [np.mean(xs, axis=0), np.mean(ys, axis=0)]) ** 2)) * 1e3)             if xs else 0.0
+        return {"step": k + 1,
+                "set_values": [float(v) for v in
+                               self._study.get("values",
+                                               [0] * len(plan["sweeps"]))],
+                "transmission": float(beam.get("transmission", 0.0)),
+                "w_tof": float(np.mean(wt)) if wt else 0.0,
+                "worst_blm": wl, "i_out_ma": tor,
+                "orbit_rms_mm": orbit}
 
     # -------------------------------------------------- beam-based alignment
 
