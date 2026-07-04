@@ -9,7 +9,8 @@ import redis
 sys.path.insert(0, ".")
 from pip2va.common import codec, keys  # noqa: E402
 
-SERVICES = ("timing", "beam-physics", "rf-sim", "magnet-sim", "diag-sim", "mps")
+SERVICES = ("timing", "beam-physics", "rf-sim", "magnet-sim", "diag-sim",
+            "mps", "autotune")
 
 
 def main():

@@ -83,6 +83,7 @@ class AutotuneService(Service):
     def _restore_step(self):
         self.r.hset("state:autotune", "status", "restoring")
         remaining = 0.0
+        tripped_left = 0
         # 1. clear injected faults
         for k in self.r.scan_iter("fault:*"):
             self.r.delete(k)
@@ -95,6 +96,7 @@ class AutotuneService(Service):
             tgt = el.params["design_current"]
             if self.read_hash(keys.readback("magnet", el.name)).get(
                     "status") == "tripped":
+                tripped_left += 1
                 pipe.hset(skey, "reset", 1)
             step = (tgt - cur) * RESTORE_FRAC if abs(tgt - cur) > 1e-3 else 0.0
             if step:
@@ -119,6 +121,7 @@ class AutotuneService(Service):
             h = self.read_hash(skey)
             if self.read_hash(keys.readback("rf", el.name)).get(
                     "status") == "tripped":
+                tripped_left += 1
                 pipe.hset(skey, "reset", 1)
             for fld, tgt in (("amp", tgt_a), ("phase", tgt_p)):
                 cur = float(h.get(fld, tgt))
@@ -131,15 +134,28 @@ class AutotuneService(Service):
                                       "autotune")
         pipe.execute()
         self.publish_event(keys.CH_SETTINGS, {"key": "bulk:autotune"})
-        if remaining < 0.002:
-            self.r.hset(keys.settings("autotune", "main"), "restore", 0)
-            self.r.hset("state:autotune", "status", "idle")
-            self.r.xadd(keys.stream("mps.events"),
-                        {"t": __import__("time").time(), "kind": "autotune",
-                         "detail": "restore-to-design complete"},
-                        maxlen=500, approximate=True)
-            # give the operator a clean slate: request MPS permit reset
+        if remaining >= 0.002 or tripped_left:
+            self.r.hset("state:autotune", "status",
+                        f"restoring ({tripped_left} devices still tripped)"
+                        if tripped_left else "restoring")
+            return
+        # setpoints at design and nothing tripped: bring the permit back and
+        # only declare success once the beam is actually being delivered
+        beam = self.read_hash("state:beam")
+        permit_on = self.r.get("state:mps.permit") in (b"1", "1")
+        if not permit_on:
             self.r.hset(keys.settings("mps", "main"), "reset", 1)
+            self.r.hset("state:autotune", "status", "restoring (permit reset)")
+            return
+        if beam.get("transmission", 0.0) < 0.9:
+            self.r.hset("state:autotune", "status", "restoring (waiting beam)")
+            return
+        self.r.hset(keys.settings("autotune", "main"), "restore", 0)
+        self.r.hset("state:autotune", "status", "idle")
+        self.r.xadd(keys.stream("mps.events"),
+                    {"t": __import__("time").time(), "kind": "autotune",
+                     "detail": "restore-to-design complete"},
+                    maxlen=500, approximate=True)
 
     # ------------------------------------------------------- orbit correct
 

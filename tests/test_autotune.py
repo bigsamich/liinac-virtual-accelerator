@@ -52,6 +52,7 @@ def test_restore_returns_setpoints_to_design_and_clears_faults(stack):
     r.hset(keys.fault("rf", "HWR:CAV2"), mapping={"type": "trip", "magnitude": 1})
     mag.on_event(keys.CH_SETTINGS, {"key": keys.settings("magnet", q.name)})
 
+    r.set("state:mps.permit", 1)   # no MPS service in this fixture
     r.hset(keys.settings("autotune", "main"), "restore", 1)
     pulse = run_pulses(stack, 3 * 80)
 

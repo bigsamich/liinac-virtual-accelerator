@@ -53,6 +53,7 @@ def analyze(evidence: dict, model: str = MODEL, url: str = OLLAMA_URL,
     payload = {
         "model": model,
         "stream": False,
+        "think": False,   # reasoning models: keep the answer in content
         "options": {"temperature": 0.2, "num_predict": 700},
         "messages": [
             {"role": "system", "content": SYSTEM},
@@ -69,7 +70,10 @@ def analyze(evidence: dict, model: str = MODEL, url: str = OLLAMA_URL,
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             out = json.loads(resp.read())
-        text = out.get("message", {}).get("content", "").strip()
+        msg = out.get("message", {})
+        text = (msg.get("content") or "").strip()
+        if not text:  # some reasoning models answer via the thinking channel
+            text = (msg.get("thinking") or "").strip()
         if not text:
             raise ValueError("empty LLM response")
         return text, f"llm:{model}"
