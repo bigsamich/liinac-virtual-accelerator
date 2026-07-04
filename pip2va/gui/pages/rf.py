@@ -2,12 +2,63 @@
 from __future__ import annotations
 
 import collections
+import time
 
 import numpy as np
 import pyqtgraph as pg
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from PyQt6.QtWidgets import (QComboBox, QDoubleSpinBox, QHBoxLayout, QLabel,
                              QPushButton, QTableWidget, QTableWidgetItem)
+
+
+class PhaseScanWorker(QThread):
+    """Classic commissioning phase scan: sweep cavity phase, record the
+    downstream TOF energy, fit the cosine, park at crest + design offset."""
+
+    point = pyqtSignal(float, float)          # phi, W_tof
+    done = pyqtSignal(str, float)             # message, new phase
+
+    def __init__(self, hub, cav_name, phi_design, span=180.0, steps=25,
+                 settle_s=0.8):
+        super().__init__()
+        self.hub, self.cav, self.phi_d = hub, cav_name, phi_design
+        self.span, self.steps, self.settle = span, steps, settle_s
+        self._stop = False
+
+    def stop(self):
+        self._stop = True
+
+    def _w_tof(self):
+        h = self.hub.history("bpm.orbit", 6)
+        ws = [d["w_tof"][-1] for _, d in h if len(d.get("w_tof", []))]
+        return float(np.mean(ws)) if ws else 0.0
+
+    def run(self):
+        phis = np.linspace(self.phi_d - self.span / 2,
+                           self.phi_d + self.span / 2, self.steps)
+        ws = []
+        for ph in phis:
+            if self._stop:
+                break
+            self.hub.set_setting("rf", self.cav, "phase", float(ph))
+            time.sleep(self.settle)
+            w = self._w_tof()
+            ws.append(w)
+            self.point.emit(float(ph), w)
+        if self._stop or len(ws) < 5:
+            self.hub.set_setting("rf", self.cav, "phase", self.phi_d)
+            self.done.emit("scan aborted — phase restored", self.phi_d)
+            return
+        # cosine fit via FFT-free least squares on cos/sin basis
+        ph_r = np.radians(np.array(phis[:len(ws)]))
+        A = np.column_stack([np.cos(ph_r), np.sin(ph_r), np.ones_like(ph_r)])
+        c, *_ = np.linalg.lstsq(A, np.array(ws), rcond=None)
+        crest = np.degrees(np.arctan2(c[1], c[0]))
+        new_phase = (crest + self.phi_d + 180.0) % 360.0 - 180.0
+        self.hub.set_setting("rf", self.cav, "phase", float(new_phase))
+        self.done.emit(
+            f"crest at {crest:+.1f} deg -> set {new_phase:+.1f} deg "
+            f"(design offset {self.phi_d:+.1f})", new_phase)
 
 from .. import theme
 from . import register
@@ -44,8 +95,12 @@ class RfPage(Page):
         det_bar = QHBoxLayout()
         self.lbl_sel = QLabel("select a cavity…")
         self.btn_reset = QPushButton("Reset trip")
+        self.btn_scan = QPushButton("Phase scan (tune-up)")
+        self.lbl_scan = QLabel("")
+        self.lbl_scan.setStyleSheet("color:#8b96a5;")
         det_bar.addWidget(self.lbl_sel)
-        det_bar.addStretch(1)
+        det_bar.addWidget(self.lbl_scan, 1)
+        det_bar.addWidget(self.btn_scan)
         det_bar.addWidget(self.btn_reset)
         self.body.addLayout(det_bar)
         self.p_det = make_plot("detuning [Hz]", xlabel="pulse")
@@ -58,9 +113,12 @@ class RfPage(Page):
         self._items: dict[int, dict] = {}
         self._sel: str | None = None
 
+        self._scan_worker = None
+        self._scan_curve = None
         self.sec.currentTextChanged.connect(self._rebuild)
         self.table.itemSelectionChanged.connect(self._on_select)
         self.btn_reset.clicked.connect(self._reset_sel)
+        self.btn_scan.clicked.connect(self._phase_scan)
         self.hub.rf.connect(self._on_rf)
         self._rebuild()
 
@@ -114,6 +172,40 @@ class RfPage(Page):
     def _reset_sel(self):
         if self._sel:
             self.hub.set_setting("rf", self._sel, "reset", 1)
+
+    def _phase_scan(self):
+        if not self._sel:
+            self.lbl_scan.setText("select a cavity first")
+            return
+        if self._scan_worker and self._scan_worker.isRunning():
+            self._scan_worker.stop()
+            return
+        el = next(c for c in self.cavs if c.name == self._sel)
+        phi_d = el.params.get("phi_deg", 0.0)
+        self.p_det.clear()
+        import pyqtgraph as _pg
+        self._scan_curve = self.p_det.plot(
+            pen=None, symbol="o", symbolSize=6, symbolBrush="#4db6ac",
+            name=f"{self._sel} W_tof vs phase")
+        self._scan_pts = ([], [])
+        self.p_det.pw.setLabel("left", "W_tof [MeV]")
+        self.p_det.pw.setLabel("bottom", "cavity phase [deg]")
+        self.btn_scan.setText("STOP scan")
+        self.lbl_scan.setText("scanning…")
+        self._scan_worker = PhaseScanWorker(self.hub, self._sel, phi_d)
+        self._scan_worker.point.connect(self._scan_point)
+        self._scan_worker.done.connect(self._scan_done)
+        self._scan_worker.start()
+
+    def _scan_point(self, ph, w):
+        self._scan_pts[0].append(ph)
+        self._scan_pts[1].append(w)
+        self._scan_curve.setData(*self._scan_pts)
+        self.p_det.update_y(np.array(self._scan_pts[1]))
+
+    def _scan_done(self, msg, _phase):
+        self.lbl_scan.setText(msg)
+        self.btn_scan.setText("Phase scan (tune-up)")
 
     def _on_rf(self, _pid, data):
         if self._index is None:
