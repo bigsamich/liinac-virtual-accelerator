@@ -33,6 +33,11 @@ FAMILY = {
     "debuncher": (300.0,    0.60,     0.0,              0.0),
 }
 
+# SSA ratings [kW] (verified table) — absolute, NOT relative to the drive:
+# de-rated capture cavities carry beam loading far above their own voltage
+SSA_KW = {"HWR": 7.0, "SSR1": 7.0, "SSR2": 20.0, "LB650": 40.0,
+          "HB650": 70.0, "buncher": 3.0, "debuncher": 15.0}
+
 WINDOW_S = 0.55e-3
 BEAM_S = 0.54e-3
 NSTEP = 220                    # 2.5 us steps across the window
@@ -85,6 +90,9 @@ class CavityModel:
                                          c.params.get("v_mv", 1.0))
                             for c in cavities]),
             ssa_frac=np.full(n, 2.5))
+        # absolute SSA forward-voltage limit: |Vfor| <= sqrt(2 R_L P_ssa)
+        p_ssa = np.array([SSA_KW.get(f, 10.0) * 1e3 for f in fam])
+        self.vfor_ssa = np.sqrt(2.0 * self.bank.rl * p_ssa) * 1e-6  # MV
         # per-cavity loop gains: broadband NC cavities (RFQ/bunchers) need
         # proportionally less gain — the plant pole is already fast
         f_half = self.bank.w12 / (2 * np.pi)
@@ -184,8 +192,8 @@ class CavityModel:
         # (Ib in amps; RL in ohms gives volts -> convert to MV: *1e-6)
         vfor_nobeam = 0.5 * v_ref                       # V = 2*Vfor at resonance
         vfor_beam = 0.5 * (v_ref - b.rl * ib_full * 1e6 * 1e-6)
-        # SSA saturation limit
-        vfor_max = np.abs(vfor_nobeam) * b.ssa_frac + 1e-9
+        # SSA saturation limit: absolute amplifier rating
+        vfor_max = self.vfor_ssa + 1e-9
 
         err_hist = [np.zeros(n, dtype=complex)] * (LOOP_DELAY + 1)
         beam_i0 = int(0.0 / DT)
