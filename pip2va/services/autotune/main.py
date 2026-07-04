@@ -127,6 +127,16 @@ class AutotuneService(Service):
             return
         mag, bpm = bb["pairs"][bb["i"]]
         skey = keys.settings("magnet", mag.name)
+        # a shunt can push losses over threshold: restore, reset, resume
+        if self.r.get("state:mps.permit") not in (b"1", "1"):
+            if bb["phase"] > 0 and bb.get("nominal") is not None:
+                self.r.hset(skey, "current", bb["nominal"])
+                self.publish_event(keys.CH_SETTINGS, {"key": skey})
+                bb["phase"] = 0
+            self.r.hset(keys.settings("mps", "main"), "reset", 1)
+            self.r.hset("state:autotune", "status",
+                        f"BBA paused at {bpm.name} (permit trip; resuming)")
+            return
         self.r.hset("state:autotune", "status",
                     f"BBA {bb['i'] + 1}/{len(bb['pairs'])}: {bpm.name}")
 
