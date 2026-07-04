@@ -151,6 +151,8 @@ class AutotuneService(Service):
                 finish("aborted-no-beam")
                 return
             stu["grace"] -= 1
+            if stu["grace"] == 7:   # resets alone aren't sticking: relearn
+                self.r.hset(keys.settings("mps", "main"), "relearn", 1)
             self.r.hset(keys.settings("mps", "main"), "reset", 1)
             self.r.hset("state:study", "status", "arming beam")
             return
