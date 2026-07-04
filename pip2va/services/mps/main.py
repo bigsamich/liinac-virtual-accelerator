@@ -44,6 +44,8 @@ class MpsService(Service):
             for e in blms])
         self.thresholds = self.base_thresholds.copy()
         self.window: collections.deque = collections.deque(maxlen=WINDOW)
+        self._ema = None            # ~5-min quiescent loss average per BLM
+        self._quiet = 0             # pulses since last trip
         self._learn_left = self.learn_pulses
         self._learn_n = 0
         self._learn_sum = np.zeros(len(blms))
@@ -117,6 +119,7 @@ class MpsService(Service):
                                 f"(limit {thr[worst]:.2f})")
             self.publish_event(keys.CH_MPS, {"permit": 0, "blm": name,
                                              "wpm": float(mean[worst])})
+            self._quiet = 0
 
         # reset / relearn requests
         skey = keys.settings("mps", "main")
