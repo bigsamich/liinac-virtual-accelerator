@@ -112,7 +112,7 @@ class AutotuneService(Service):
                 originals.append(float(self.read_hash(skey).get(
                     sw["field"], sw["from"])))
             self._study = {"plan": plan, "orig": originals, "k": -1,
-                           "dwell_left": 0, "steps": []}
+                           "dwell_left": 0, "steps": [], "grace": 15}
             self.r.hset("state:study", mapping={
                 "status": "running", "step": 0,
                 "total": plan["steps"]})
@@ -142,9 +142,19 @@ class AutotuneService(Service):
                         maxlen=500, approximate=True)
             del self._study
 
-        # trip mid-study = empirical limit found
-        if self.r.get("state:mps.permit") not in (b"1", "1"):
-            finish("aborted-trip")
+        # arm the beam first (studies need beam); abort only on a trip
+        # that happens DURING the scan
+        permit_on = self.r.get("state:mps.permit") in (b"1", "1")
+        if stu["k"] < 0 and not permit_on:
+            if stu["grace"] <= 0:
+                finish("aborted-no-beam")
+                return
+            stu["grace"] -= 1
+            self.r.hset(keys.settings("mps", "main"), "reset", 1)
+            self.r.hset("state:study", "status", "arming beam")
+            return
+        if stu["k"] >= 0 and not permit_on:
+            finish("aborted-trip")   # empirical limit found mid-scan
             return
 
         if stu["dwell_left"] > 0:
