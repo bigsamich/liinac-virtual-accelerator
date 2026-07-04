@@ -46,6 +46,13 @@ class DiagSimService(Service):
         self.i_nom = self.lat.meta.get("nominal_current_ma", 2.0)
         self._scan = None  # active wire scan state
         self.synth = WaveformSynth(self.rng)
+        # field-emission mapping: each cavity's radiation lands on its
+        # nearest BLM (x-ray/dark-current background, W/m-equivalent units)
+        cavs = [e for e in self.lat.elements if e.type in ("rfgap", "rfq")]
+        blm_s = np.array([b.s for b in self.blms]) if self.blms else np.zeros(1)
+        self._cav_blm = np.array([int(np.argmin(np.abs(blm_s - c.s)))
+                                  for c in cavs])
+        self.fe_wpm_per_unit = 0.02
         self._bpm_by_name = {e.name: k for k, e in enumerate(self.bpms)}
         self._blm_by_name = {e.name: k for k, e in enumerate(self.blms)}
         self._tor_by_name = {e.name: k for k, e in enumerate(self.tors)}
@@ -109,6 +116,15 @@ class DiagSimService(Service):
         dark = np.array([b.params.get("dark_wpm", 1e-3) for b in self.blms])
         wpm = np.maximum(tr["blm_wpm"] * (1 + rng.normal(0, frac))
                          + rng.normal(dark, dark), 0.0)
+        # field-emission background from the RF system (present with RF on,
+        # beam or no beam — grows exponentially with pushed gradients)
+        e_rf = self.r.xrevrange("stream:rf.cavity", count=1)
+        if e_rf:
+            _, rfd = codec.unpack(e_rf[0][1][b"d"])
+            rad = rfd.get("rad")
+            if rad is not None and len(rad) == len(self._cav_blm):
+                np.add.at(wpm, self._cav_blm,
+                          rad * self.fe_wpm_per_unit)
         self.publish_stream("blm.losses", pulse_id, {"wpm": wpm})
 
         # Toroids
