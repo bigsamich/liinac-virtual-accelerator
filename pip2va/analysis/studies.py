@@ -58,7 +58,9 @@ Rules:
   "main", field "duty" in [0, 1].
 - "sweep": settle at each point, restore=true (return to original settings).
 - "ramp" (e.g. raising source current to a new operating point): restore=
-  false, monotonic steps. Choose a SAFE rate: current changes <= 0.25 mA per
+  false, monotonic steps; for INTENSITY ramps add "rebaseline": true (the
+  MPS baseline is re-captured at each plateau — a bare current ramp trips
+  the loss monitors within ~10%). Choose a SAFE rate: current changes <= 0.25 mA per
   step with dwell >= 2 s unless the operator insists; explain in rationale.
 - steps*dwell_s should honor any requested total duration. dwell_s >= 0.5.
 - If the request names a device loosely, pick the closest from the catalog.

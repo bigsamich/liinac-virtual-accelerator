@@ -160,6 +160,19 @@ class AutotuneService(Service):
         if stu["dwell_left"] > 0:
             stu["dwell_left"] -= 1
             return
+        # intensity-ramp mode: re-baseline the MPS at each plateau so the
+        # loss pattern of the new current becomes the reference
+        if plan.get("rebaseline") and stu.get("await_arm"):
+            armed = any(f.get(b"kind") == b"armed"
+                        and float(f.get(b"t", 0)) > stu["await_arm"]
+                        for _, f in self.r.xrevrange(
+                            keys.stream("mps.events"), count=5))
+            if not armed:
+                stu["await_arm_n"] = stu.get("await_arm_n", 0) + 1
+                if stu["await_arm_n"] > 60:
+                    finish("aborted-rebaseline")
+                return
+            stu["await_arm"] = None
         # capture the completed step (after its dwell)
         if stu["k"] >= 0:
             stu["steps"].append(self._study_capture(plan, stu["k"]))
@@ -175,6 +188,12 @@ class AutotuneService(Service):
         stu["values"] = values
         stu["dwell_left"] = max(
             1, int(plan["dwell_s"] * self.settings.tick_hz / self.cadence))
+        if plan.get("rebaseline"):
+            import time as _t
+            self.r.hset(keys.settings("mps", "main"), "relearn", 1)
+            self.r.hset(keys.settings("mps", "main"), "reset", 1)
+            stu["await_arm"] = _t.time()
+            stu["await_arm_n"] = 0
 
     def _study_capture(self, plan, k):
         n_avg = 10

@@ -26,13 +26,15 @@ PRESETS = {
                  "steps": 9, "dwell_s": 2.0, "restore": True},
     },
     "source-ramp-4-6": {
-        "teaches": "safe source-current ramp rate and how losses scale with "
-                   "current (informs intensity increases)",
+        "teaches": "safe intensity-ramp procedure: current raises the whole loss "
+                   "pattern, so the MPS is re-baselined at each plateau "
+                   "(first campaign proved a bare ramp trips at +7.5%)",
         "plan": {"name": "source-ramp-4-6", "kind": "ramp",
                  "description": "source 5 -> 6 mA in gentle steps from the operating point",
                  "sweeps": [{"cls": "source", "device": "main",
                              "field": "current_ma", "from": 5.0, "to": 6.0}],
-                 "steps": 9, "dwell_s": 2.5, "restore": True},
+                 "steps": 5, "dwell_s": 3.0, "restore": True,
+                 "rebaseline": True},
     },
     "chopper-duty-scan": {
         "teaches": "current vs duty and the loss pattern's current scaling "
