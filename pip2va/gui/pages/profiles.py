@@ -157,7 +157,7 @@ class ProfilesPage(Page):
 
     def _render_cloud(self, cloud, station):
         try:
-            pts = np.asarray(cloud, dtype=np.float32).T  # (n, 3) in mm
+            pts = np.array(cloud, dtype=np.float32).T.copy()  # (n, 3) mm
             # normalize z (bunch length) to the transverse scale for display
             span = max(float(np.abs(pts[:, :2]).max()), 1e-3)
             zspan = max(float(np.abs(pts[:, 2]).max()), 1e-3)

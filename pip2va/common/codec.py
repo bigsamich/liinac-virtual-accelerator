@@ -23,7 +23,9 @@ def _encode_value(v):
 
 def _decode_value(v):
     if isinstance(v, dict) and v.get("__nd__"):
-        return np.frombuffer(v["buf"], dtype=np.float32).reshape(v["shape"])
+        # copy: frombuffer views are read-only, and consumers may mutate
+        return np.frombuffer(v["buf"], dtype=np.float32).reshape(
+            v["shape"]).copy()
     return v
 
 
