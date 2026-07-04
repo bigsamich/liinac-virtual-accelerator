@@ -83,10 +83,124 @@ class AutotuneService(Service):
         st = self.read_hash(keys.settings("autotune", "main"))
         if st.get("restore"):
             self._restore_step()
+        elif st.get("bba"):
+            self._bba_step()
         elif st.get("enable"):
             self._orbit_step()
         else:
             self.r.hset("state:autotune", "status", "idle")
+
+    # -------------------------------------------------- beam-based alignment
+
+    def _bba_targets(self):
+        """(magnet, bpm) pairs: each BPM with the focusing magnet just
+        upstream in the same package."""
+        pairs = []
+        els = self.lat.elements
+        for i, e in enumerate(els):
+            if e.type != "bpm":
+                continue
+            for j in range(i - 1, max(i - 5, -1), -1):
+                if els[j].type in ("quad", "solenoid"):
+                    pairs.append((els[j], e))
+                    break
+        return pairs
+
+    def _bba_step(self):
+        """Quad-shunt BBA, one magnet per call: measure the downstream
+        orbit shift for a 5% shunt, project it on the model sensitivity
+        column for a unit magnet offset, infer the true beam position at
+        the magnet, and hence the BPM's electrical offset."""
+        if not hasattr(self, "_bba"):
+            self._bba = {"pairs": self._bba_targets(), "i": 0, "phase": 0,
+                         "m0": None, "nominal": None}
+        bb = self._bba
+        if bb["i"] >= len(bb["pairs"]):
+            self.r.hset(keys.settings("autotune", "main"), "bba", 0)
+            self.r.hset("state:autotune", "status",
+                        f"BBA complete: {len(bb['pairs'])} BPMs calibrated")
+            self.r.xadd(keys.stream("mps.events"),
+                        {"t": __import__("time").time(), "kind": "bba",
+                         "detail": f"{len(bb['pairs'])} BPM offsets learned"},
+                        maxlen=500, approximate=True)
+            del self._bba
+            return
+        mag, bpm = bb["pairs"][bb["i"]]
+        skey = keys.settings("magnet", mag.name)
+        self.r.hset("state:autotune", "status",
+                    f"BBA {bb['i'] + 1}/{len(bb['pairs'])}: {bpm.name}")
+
+        def measure():
+            xs, ys = [], []
+            for _, f in self.r.xrevrange(keys.stream("bpm.orbit"), count=15):
+                _, d = codec.unpack(f[b"d"])
+                xs.append(d["x"])
+                ys.append(d["y"])
+            return (np.mean(xs, axis=0), np.mean(ys, axis=0)) if xs else None
+
+        if bb["phase"] == 0:                      # baseline measurement
+            m = measure()
+            if m is None:
+                return
+            bb["m0"] = np.concatenate(m)
+            bb["nominal"] = float(self.read_hash(skey).get(
+                "current", mag.params["design_current"]))
+            self.r.hset(skey, "current", bb["nominal"] * 1.05)
+            audit.log_setting(self.r, skey, "current",
+                              bb["nominal"] * 1.05, "bba")
+            self.publish_event(keys.CH_SETTINGS, {"key": skey})
+            bb["phase"] = 1
+        elif bb["phase"] == 1:                    # settle one cadence
+            bb["phase"] = 2
+        else:                                     # shunted measurement
+            m = measure()
+            self.r.hset(skey, "current", bb["nominal"])
+            audit.log_setting(self.r, skey, "current", bb["nominal"], "bba")
+            self.publish_event(keys.CH_SETTINGS, {"key": skey})
+            if m is not None:
+                dmeas = np.concatenate(m) - bb["m0"]
+                for plane, err_key in ((0, "dx"), (1, "dy")):
+                    col = self._bba_column(mag, plane)
+                    denom = float(col @ col)
+                    if denom < 1e-18:
+                        continue
+                    x_true = float(dmeas @ col) / denom   # beam pos at magnet
+                    bi = self._bpm_index(bpm.name)
+                    meas0 = bb["m0"][bi + plane * self._nbpm]
+                    self.r.hset("state:bba.offsets", f"{bpm.name}:{err_key}",
+                                meas0 - x_true)
+            bb["i"] += 1
+            bb["phase"] = 0
+
+    def _bpm_index(self, name):
+        if not hasattr(self, "_bpm_pos"):
+            bpms = self.lat.instruments("bpm")
+            self._bpm_pos = {e.name: i for i, e in enumerate(bpms)}
+            self._nbpm = len(bpms)
+        return self._bpm_pos[name]
+
+    def _bba_column(self, mag, plane):
+        """Model sensitivity: d(orbit shift under 5% shunt)/d(beam offset
+        at the magnet). Four engine runs, cached per magnet/plane."""
+        if not hasattr(self, "_bba_cols"):
+            self._bba_cols = {}
+        key = (mag.name, plane)
+        if key in self._bba_cols:
+            return self._bba_cols[key]
+        i0 = float(mag.params["design_current"])
+        off = {"dx": 1e-3, "dy": 0.0} if plane == 0 else             {"dx": 0.0, "dy": 1e-3}
+        eng_err = EnvelopeEngine(self.lat, errors={mag.name: off})
+        base_n = self.engine.run({})
+        base_s = self.engine.run({mag.name: {"current": i0 * 1.05}})
+        err_n = eng_err.run({})
+        err_s = eng_err.run({mag.name: {"current": i0 * 1.05}})
+
+        def vec(r):
+            return np.concatenate([r.bpm_x, r.bpm_y])
+
+        col = ((vec(err_s) - vec(err_n)) - (vec(base_s) - vec(base_n))) / 1e-3
+        self._bba_cols[key] = col
+        return col
 
     # ------------------------------------------------------------- restore
 
@@ -193,6 +307,16 @@ class AutotuneService(Service):
             xs.append(d["x"])
             ys.append(d["y"])
         meas = np.concatenate([np.mean(xs, axis=0), np.mean(ys, axis=0)])
+        # subtract BBA-learned electrical offsets: steer to magnetic centres
+        raw = self.r.hgetall("state:bba.offsets")
+        if raw:
+            self._bpm_index(self.lat.instruments("bpm")[0].name)
+            for k, v in raw.items():
+                k = k.decode() if isinstance(k, bytes) else k
+                name, plane = k.rsplit(":", 1)
+                bi = self._bpm_pos.get(name)
+                if bi is not None:
+                    meas[bi + (0 if plane == "dx" else self._nbpm)] -= float(v)
         rms_um = float(np.sqrt(np.mean(meas ** 2)) * 1e6)
         if rms_um < 250.0:
             # at the BPM noise/offset floor: correcting further just random-

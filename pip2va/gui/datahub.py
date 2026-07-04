@@ -210,6 +210,10 @@ class DataHub(QThread):
     def set_autotune(self, enable: bool):
         self.set_setting("autotune", "main", "enable", int(enable))
 
+    def run_bba(self):
+        """Start the beam-based alignment campaign (autotune service)."""
+        self.set_setting("autotune", "main", "bba", 1)
+
     def rescue(self):
         """One-shot restore of the whole machine to design settings."""
         self.set_setting("autotune", "main", "restore", 1)
