@@ -173,6 +173,25 @@ class DataHub(QThread):
     def mps_reset(self):
         self.r.hset(keys.settings("mps", "main"), "reset", 1)
 
+    def get_state(self, name: str) -> dict:
+        raw = self.r.hgetall(f"state:{name}")
+        out = {}
+        for k, v in raw.items():
+            k = k.decode() if isinstance(k, bytes) else k
+            v = v.decode() if isinstance(v, bytes) else v
+            try:
+                out[k] = float(v)
+            except (TypeError, ValueError):
+                out[k] = v
+        return out
+
+    def set_autotune(self, enable: bool):
+        self.set_setting("autotune", "main", "enable", int(enable))
+
+    def rescue(self):
+        """One-shot restore of the whole machine to design settings."""
+        self.set_setting("autotune", "main", "restore", 1)
+
     def inject_fault(self, cls: str, name: str, ftype: str,
                      magnitude: float = 0.0, ttl_s: int = 0):
         key = keys.fault(cls, name)
