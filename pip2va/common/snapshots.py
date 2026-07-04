@@ -47,9 +47,20 @@ def collect(r) -> dict[str, dict]:
     return out
 
 
+def fingerprint() -> float:
+    """Design fingerprint: changes whenever the lattice design changes."""
+    from .lattice import load_lattice
+    lat = load_lattice()
+    tot = 0.0
+    for e in lat.elements:
+        tot += e.params.get("design_current", 0.0)
+        tot += 100.0 * e.params.get("v_mv", 0.0)
+    return round(tot, 2)
+
+
 def save(r, name: str, note: str = "", directory=None) -> Path:
     snap = {"name": name, "t": time.time(), "note": note,
-            "settings": collect(r)}
+            "fingerprint": fingerprint(), "settings": collect(r)}
     path = _dir(directory) / f"{name}.json"
     path.write_text(json.dumps(snap, indent=1, sort_keys=True))
     return path

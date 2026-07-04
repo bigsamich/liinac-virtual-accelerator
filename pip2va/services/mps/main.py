@@ -56,9 +56,11 @@ class MpsService(Service):
         mean = self._learn_sum / n
         std = np.sqrt(np.maximum(self._learn_sq / n - mean ** 2, 0.0))
         m = min(len(mean), len(self.base_thresholds))
+        # wider margins: nuisance trips from quiescent fluctuation (BTL
+        # dispersion x energy jitter) are worse than slightly later trips
         self.thresholds = np.maximum(
             self.base_thresholds[:m],
-            np.maximum(mean[:m] + 6.0 * std[:m], 2.0 * mean[:m]))
+            np.maximum(mean[:m] + 8.0 * std[:m], 3.0 * mean[:m]))
         self.r.set("state:mps.thresholds",
                    codec.pack(0, {"wpm": self.thresholds}))
         self._event("armed", f"thresholds set from {n}-pulse baseline")

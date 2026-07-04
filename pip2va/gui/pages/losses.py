@@ -46,8 +46,14 @@ class LossesPage(Page):
             self.p_bar.addItem(pg.InfiniteLine(
                 pos=np.log10(level), angle=0,
                 pen=pg.mkPen(color, style=pg.QtCore.Qt.PenStyle.DashLine)))
-        self.p_bar.pw.setYRange(-3.2, 1.0)
+        self.thr_curve = self.p_bar.plot(
+            pen=pg.mkPen(theme.ALARM, width=1.5,
+                         style=pg.QtCore.Qt.PenStyle.DotLine),
+            name="MPS threshold", stepMode="center")
+        self.p_bar.set_xspan(-0.5, nblm - 0.5)
+        self.p_bar.pw.setYRange(-3.2, 2.3)
         self.body.addWidget(self.p_bar, 2)
+        self._thr_gate = 0
 
         # waterfall: rows = pulses, cols = BLMs (device index)
         self.p_wf = CrosshairPlot("history [s]", xlabel="BLM index")
@@ -55,8 +61,8 @@ class LossesPage(Page):
         self.img.setLookupTable(pg.colormap.get("inferno").getLookupTable())
         self.p_wf.addItem(self.img)
         self.img.setRect(pg.QtCore.QRectF(-0.5, 0.0, float(nblm), 6.0))
+        self.p_wf.set_xspan(-0.5, nblm - 0.5)
         self.p_wf.pw.setYRange(0, 6)
-        self.p_wf.pw.setXRange(-0.5, nblm - 0.5)
         self.body.addWidget(self.p_wf, 2)
 
         self.hist = collections.deque(maxlen=120)
@@ -74,6 +80,15 @@ class LossesPage(Page):
     def _on_losses(self, _pid, data):
         if not self.isVisible():
             return
+        self._thr_gate += 1
+        if self._thr_gate % 40 == 1:      # refresh threshold table ~2 s
+            blob = self.hub.r.get("state:mps.thresholds")
+            if blob:
+                from pip2va.common import codec
+                _, td = codec.unpack(blob)
+                thr = np.log10(np.maximum(td["wpm"], 1e-4))
+                edges = np.arange(len(thr) + 1) - 0.5
+                self.thr_curve.setData(edges, thr)
         wpm = data["wpm"]
         self.window.append(wpm)
         self.hist.append(wpm)
