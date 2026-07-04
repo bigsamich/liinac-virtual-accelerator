@@ -151,10 +151,10 @@ class MacroTracker:
                 lam = 299.792458 / el.params["freq_mhz"]
                 kz = 2.0 * math.pi / (beta * lam)
                 mbg = 939.294 * beta * beta * gamma
-                # per-particle longitudinal kick, linearized with the same
-                # ramp cap as the envelope (the synthetic lattice's uniform
-                # phase law has no adiabatic capture; uncapped dynamics
-                # debunch the beam entirely)
+                # linearized longitudinal kick (with stability guard): the
+                # adiabatic-capture lattice is linearly stable by design;
+                # full pendulum tails still spill from the bucket at 4 sigma,
+                # so nonlinear bucket dynamics remain future work
                 m54_raw = amp * math.sin(phi) * kz / mbg
                 cap = 1.1 * gamma * gamma
                 m54 = max(-cap, min(cap, m54_raw))

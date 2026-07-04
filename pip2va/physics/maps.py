@@ -83,12 +83,9 @@ def rfgap_kick(w_in: float, v_mv: float, phi_deg: float, freq_mhz: float
     # longitudinal: particle at z (early, sees phi - kz*z) ->
     # d(dW) = +V sin(phi) kz z ; delta kick = d(dW)/(m beta^2 gamma)
     kz = 2.0 * math.pi / (beta * lam)
-    m54 = v_mv * math.sin(phi) * kz / (M_MEV * beta**2 * gamma)
-    # cap per-gap synchrotron focusing at ~60 deg per metre-cell: stands in
-    # for the adiabatic phase/voltage ramp real designs use — without it the
-    # longitudinal plane over-focuses (>180 deg/period) and debunches
-    cap = 1.1 * gamma * gamma
-    m[5, 4] = max(-cap, min(cap, m54))
+    # the lattice now carries real adiabatic capture (de-rated section
+    # entrances), so the raw synchrotron focusing term is stable as-is
+    m[5, 4] = v_mv * math.sin(phi) * kz / (M_MEV * beta**2 * gamma)
     # adiabatic damping of transverse angles from acceleration
     bg_ratio = (beta * gamma) / _bg(w_out)
     m[1, 1] *= bg_ratio

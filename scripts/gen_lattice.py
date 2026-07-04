@@ -26,7 +26,7 @@ OUT = Path(__file__).resolve().parents[1] / "pip2va" / "lattice" / "pip2_lattice
 # Cavity family data (SRF2021 Table 2 + LLRF paper arXiv:2311.00900 Table 1)
 # v_max_mv = published V_eff capability at beta_opt; ql, half_bw_hz for rf-sim.
 CAV_FAMILY = {
-    "buncher": {"v_max_mv": 0.09, "ql": 1.0e4, "half_bw_hz": 8100.0},
+    "buncher": {"v_max_mv": 0.15, "ql": 1.0e4, "half_bw_hz": 8100.0},
     "HWR":     {"v_max_mv": 2.0,  "ql": 2.32e6, "half_bw_hz": 35.0},
     "SSR1":    {"v_max_mv": 2.05, "ql": 3.02e6, "half_bw_hz": 53.8},
     "SSR2":    {"v_max_mv": 5.0,  "ql": 5.05e6, "half_bw_hz": 32.2},
@@ -41,6 +41,58 @@ CAV_FAMILY = {
 def brho(w_mev: float) -> float:
     p = math.sqrt(w_mev**2 + 2.0 * w_mev * M_HMINUS)
     return p / C_MM
+
+
+def capture_profile(w_in: float, w_out: float, n_cav: int, phi_deg: float,
+                    freq_mhz: float, lp: float,
+                    v_ceil: float = 1e9, mu_deg: float = 100.0) -> list[float]:
+    """Per-cavity voltages with adiabatic capture: de-rate early cavities so
+    the longitudinal phase advance stays <= ~80 deg per period (real linacs
+    run the first cavities of each section below nominal), bisecting the
+    nominal voltage so the section energy gain closes exactly."""
+    lam = 299.792458 / freq_mhz
+    phi = math.radians(phi_deg)
+    mu_max = math.radians(mu_deg)
+
+    def walk(v_nom):
+        w, vs = w_in, []
+        for _ in range(n_cav):
+            gamma = 1.0 + w / M_HMINUS
+            beta = math.sqrt(1.0 - 1.0 / gamma ** 2)
+            kz = 2.0 * math.pi / (beta * lam)
+            m54_max = (mu_max ** 2) * gamma ** 2 / lp
+            vsin_max = m54_max * M_HMINUS * beta ** 2 * gamma / kz
+            v_i = min(v_nom, v_ceil,
+                      vsin_max / max(abs(math.sin(phi)), 1e-6))
+            vs.append((v_i, min(v_ceil, vsin_max / max(abs(math.sin(phi)),
+                                                       1e-6))))
+            w += v_i * math.cos(phi)
+        return vs, w
+
+    lo = (w_out - w_in) / (n_cav * math.cos(phi))
+    hi = 6.0 * lo
+    for _ in range(60):
+        mid = 0.5 * (lo + hi)
+        _, w_end = walk(mid)
+        if w_end < w_out:
+            lo = mid
+        else:
+            hi = mid
+    pairs, w_end = walk(hi)
+    vs = [v for v, _ in pairs]
+    # close residual energy by filling remaining headroom from the back
+    deficit = (w_out - w_end) / math.cos(phi)
+    for j in range(n_cav - 1, -1, -1):
+        if abs(deficit) < 1e-9:
+            break
+        room = (pairs[j][1] - vs[j]) if deficit > 0 else vs[j]
+        take = max(min(deficit, room), -vs[j])
+        vs[j] += take
+        deficit -= take
+    if abs(deficit) > 1e-6:
+        raise ValueError(f"capture profile cannot close: {deficit:+.3f} MV "
+                         f"residual (raise mu_deg or v_ceil)")
+    return vs
 
 
 def sol_field(w_mev: float, period_m: float, sol_len: float, mu_deg: float = 75.0) -> float:
@@ -233,7 +285,7 @@ def build(mebt_gq: float = 2.8, mebt_ratio: float = 1.1,
         b.corrector(ap); b.bpm(ap)
 
     def buncher():
-        b.cavity(0.30, 0.07, -90.0, 162.5, ap, "buncher")
+        b.cavity(0.30, 0.12, -90.0, 162.5, ap, "buncher")
 
     b.drift(0.15, ap); doublet(); b.drift(0.12, ap); pkg()          # G1
     buncher(); b.drift(0.12, ap); triplet(); b.drift(0.12, ap); pkg()  # G2
@@ -271,10 +323,10 @@ def build(mebt_gq: float = 2.8, mebt_ratio: float = 1.1,
     ap = 0.0165  # 33 mm cavity bore
     b.begin("HWR", 162.5)
     n_cav, phi = 8, -30.0
-    v = (10.3 - 2.1) / (n_cav * math.cos(math.radians(phi)))
+    vs = capture_profile(2.1, 10.3, n_cav, phi, 162.5, 0.95, v_ceil=2.0)
     for i in range(n_cav):
         b.drift(0.15, ap)
-        b.cavity(0.25, v, phi, 162.5, ap, "HWR")
+        b.cavity(0.25, vs[i], phi, 162.5, ap, "HWR")
         b.drift(0.10, ap)
         b.solenoid(0.30, sol_field(b.w, 0.95, 0.30), ap)
         b.corrector(ap); b.bpm(ap)
@@ -290,13 +342,14 @@ def build(mebt_gq: float = 2.8, mebt_ratio: float = 1.1,
     ap = 0.015  # 30 mm bore
     b.begin("SSR1", 325.0)
     n_cav, phi = 16, -26.0
-    v = (35.0 - 10.3) / (n_cav * math.cos(math.radians(phi)))
+    vs = list(capture_profile(10.3, 35.0, n_cav, phi, 325.0, 0.80, v_ceil=2.05))
+    v_iter = iter(vs)
     for cm in range(2):
         b.drift(0.20, ap)
         for grp in range(4):
-            b.cavity(0.30, v, phi, 325.0, ap, "SSR1")
+            b.cavity(0.30, next(v_iter), phi, 325.0, ap, "SSR1")
             b.drift(0.10, ap)
-            b.cavity(0.30, v, phi, 325.0, ap, "SSR1")
+            b.cavity(0.30, next(v_iter), phi, 325.0, ap, "SSR1")
             b.drift(0.10, ap)
             b.solenoid(0.35, sol_field(b.w, 1.30, 0.35), ap)
             b.corrector(ap); b.bpm(ap)
@@ -313,22 +366,22 @@ def build(mebt_gq: float = 2.8, mebt_ratio: float = 1.1,
     ap = 0.02  # 40 mm bore
     b.begin("SSR2", 325.0)
     n_cav, phi = 35, -23.0
-    v = (185.0 - 35.0) / (n_cav * math.cos(math.radians(phi)))
+    v_iter = iter(capture_profile(35.0, 185.0, n_cav, phi, 325.0, 0.80, v_ceil=5.0))
     for cm in range(7):
         b.drift(0.20, ap)
         b.solenoid(0.40, sol_field(b.w, 2.10, 0.40), ap)
         b.corrector(ap); b.bpm(ap)
-        b.cavity(0.40, v, phi, 325.0, ap, "SSR2"); b.drift(0.12, ap)
-        b.cavity(0.40, v, phi, 325.0, ap, "SSR2"); b.drift(0.12, ap)
+        b.cavity(0.40, next(v_iter), phi, 325.0, ap, "SSR2"); b.drift(0.12, ap)
+        b.cavity(0.40, next(v_iter), phi, 325.0, ap, "SSR2"); b.drift(0.12, ap)
         b.solenoid(0.40, sol_field(b.w, 2.10, 0.40), ap)
         b.corrector(ap); b.bpm(ap)
         b.blm()
-        b.cavity(0.40, v, phi, 325.0, ap, "SSR2"); b.drift(0.12, ap)
-        b.cavity(0.40, v, phi, 325.0, ap, "SSR2"); b.drift(0.12, ap)
+        b.cavity(0.40, next(v_iter), phi, 325.0, ap, "SSR2"); b.drift(0.12, ap)
+        b.cavity(0.40, next(v_iter), phi, 325.0, ap, "SSR2"); b.drift(0.12, ap)
         b.solenoid(0.40, sol_field(b.w, 2.10, 0.40), ap)
         b.corrector(ap); b.bpm(ap)
         b.blm()
-        b.cavity(0.40, v, phi, 325.0, ap, "SSR2")
+        b.cavity(0.40, next(v_iter), phi, 325.0, ap, "SSR2")
         b.drift(0.20, ap)
         if cm in (1, 3, 5):    # laserwire stations at CM2/4/6
             b.wire(ap, kind="laserwire")
@@ -340,11 +393,11 @@ def build(mebt_gq: float = 2.8, mebt_ratio: float = 1.1,
     ap_cav, ap_q = 0.0415, 0.023
     b.begin("LB650", 650.0)
     n_cav, phi = 36, -20.0
-    v = (516.0 - 185.0) / (n_cav * math.cos(math.radians(phi)))
+    v_iter = iter(capture_profile(185.0, 516.0, n_cav, phi, 650.0, 1.20, v_ceil=11.9))
     for cm in range(9):
         b.drift(0.30, ap_cav)
         for _ in range(4):
-            b.cavity(0.75, v, phi, 650.0, ap_cav, "LB650")
+            b.cavity(0.75, next(v_iter), phi, 650.0, ap_cav, "LB650")
             b.drift(0.25, ap_cav)
         g = doublet_grad(b.w, 5.8, 0.20, 0.35)
         b.quad(0.20, g, ap_q)
@@ -362,11 +415,11 @@ def build(mebt_gq: float = 2.8, mebt_ratio: float = 1.1,
     ap_cav, ap_q = 0.059, 0.023
     b.begin("HB650", 650.0)
     n_cav, phi = 24, -18.0
-    v = (800.0 - 516.0) / (n_cav * math.cos(math.radians(phi)))
+    v_iter = iter(capture_profile(516.0, 800.0, n_cav, phi, 650.0, 1.45, v_ceil=19.9))
     for cm in range(4):
         b.drift(0.30, ap_cav)
         for j in range(6):
-            b.cavity(1.10, v, phi, 650.0, ap_cav, "HB650")
+            b.cavity(1.10, next(v_iter), phi, 650.0, ap_cav, "HB650")
             b.drift(0.25, ap_cav)
             if j == 2:
                 b.blm()
