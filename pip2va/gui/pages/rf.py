@@ -78,7 +78,9 @@ class RfPage(Page):
             st = self.hub.get_settings("rf", el.name)
             p = el.params
             amp = QDoubleSpinBox()
-            amp.setRange(0.0, 30.0)
+            qlim = p.get("quench_mv", 1.3 * p.get("v_mv", p.get("v_design", 1.0)))
+            amp.setRange(0.0, qlim * 1.2)
+            amp.setToolTip(f"quench limit {qlim:g} MV")
             amp.setDecimals(3)
             amp.setSingleStep(0.05)
             amp.setValue(float(st.get("amp", p.get("v_mv", p.get("v_design", 1.0)))))

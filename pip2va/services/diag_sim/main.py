@@ -62,8 +62,10 @@ class DiagSimService(Service):
                             for b in self.bpms]) * 1e-6 * scale
         ph_sig = np.array([b.params.get("phase_noise_deg", 0.3)
                            for b in self.bpms]) * scale
-        x = tr["bpm_x"] + rng.normal(0, pos_sig)
-        y = tr["bpm_y"] + rng.normal(0, pos_sig)
+        # a BPM cannot report a position beyond its own bore
+        ap = np.array([b.aperture_radius for b in self.bpms])
+        x = np.clip(tr["bpm_x"] + rng.normal(0, pos_sig), -ap, ap)
+        y = np.clip(tr["bpm_y"] + rng.normal(0, pos_sig), -ap, ap)
         ph = tr["bpm_phase"] + rng.normal(0, ph_sig)
         i_noise = np.array([b.params.get("intensity_noise_frac", 0.01)
                             for b in self.bpms])

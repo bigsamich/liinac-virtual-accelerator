@@ -77,7 +77,10 @@ class MagnetsPage(Page):
             self.table.setItem(r, 1, QTableWidgetItem(el.type))
             self.table.setItem(r, 2, QTableWidgetItem(f))
             spin = QDoubleSpinBox()
-            spin.setRange(-2000, 2000)
+            lim = (el.params.get("max_amp", 10.0) if el.type == "corrector"
+                   else el.params.get("max_current", 2000.0))
+            spin.setRange(-lim, lim)
+            spin.setToolTip(f"supply limit ±{lim:g} A")
             spin.setDecimals(3)
             st = self.hub.get_settings("magnet", el.name)
             spin.setValue(float(st.get(f, el.params.get("design_current", 0.0)

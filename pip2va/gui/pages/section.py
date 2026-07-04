@@ -96,7 +96,9 @@ class SectionPage(Page):
             if el.type in ("rfgap", "rfq"):
                 st = self.hub.get_settings("rf", el.name)
                 p = el.params
-                amp = self._spin(0.0, 30.0, float(st.get(
+                qlim = p.get("quench_mv",
+                             1.3 * p.get("v_mv", p.get("v_design", 1.0)))
+                amp = self._spin(0.0, qlim * 1.2, float(st.get(
                     "amp", p.get("v_mv", p.get("v_design", 1.0)))), 3)
                 amp.valueChanged.connect(
                     lambda v, el=el: self.hub.set_setting("rf", el.name, "amp", v))
@@ -109,15 +111,17 @@ class SectionPage(Page):
                 self.table.setCellWidget(r, 3, ph)
             elif el.type == "corrector":
                 st = self.hub.get_settings("magnet", el.name)
+                lim = el.params.get("max_amp", 10.0)
                 for col, fld in ((2, "current_x"), (3, "current_y")):
-                    sp = self._spin(-10, 10, float(st.get(fld, 0.0)), 3)
+                    sp = self._spin(-lim, lim, float(st.get(fld, 0.0)), 3)
                     sp.valueChanged.connect(
                         lambda v, el=el, fld=fld: self.hub.set_setting(
                             "magnet", el.name, fld, v))
                     self.table.setCellWidget(r, col, sp)
             else:  # solenoid / quad
                 st = self.hub.get_settings("magnet", el.name)
-                sp = self._spin(-2000, 2000, float(st.get(
+                lim = el.params.get("max_current", 2000.0)
+                sp = self._spin(-lim, lim, float(st.get(
                     "current", el.params["design_current"])), 3)
                 sp.valueChanged.connect(
                     lambda v, el=el: self.hub.set_setting(

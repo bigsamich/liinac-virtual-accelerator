@@ -100,6 +100,7 @@ elements:
     field_per_amp: 0.01
     design_current: 15.107
     design_b: 0.15107
+    max_current: 22.66
   knobs:
     current: settings:magnet:LEBT:SOL1
 - name: LEBT:D2
@@ -120,6 +121,7 @@ elements:
     field_per_amp: 0.01
     design_current: 17.4702
     design_b: 0.174702
+    max_current: 26.21
   knobs:
     current: settings:magnet:LEBT:SOL2
 - name: LEBT:D3
@@ -159,6 +161,7 @@ elements:
     field_per_amp: 0.01
     design_current: 29.2299
     design_b: 0.292299
+    max_current: 43.84
   knobs:
     current: settings:magnet:LEBT:SOL3
 - name: LEBT:D5
@@ -224,6 +227,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 47.2836
     design_grad: 4.72836
+    max_current: 70.93
   knobs:
     current: settings:magnet:MEBT:Q1
 - name: MEBT:D2
@@ -244,6 +248,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -64.6318
     design_grad: -6.46318
+    max_current: 96.95
   knobs:
     current: settings:magnet:MEBT:Q2
 - name: MEBT:D3
@@ -313,6 +318,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -0.3305
     design_grad: -0.03305
+    max_current: 0.5
   knobs:
     current: settings:magnet:MEBT:Q3
 - name: MEBT:D5
@@ -333,6 +339,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 76.9272
     design_grad: 7.69272
+    max_current: 115.39
   knobs:
     current: settings:magnet:MEBT:Q4
 - name: MEBT:D6
@@ -353,6 +360,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -82.1106
     design_grad: -8.21106
+    max_current: 123.17
   knobs:
     current: settings:magnet:MEBT:Q5
 - name: MEBT:D7
@@ -426,6 +434,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 50.2625
     design_grad: 5.02625
+    max_current: 75.39
   knobs:
     current: settings:magnet:MEBT:Q6
 - name: MEBT:D9
@@ -446,6 +455,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -95.4566
     design_grad: -9.54566
+    max_current: 143.18
   knobs:
     current: settings:magnet:MEBT:Q7
 - name: MEBT:D10
@@ -466,6 +476,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 61.5802
     design_grad: 6.15802
+    max_current: 92.37
   knobs:
     current: settings:magnet:MEBT:Q8
 - name: MEBT:D11
@@ -568,6 +579,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -59.6744
     design_grad: -5.96744
+    max_current: 89.51
   knobs:
     current: settings:magnet:MEBT:Q9
 - name: MEBT:D14
@@ -588,6 +600,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 90.9813
     design_grad: 9.09813
+    max_current: 136.47
   knobs:
     current: settings:magnet:MEBT:Q10
 - name: MEBT:D15
@@ -608,6 +621,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -49.0951
     design_grad: -4.90951
+    max_current: 73.64
   knobs:
     current: settings:magnet:MEBT:Q11
 - name: MEBT:D16
@@ -686,6 +700,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 39.5441
     design_grad: 3.95441
+    max_current: 59.32
   knobs:
     current: settings:magnet:MEBT:Q12
 - name: MEBT:D18
@@ -706,6 +721,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -80.8242
     design_grad: -8.08242
+    max_current: 121.24
   knobs:
     current: settings:magnet:MEBT:Q13
 - name: MEBT:D19
@@ -726,6 +742,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 59.7883
     design_grad: 5.97883
+    max_current: 89.68
   knobs:
     current: settings:magnet:MEBT:Q14
 - name: MEBT:D20
@@ -779,6 +796,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -33.0181
     design_grad: -3.30181
+    max_current: 49.53
   knobs:
     current: settings:magnet:MEBT:Q15
 - name: MEBT:D21
@@ -799,6 +817,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 83.8323
     design_grad: 8.38323
+    max_current: 125.75
   knobs:
     current: settings:magnet:MEBT:Q16
 - name: MEBT:D22
@@ -819,6 +838,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -81.0925
     design_grad: -8.10925
+    max_current: 121.64
   knobs:
     current: settings:magnet:MEBT:Q17
 - name: MEBT:D23
@@ -897,6 +917,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 71.4873
     design_grad: 7.14873
+    max_current: 107.23
   knobs:
     current: settings:magnet:MEBT:Q18
 - name: MEBT:D25
@@ -917,6 +938,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -93.6508
     design_grad: -9.36508
+    max_current: 140.48
   knobs:
     current: settings:magnet:MEBT:Q19
 - name: MEBT:D26
@@ -937,6 +959,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 54.5505
     design_grad: 5.45505
+    max_current: 81.83
   knobs:
     current: settings:magnet:MEBT:Q20
 - name: MEBT:D27
@@ -990,6 +1013,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -21.5233
     design_grad: -2.15233
+    max_current: 32.28
   knobs:
     current: settings:magnet:MEBT:Q21
 - name: MEBT:D28
@@ -1010,6 +1034,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 47.3269
     design_grad: 4.73269
+    max_current: 70.99
   knobs:
     current: settings:magnet:MEBT:Q22
 - name: MEBT:D29
@@ -1030,6 +1055,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -71.5395
     design_grad: -7.15395
+    max_current: 107.31
   knobs:
     current: settings:magnet:MEBT:Q23
 - name: MEBT:D30
@@ -1082,6 +1108,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 63.8927
     design_grad: 6.38927
+    max_current: 95.84
   knobs:
     current: settings:magnet:MEBT:Q24
 - name: MEBT:D31
@@ -1102,6 +1129,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -28.8983
     design_grad: -2.88983
+    max_current: 43.35
   knobs:
     current: settings:magnet:MEBT:Q25
 - name: MEBT:D32
@@ -1209,6 +1237,7 @@ elements:
     field_per_amp: 0.01
     design_current: 120.1085
     design_b: 1.201085
+    max_current: 180.16
   knobs:
     current: settings:magnet:HWR:SOL1
 - name: HWR:C1
@@ -1286,6 +1315,7 @@ elements:
     field_per_amp: 0.01
     design_current: 137.2045
     design_b: 1.372045
+    max_current: 205.81
   knobs:
     current: settings:magnet:HWR:SOL2
 - name: HWR:C2
@@ -1374,6 +1404,7 @@ elements:
     field_per_amp: 0.01
     design_current: 214.085
     design_b: 2.14085
+    max_current: 321.13
   knobs:
     current: settings:magnet:HWR:SOL3
 - name: HWR:C3
@@ -1451,6 +1482,7 @@ elements:
     field_per_amp: 0.01
     design_current: 262.1825
     design_b: 2.621825
+    max_current: 393.27
   knobs:
     current: settings:magnet:HWR:SOL4
 - name: HWR:C4
@@ -1539,6 +1571,7 @@ elements:
     field_per_amp: 0.01
     design_current: 278.2872
     design_b: 2.782872
+    max_current: 417.43
   knobs:
     current: settings:magnet:HWR:SOL5
 - name: HWR:C5
@@ -1616,6 +1649,7 @@ elements:
     field_per_amp: 0.01
     design_current: 276.4407
     design_b: 2.764407
+    max_current: 414.66
   knobs:
     current: settings:magnet:HWR:SOL6
 - name: HWR:C6
@@ -1704,6 +1738,7 @@ elements:
     field_per_amp: 0.01
     design_current: 232.4707
     design_b: 2.324707
+    max_current: 348.71
   knobs:
     current: settings:magnet:HWR:SOL7
 - name: HWR:C7
@@ -1781,6 +1816,7 @@ elements:
     field_per_amp: 0.01
     design_current: 226.3479
     design_b: 2.263479
+    max_current: 339.52
   knobs:
     current: settings:magnet:HWR:SOL8
 - name: HWR:C8
@@ -1915,6 +1951,7 @@ elements:
     field_per_amp: 0.01
     design_current: 270.1543
     design_b: 2.701543
+    max_current: 405.23
   knobs:
     current: settings:magnet:SSR1:SOL1
 - name: SSR1:C1
@@ -2010,6 +2047,7 @@ elements:
     field_per_amp: 0.01
     design_current: 333.3741
     design_b: 3.333741
+    max_current: 500.06
   knobs:
     current: settings:magnet:SSR1:SOL2
 - name: SSR1:C2
@@ -2116,6 +2154,7 @@ elements:
     field_per_amp: 0.01
     design_current: 362.9743
     design_b: 3.629743
+    max_current: 544.46
   knobs:
     current: settings:magnet:SSR1:SOL3
 - name: SSR1:C3
@@ -2211,6 +2250,7 @@ elements:
     field_per_amp: 0.01
     design_current: 348.3464
     design_b: 3.483464
+    max_current: 522.52
   knobs:
     current: settings:magnet:SSR1:SOL4
 - name: SSR1:C4
@@ -2333,6 +2373,7 @@ elements:
     field_per_amp: 0.01
     design_current: 382.4143
     design_b: 3.824143
+    max_current: 573.62
   knobs:
     current: settings:magnet:SSR1:SOL5
 - name: SSR1:C5
@@ -2428,6 +2469,7 @@ elements:
     field_per_amp: 0.01
     design_current: 462.2066
     design_b: 4.622066
+    max_current: 693.31
   knobs:
     current: settings:magnet:SSR1:SOL6
 - name: SSR1:C6
@@ -2534,6 +2576,7 @@ elements:
     field_per_amp: 0.01
     design_current: 516.0681
     design_b: 5.160681
+    max_current: 774.1
   knobs:
     current: settings:magnet:SSR1:SOL7
 - name: SSR1:C7
@@ -2629,6 +2672,7 @@ elements:
     field_per_amp: 0.01
     design_current: 400.9259
     design_b: 4.009259
+    max_current: 601.39
   knobs:
     current: settings:magnet:SSR1:SOL8
 - name: SSR1:C8
@@ -2719,6 +2763,7 @@ elements:
     field_per_amp: 0.01
     design_current: 74.7783
     design_b: 0.747783
+    max_current: 112.17
   knobs:
     current: settings:magnet:SSR2:SOL1
 - name: SSR2:C1
@@ -2806,6 +2851,7 @@ elements:
     field_per_amp: 0.01
     design_current: 267.2818
     design_b: 2.672818
+    max_current: 400.92
   knobs:
     current: settings:magnet:SSR2:SOL2
 - name: SSR2:C2
@@ -2904,6 +2950,7 @@ elements:
     field_per_amp: 0.01
     design_current: 257.9849
     design_b: 2.579849
+    max_current: 386.98
   knobs:
     current: settings:magnet:SSR2:SOL3
 - name: SSR2:C3
@@ -2984,6 +3031,7 @@ elements:
     field_per_amp: 0.01
     design_current: 155.635
     design_b: 1.55635
+    max_current: 233.45
   knobs:
     current: settings:magnet:SSR2:SOL4
 - name: SSR2:C4
@@ -3071,6 +3119,7 @@ elements:
     field_per_amp: 0.01
     design_current: 362.3694
     design_b: 3.623694
+    max_current: 543.55
   knobs:
     current: settings:magnet:SSR2:SOL5
 - name: SSR2:C5
@@ -3169,6 +3218,7 @@ elements:
     field_per_amp: 0.01
     design_current: 327.1552
     design_b: 3.271552
+    max_current: 490.73
   knobs:
     current: settings:magnet:SSR2:SOL6
 - name: SSR2:C6
@@ -3259,6 +3309,7 @@ elements:
     field_per_amp: 0.01
     design_current: 299.9144
     design_b: 2.999144
+    max_current: 449.87
   knobs:
     current: settings:magnet:SSR2:SOL7
 - name: SSR2:C7
@@ -3346,6 +3397,7 @@ elements:
     field_per_amp: 0.01
     design_current: 392.5341
     design_b: 3.925341
+    max_current: 588.8
   knobs:
     current: settings:magnet:SSR2:SOL8
 - name: SSR2:C8
@@ -3444,6 +3496,7 @@ elements:
     field_per_amp: 0.01
     design_current: 261.165
     design_b: 2.61165
+    max_current: 391.75
   knobs:
     current: settings:magnet:SSR2:SOL9
 - name: SSR2:C9
@@ -3524,6 +3577,7 @@ elements:
     field_per_amp: 0.01
     design_current: 386.3099
     design_b: 3.863099
+    max_current: 579.46
   knobs:
     current: settings:magnet:SSR2:SOL10
 - name: SSR2:C10
@@ -3611,6 +3665,7 @@ elements:
     field_per_amp: 0.01
     design_current: 463.3563
     design_b: 4.633563
+    max_current: 695.03
   knobs:
     current: settings:magnet:SSR2:SOL11
 - name: SSR2:C11
@@ -3709,6 +3764,7 @@ elements:
     field_per_amp: 0.01
     design_current: 394.3929
     design_b: 3.943929
+    max_current: 591.59
   knobs:
     current: settings:magnet:SSR2:SOL12
 - name: SSR2:C12
@@ -3799,6 +3855,7 @@ elements:
     field_per_amp: 0.01
     design_current: 477.2289
     design_b: 4.772289
+    max_current: 715.84
   knobs:
     current: settings:magnet:SSR2:SOL13
 - name: SSR2:C13
@@ -3886,6 +3943,7 @@ elements:
     field_per_amp: 0.01
     design_current: 473.6463
     design_b: 4.736463
+    max_current: 710.47
   knobs:
     current: settings:magnet:SSR2:SOL14
 - name: SSR2:C14
@@ -3984,6 +4042,7 @@ elements:
     field_per_amp: 0.01
     design_current: 435.8817
     design_b: 4.358817
+    max_current: 653.82
   knobs:
     current: settings:magnet:SSR2:SOL15
 - name: SSR2:C15
@@ -4064,6 +4123,7 @@ elements:
     field_per_amp: 0.01
     design_current: 519.4443
     design_b: 5.194443
+    max_current: 779.17
   knobs:
     current: settings:magnet:SSR2:SOL16
 - name: SSR2:C16
@@ -4151,6 +4211,7 @@ elements:
     field_per_amp: 0.01
     design_current: 396.5082
     design_b: 3.965082
+    max_current: 594.76
   knobs:
     current: settings:magnet:SSR2:SOL17
 - name: SSR2:C17
@@ -4249,6 +4310,7 @@ elements:
     field_per_amp: 0.01
     design_current: 476.7343
     design_b: 4.767343
+    max_current: 715.1
   knobs:
     current: settings:magnet:SSR2:SOL18
 - name: SSR2:C18
@@ -4339,6 +4401,7 @@ elements:
     field_per_amp: 0.01
     design_current: 662.5779
     design_b: 6.625779
+    max_current: 993.87
   knobs:
     current: settings:magnet:SSR2:SOL19
 - name: SSR2:C19
@@ -4426,6 +4489,7 @@ elements:
     field_per_amp: 0.01
     design_current: 59.6308
     design_b: 0.596308
+    max_current: 89.45
   knobs:
     current: settings:magnet:SSR2:SOL20
 - name: SSR2:C20
@@ -4524,6 +4588,7 @@ elements:
     field_per_amp: 0.01
     design_current: 550.8106
     design_b: 5.508106
+    max_current: 826.22
   knobs:
     current: settings:magnet:SSR2:SOL21
 - name: SSR2:C21
@@ -4718,6 +4783,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 117.6158
     design_grad: 11.76158
+    max_current: 176.42
   knobs:
     current: settings:magnet:LB650:Q1
 - name: LB650:D6
@@ -4738,6 +4804,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -112.1303
     design_grad: -11.21303
+    max_current: 168.2
   knobs:
     current: settings:magnet:LB650:Q2
 - name: LB650:C1
@@ -4914,6 +4981,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 113.426
     design_grad: 11.3426
+    max_current: 170.14
   knobs:
     current: settings:magnet:LB650:Q3
 - name: LB650:D13
@@ -4934,6 +5002,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -107.6847
     design_grad: -10.76847
+    max_current: 161.53
   knobs:
     current: settings:magnet:LB650:Q4
 - name: LB650:C2
@@ -5100,6 +5169,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 97.4893
     design_grad: 9.74893
+    max_current: 146.23
   knobs:
     current: settings:magnet:LB650:Q5
 - name: LB650:D20
@@ -5120,6 +5190,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -108.6286
     design_grad: -10.86286
+    max_current: 162.94
   knobs:
     current: settings:magnet:LB650:Q6
 - name: LB650:C3
@@ -5296,6 +5367,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 130.5636
     design_grad: 13.05636
+    max_current: 195.85
   knobs:
     current: settings:magnet:LB650:Q7
 - name: LB650:D27
@@ -5316,6 +5388,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -134.07
     design_grad: -13.407
+    max_current: 201.1
   knobs:
     current: settings:magnet:LB650:Q8
 - name: LB650:C4
@@ -5482,6 +5555,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 130.4494
     design_grad: 13.04494
+    max_current: 195.67
   knobs:
     current: settings:magnet:LB650:Q9
 - name: LB650:D34
@@ -5502,6 +5576,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -134.6923
     design_grad: -13.46923
+    max_current: 202.04
   knobs:
     current: settings:magnet:LB650:Q10
 - name: LB650:C5
@@ -5668,6 +5743,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 141.1719
     design_grad: 14.11719
+    max_current: 211.76
   knobs:
     current: settings:magnet:LB650:Q11
 - name: LB650:D41
@@ -5688,6 +5764,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -146.7909
     design_grad: -14.67909
+    max_current: 220.19
   knobs:
     current: settings:magnet:LB650:Q12
 - name: LB650:C6
@@ -5864,6 +5941,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 148.9433
     design_grad: 14.89433
+    max_current: 223.41
   knobs:
     current: settings:magnet:LB650:Q13
 - name: LB650:D48
@@ -5884,6 +5962,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -149.0711
     design_grad: -14.90711
+    max_current: 223.61
   knobs:
     current: settings:magnet:LB650:Q14
 - name: LB650:C7
@@ -6050,6 +6129,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 133.6084
     design_grad: 13.36084
+    max_current: 200.41
   knobs:
     current: settings:magnet:LB650:Q15
 - name: LB650:D55
@@ -6070,6 +6150,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -146.7343
     design_grad: -14.67343
+    max_current: 220.1
   knobs:
     current: settings:magnet:LB650:Q16
 - name: LB650:C8
@@ -6236,6 +6317,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 157.4856
     design_grad: 15.74856
+    max_current: 236.23
   knobs:
     current: settings:magnet:LB650:Q17
 - name: LB650:D62
@@ -6256,6 +6338,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -160.8487
     design_grad: -16.08487
+    max_current: 241.27
   knobs:
     current: settings:magnet:LB650:Q18
 - name: LB650:C9
@@ -6505,6 +6588,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 148.8916
     design_grad: 14.88916
+    max_current: 223.34
   knobs:
     current: settings:magnet:HB650:Q1
 - name: HB650:D8
@@ -6525,6 +6609,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -144.405
     design_grad: -14.4405
+    max_current: 216.61
   knobs:
     current: settings:magnet:HB650:Q2
 - name: HB650:C1
@@ -6754,6 +6839,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 126.4448
     design_grad: 12.64448
+    max_current: 189.67
   knobs:
     current: settings:magnet:HB650:Q3
 - name: HB650:D17
@@ -6774,6 +6860,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -122.1073
     design_grad: -12.21073
+    max_current: 183.16
   knobs:
     current: settings:magnet:HB650:Q4
 - name: HB650:C2
@@ -7013,6 +7100,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 157.4173
     design_grad: 15.74173
+    max_current: 236.13
   knobs:
     current: settings:magnet:HB650:Q5
 - name: HB650:D26
@@ -7033,6 +7121,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -164.5785
     design_grad: -16.45785
+    max_current: 246.87
   knobs:
     current: settings:magnet:HB650:Q6
 - name: HB650:C3
@@ -7262,6 +7351,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 162.5044
     design_grad: 16.25044
+    max_current: 243.76
   knobs:
     current: settings:magnet:HB650:Q7
 - name: HB650:D35
@@ -7282,6 +7372,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -376.2889
     design_grad: -37.62889
+    max_current: 564.43
   knobs:
     current: settings:magnet:HB650:Q8
 - name: HB650:C4
@@ -7356,6 +7447,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 280.8035
     design_grad: 28.08035
+    max_current: 421.21
   knobs:
     current: settings:magnet:BTL:Q1
 - name: BTL:C1
@@ -7399,6 +7491,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -268.2978
     design_grad: -26.82978
+    max_current: 402.45
   knobs:
     current: settings:magnet:BTL:Q2
 - name: BTL:C2
@@ -7453,6 +7546,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 166.2066
     design_grad: 16.62066
+    max_current: 249.31
   knobs:
     current: settings:magnet:BTL:Q3
 - name: BTL:C3
@@ -7522,6 +7616,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -116.4154
     design_grad: -11.64154
+    max_current: 174.62
   knobs:
     current: settings:magnet:BTL:Q4
 - name: BTL:C4
@@ -7576,6 +7671,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 70.9222
     design_grad: 7.09222
+    max_current: 106.38
   knobs:
     current: settings:magnet:BTL:Q5
 - name: BTL:C5
@@ -7655,6 +7751,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -69.1928
     design_grad: -6.91928
+    max_current: 103.79
   knobs:
     current: settings:magnet:BTL:Q6
 - name: BTL:C6
@@ -7709,6 +7806,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 80.3713
     design_grad: 8.03713
+    max_current: 120.56
   knobs:
     current: settings:magnet:BTL:Q7
 - name: BTL:C7
@@ -7788,6 +7886,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -84.2951
     design_grad: -8.42951
+    max_current: 126.44
   knobs:
     current: settings:magnet:BTL:Q8
 - name: BTL:C8
@@ -7852,6 +7951,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 84.802
     design_grad: 8.4802
+    max_current: 127.2
   knobs:
     current: settings:magnet:BTL:Q9
 - name: BTL:C9
@@ -7931,6 +8031,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -84.2848
     design_grad: -8.42848
+    max_current: 126.43
   knobs:
     current: settings:magnet:BTL:Q10
 - name: BTL:C10
@@ -7985,6 +8086,7 @@ elements:
     grad_per_amp: 0.1
     design_current: 82.7861
     design_grad: 8.27861
+    max_current: 124.18
   knobs:
     current: settings:magnet:BTL:Q11
 - name: BTL:C11
@@ -8064,6 +8166,7 @@ elements:
     grad_per_amp: 0.1
     design_current: -42.7799
     design_grad: -4.27799
+    max_current: 64.17
   knobs:
     current: settings:magnet:BTL:Q12
 - name: BTL:C12

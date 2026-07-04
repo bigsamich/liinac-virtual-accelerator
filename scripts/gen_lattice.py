@@ -103,7 +103,8 @@ class Builder:
         i_design = round(b_t / 0.01, 3)  # 0.01 T/A calibration
         self.add("solenoid", name, length, aperture,
                  params={"field_per_amp": 0.01, "design_current": i_design,
-                         "design_b": round(b_t, 5)},
+                         "design_b": round(b_t, 5),
+                         "max_current": round(1.5 * abs(i_design), 2)},
                  knobs={"current": f"settings:magnet:{name}"})
 
     def quad(self, length: float, grad_tpm: float, aperture: float):
@@ -112,7 +113,8 @@ class Builder:
         i_design = round(grad_tpm / 0.1, 3)  # 0.1 (T/m)/A
         self.add("quad", name, length, aperture,
                  params={"grad_per_amp": 0.1, "design_current": i_design,
-                         "design_grad": round(grad_tpm, 4)},
+                         "design_grad": round(grad_tpm, 4),
+                         "max_current": round(1.5 * abs(i_design), 2)},
                  knobs={"current": f"settings:magnet:{name}"})
 
     def corrector(self, aperture: float):

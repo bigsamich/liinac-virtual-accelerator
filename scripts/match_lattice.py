@@ -99,6 +99,7 @@ def main():
         el = by_name[name]
         cur = st["current"]
         el["params"]["design_current"] = round(float(cur), 4)
+        el["params"]["max_current"] = round(1.5 * abs(float(cur)), 2)
         if el["type"] == "quad":
             el["params"]["design_grad"] = round(
                 cur * el["params"]["grad_per_amp"], 5)
