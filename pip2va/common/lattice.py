@@ -66,6 +66,26 @@ class Lattice(BaseModel):
 
 
 @lru_cache(maxsize=4)
+def load_errors(path: str | None = None) -> dict:
+    """Static machine imperfections {element: {dx, dy | offset_*, scale}}.
+
+    Returns {} when no errors file exists or PIP2VA_ERRORS=0 (the 'perfect
+    machine' used by physics unit tests)."""
+    import os
+    if os.environ.get("PIP2VA_ERRORS", "1") in ("0", "false"):
+        return {}
+    if path is None:
+        ref = resources.files("pip2va.lattice") / "errors.yaml"
+        try:
+            raw = ref.read_text()
+        except FileNotFoundError:
+            return {}
+    else:
+        raw = Path(path).read_text()
+    return yaml.safe_load(raw).get("errors", {})
+
+
+@lru_cache(maxsize=4)
 def load_lattice(path: str | None = None) -> Lattice:
     if path is None:
         ref = resources.files("pip2va.lattice") / "pip2_lattice.yaml"

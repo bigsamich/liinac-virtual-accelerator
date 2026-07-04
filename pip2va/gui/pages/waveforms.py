@@ -38,12 +38,17 @@ class WaveformsPage(Page):
         self.tree.setHeaderLabel("Devices (check up to 8)")
         self.tree.setFixedWidth(230)
         self._items: dict[str, QTreeWidgetItem] = {}
-        for group, typ in (("Toroids", "toroid"), ("BPMs", "bpm"),
-                           ("BLMs", "blm")):
+        groups = [("Toroids", "toroid", self.lat.instruments("toroid")),
+                  ("Cavities (RF)", "rf",
+                   [e for e in self.lat.elements
+                    if e.type in ("rfgap", "rfq")]),
+                  ("BPMs", "bpm", self.lat.instruments("bpm")),
+                  ("BLMs", "blm", self.lat.instruments("blm"))]
+        for group, typ, els in groups:
             g = QTreeWidgetItem([group])
             g.setFlags(Qt.ItemFlag.ItemIsEnabled)
             self.tree.addTopLevelItem(g)
-            for e in self.lat.instruments(typ):
+            for e in els:
                 it = QTreeWidgetItem([short_label(e.name)])
                 it.setData(0, Qt.ItemDataRole.UserRole, (typ, e.name))
                 it.setFlags(Qt.ItemFlag.ItemIsEnabled
@@ -51,7 +56,8 @@ class WaveformsPage(Page):
                 it.setCheckState(0, Qt.CheckState.Unchecked)
                 g.addChild(it)
                 self._items[e.name] = it
-            g.setExpanded(typ == "toroid")
+        for g in range(self.tree.topLevelItemCount()):
+            self.tree.topLevelItem(g).setExpanded(g == 0)
         # sensible default: last toroid checked
         last_tor = self.lat.instruments("toroid")[-1].name
         self._items[last_tor].setCheckState(0, Qt.CheckState.Checked)
@@ -102,6 +108,7 @@ class WaveformsPage(Page):
         self.btn_pm.clicked.connect(self._load_pm)
         self.hub.wfToroid.connect(self._on_tor)
         self.hub.wfCapture.connect(self._on_cap)
+        self.hub.wfRf.connect(self._on_rf_wf)
         self.hub.mpsEvent.connect(self._on_mps)
 
     # ------------------------------------------------------------ selection
@@ -121,9 +128,10 @@ class WaveformsPage(Page):
         else:
             self._checked.pop(name, None)
             self._drop_curves(name)
-        # BPM/BLM captures are produced by diag-sim on request
+        # BPM/BLM captures come from diag-sim; RF waveforms from rf-sim
         self.hub.select_waveforms(
-            [n for n, t in self._checked.items() if t in ("bpm", "blm")])
+            [n for n, t in self._checked.items() if t in ("bpm", "blm")],
+            [n for n, t in self._checked.items() if t == "rf"])
 
     def _uncheck_all(self):
         self.tree.blockSignals(True)
@@ -205,6 +213,29 @@ class WaveformsPage(Page):
             self.p_sig.update_y(*sig_vals)
         if cur_vals:
             self.p_cur.update_y(*cur_vals)
+
+    def _on_rf_wf(self, _pid, data):
+        if not self.isVisible() or "t_ms" not in data:
+            return
+        t = data["t_ms"]
+        sig_vals = []
+        for key, wf in data.items():
+            if key == "t_ms":
+                continue
+            name, field = key.rsplit(":", 1)
+            if name not in self._checked:
+                continue
+            if field in ("amp", "det"):
+                c = self._curve(self._sig_curves, self.p_sig,
+                                f"{name}|{field}")
+                c.setData(t, wf)
+                sig_vals.append(wf)
+            elif field == "fwd_kw":
+                c = self._curve(self._cur_curves, self.p_cur,
+                                f"{name}|fwd")
+                c.setData(t, wf)
+        if sig_vals:
+            self.p_sig.update_y(*sig_vals)
 
     # ------------------------------------------------------------ postmortem
 

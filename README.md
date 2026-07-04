@@ -50,7 +50,7 @@ keyed by pulse ID:
 |---|---|
 | `timing` | 20 Hz master clock, monotonic pulse IDs |
 | `beam-physics` | **GPU.** Envelope pass every pulse (~7 ms: centroid + 6D sigma transport, phase-slip cavity physics, 3D-ellipsoid space charge with longitudinal debunching, Gaussian-tail + H⁻ stripping losses). A free-running CuPy macroparticle tracker (400k particles, nonlinear Gaussian SC kicks, ~2.9 s/pass on GB10) publishes profiles, phase space, emittance, and a particle-true loss map. |
-| `rf-sim` | Per-cavity LLRF: amplitude servo, microphonics + Lorentz-force detuning, tuner servo, quench/trip latches |
+| `rf-sim` | **Physical SRF model**: complex-envelope ODE integrated across every pulse for all 124 cavities — PI LLRF with loop delay, beam-loading transients + feedforward, stochastic microphonics (OU He drift + acoustic lines), Lorentz-force detuning with piezo loop, Q0-collapse quenches, CEBAF-law stochastic trips. RF intra-pulse waveforms on demand. |
 | `magnet-sim` | Power supplies: slew, ripple, thermal drift, trips |
 | `diag-sim` | Turns ground truth into noisy measurements (BPM/BLM/toroid/wire-scanner models) **plus intra-pulse waveforms** (1000 samples across the 0.55 ms pulse) and the trip postmortem buffer. The GUI **never** sees ground truth. |
 | `mps` | Beam permit: commissioning-style BLM baseline capture (only while delivering beam) → per-monitor thresholds, latched trips, gated reset |

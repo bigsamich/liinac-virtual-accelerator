@@ -14,6 +14,7 @@ import threading
 import time
 
 from pip2va.common import codec, keys
+from pip2va.common.lattice import load_errors
 from pip2va.physics.envelope import EnvelopeEngine
 from pip2va.physics.macro import MacroTracker
 from pip2va.services.base import Service, main_for
@@ -29,7 +30,11 @@ class BeamPhysicsService(Service):
         self._macro_enabled = macro
 
     def on_start(self):
-        self.engine = EnvelopeEngine(self.lat)
+        self._errors = load_errors()
+        if self._errors:
+            log.info("as-built machine: %d element imperfections",
+                     len(self._errors))
+        self.engine = EnvelopeEngine(self.lat, errors=self._errors)
         self._prev_ds: dict = {}
         self._latest = {"ds": {}, "beam_on": True, "pulse_id": 0}
         self._rb_keys = []
@@ -116,7 +121,8 @@ class BeamPhysicsService(Service):
     # ------------------------------------------------------------ deep pass
 
     def _macro_loop(self):
-        tracker = MacroTracker(self.lat, n=self.settings.macro_particles)
+        tracker = MacroTracker(self.lat, n=self.settings.macro_particles,
+                               errors=self._errors)
         log.info("macro tracker running (n=%d, backend=%s)",
                  tracker.n, tracker.xp.__name__)
         while True:
