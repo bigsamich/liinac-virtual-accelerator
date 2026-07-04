@@ -1,0 +1,85 @@
+"""Machine Protection System: beam-permit watchdog.
+
+Watches the measured BLM stream; if the 10-pulse rolling mean at any monitor
+exceeds the loss limit, drops the beam permit (state:mps.permit=0), latches,
+and logs to stream:mps.events. Reset (settings:mps:main reset=1) is accepted
+only once the rolling loss is back under the limit. Device fault events are
+logged to the same event stream.
+"""
+from __future__ import annotations
+
+import collections
+import time
+
+import numpy as np
+
+from pip2va.common import codec, keys
+from pip2va.services.base import Service, main_for
+
+WINDOW = 10
+
+
+class MpsService(Service):
+    name = "mps"
+    extra_channels = (keys.CH_FAULT,)
+
+    def on_start(self):
+        self.r.setnx("state:mps.permit", 1)
+        self.limit = self.lat.meta.get("loss_limit_wpm", 1.0)
+        blms = self.lat.instruments("blm")
+        self.blm_names = [e.name for e in blms]
+        # per-BLM threshold table: generic limit, or 3x the design level where
+        # by-design losses (chopper/scraper regions) exceed it
+        self.thresholds = np.array([
+            max(self.limit, 3.0 * e.params.get("design_wpm", 0.0))
+            for e in blms])
+        self.window: collections.deque = collections.deque(maxlen=WINDOW)
+
+    def _event(self, kind: str, detail: str):
+        self.r.xadd(keys.stream("mps.events"),
+                    {"t": time.time(), "kind": kind, "detail": detail},
+                    maxlen=500, approximate=True)
+
+    def on_event(self, channel, data):
+        if channel == keys.CH_FAULT and isinstance(data, dict):
+            self._event("device_fault", str(data.get("key", "?")))
+
+    def on_tick(self, pulse_id: int):
+        entries = self.r.xrevrange(keys.stream("blm.losses"), count=1)
+        if entries:
+            _, wpm = codec.unpack(entries[0][1][b"d"])
+            self.window.append(wpm["wpm"])
+        if not self.window:
+            return
+        mean = np.mean(np.stack(self.window), axis=0)
+        thr = self.thresholds[:len(mean)] if len(mean) <= len(self.thresholds) \
+            else np.full(len(mean), self.limit)
+        excess = mean / thr
+        worst = int(np.argmax(excess))
+        permit = self.r.get("state:mps.permit") in (b"1", "1", None)
+
+        if permit and len(self.window) >= WINDOW and excess[worst] > 1.0:
+            self.r.set("state:mps.permit", 0)
+            name = (self.blm_names[worst]
+                    if worst < len(self.blm_names) else f"BLM{worst}")
+            self._event("trip", f"{name} {mean[worst]:.2f} W/m "
+                                f"(limit {thr[worst]:.2f})")
+            self.publish_event(keys.CH_MPS, {"permit": 0, "blm": name,
+                                             "wpm": float(mean[worst])})
+
+        # reset requests
+        skey = keys.settings("mps", "main")
+        st = self.read_hash(skey)
+        if st.get("reset"):
+            self.r.hdel(skey, "reset")
+            if excess[worst] <= 1.0:
+                self.r.set("state:mps.permit", 1)
+                self._event("reset", "permit restored")
+                self.publish_event(keys.CH_MPS, {"permit": 1})
+            else:
+                self._event("reset_refused",
+                            f"loss still {mean[worst]:.2f} W/m")
+
+
+if __name__ == "__main__":
+    main_for(MpsService)

@@ -39,7 +39,7 @@ def main():
     overrides: dict[str, dict] = {}
 
     def run():
-        return eng.run(overrides, current_ma=2.0)
+        return eng.run(overrides)
 
     def section_cost(sec: str, res) -> float:
         idx = sec_idx[sec]
@@ -91,6 +91,10 @@ def main():
 
     # bake optimized strengths into the YAML
     by_name = {e["name"]: e for e in doc["elements"]}
+    # record design BLM levels — the MPS uses these as its threshold table
+    blm_names = [e.name for e in lat.instruments("blm")]
+    for j, nm in enumerate(blm_names):
+        by_name[nm]["params"]["design_wpm"] = round(float(res.blm_wpm[j]), 4)
     for name, st in overrides.items():
         el = by_name[name]
         cur = st["current"]

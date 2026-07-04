@@ -86,7 +86,8 @@ class EnvelopeEngine:
         """Transport one pulse. device_state: {element_name: {field: value}}."""
         m = self.meta
         ds = device_state or {}
-        i_peak = current_ma if current_ma is not None else m["nominal_current_ma"]
+        i_peak = current_ma if current_ma is not None else \
+            m.get("peak_current_ma", m["nominal_current_ma"])
         # source setting overrides (peak current out of the source)
         src = ds.get("LEBT:SRC") or {}
         if "current_ma" in src:

@@ -50,7 +50,7 @@ def test_fodo_envelope_bounded():
 def full():
     lat = load_lattice()
     eng = EnvelopeEngine(lat)
-    res = eng.run({}, current_ma=2.0)
+    res = eng.run({})
     return lat, eng, res
 
 
@@ -84,8 +84,8 @@ def test_corrector_moves_orbit_linearly(full):
     lat, eng, res0 = full
     corr = next(e for e in lat.elements
                 if e.type == "corrector" and e.section == "SSR2")
-    r1 = eng.run({corr.name: {"current_x": 2.0}}, current_ma=2.0)
-    r2 = eng.run({corr.name: {"current_x": 4.0}}, current_ma=2.0)
+    r1 = eng.run({corr.name: {"current_x": 2.0}})
+    r2 = eng.run({corr.name: {"current_x": 4.0}})
     d1 = r1.bpm_x - res0.bpm_x
     d2 = r2.bpm_x - res0.bpm_x
     assert np.abs(d1).max() > 1e-5           # visible offset
@@ -97,12 +97,12 @@ def test_cavity_trip_kills_energy(full):
     lat, eng, res0 = full
     cav = next(e for e in lat.elements
                if e.type == "rfgap" and e.section == "LB650")
-    res = eng.run({cav.name: {"status": "tripped"}}, current_ma=2.0)
+    res = eng.run({cav.name: {"status": "tripped"}})
     assert res.w[-1] < res0.w[-1] - 5.0   # lost at least this cavity's gain
 
 
 def test_beam_off(full):
     lat, eng, _ = full
-    res = eng.run({}, current_ma=2.0, beam_on=False)
+    res = eng.run({}, beam_on=False)
     assert res.toroid_i.max() == 0.0
     assert res.transmission[-1] == 0.0

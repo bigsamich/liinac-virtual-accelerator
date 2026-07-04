@@ -72,7 +72,8 @@ class MacroTracker:
         n = self.n
         rng = np.random.default_rng(self.seed)
 
-        i_ma = current_ma if current_ma is not None else m["nominal_current_ma"]
+        i_ma = current_ma if current_ma is not None else \
+            m.get("peak_current_ma", m["nominal_current_ma"])
         src = ds.get("LEBT:SRC") or {}
         if "current_ma" in src:
             i_ma = float(src["current_ma"])
