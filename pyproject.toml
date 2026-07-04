@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pip2va"
+version = "0.1.0"
+description = "PIP-II Virtual Accelerator: dockerized linac simulation with a PyQt6 control-room GUI"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.26",
+    "redis>=5.0",
+    "msgpack>=1.0",
+    "pyyaml>=6.0",
+    "pydantic>=2.5",
+    "pydantic-settings>=2.1",
+]
+
+[project.optional-dependencies]
+gui = ["PyQt6>=6.6", "pyqtgraph>=0.13"]
+gpu = ["cupy-cuda13x>=13.0"]
+dev = ["pytest>=8.0", "fakeredis>=2.21", "pytest-qt>=4.4"]
+
+[project.scripts]
+pip2va-gui = "pip2va.gui.main:main"
+
+[tool.setuptools.packages.find]
+include = ["pip2va*"]
+
+[tool.setuptools.package-data]
+"pip2va.lattice" = ["*.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
