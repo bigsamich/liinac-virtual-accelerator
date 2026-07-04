@@ -187,14 +187,25 @@ class DiagSimService(Service):
                         self.r.delete(f"req:wire:{name}")
                         continue
                     hx, hy, edges = prof
-                    self._scan = {"name": name, "step": 0, "hx": hx, "hy": hy,
-                                  "pos": 0.5 * (edges[:-1] + edges[1:])}
+                    req = self.read_hash(f"req:wire:{name}")
+                    npts = int(min(max(req.get("points", 64), 8), 256))
+                    ppp = int(min(max(req.get("ppp", 1), 1), 20))
+                    pos0 = 0.5 * (edges[:-1] + edges[1:])
+                    pos = np.linspace(pos0[0], pos0[-1], npts)
+                    self._scan = {"name": name, "step": 0, "tick": 0,
+                                  "ppp": ppp,
+                                  "hx": np.interp(pos, pos0, hx),
+                                  "hy": np.interp(pos, pos0, hy),
+                                  "pos": pos}
                     break
         if self._scan is None:
             return
         sc = self._scan
-        # wire steps 2 bins per pulse; publish the partial scan
-        sc["step"] = min(sc["step"] + 2, len(sc["pos"]))
+        # wire advances one point per ppp pulses; publish the partial scan
+        sc["tick"] += 1
+        if sc["tick"] % sc["ppp"]:
+            return
+        sc["step"] = min(sc["step"] + 1, len(sc["pos"]))
         k = sc["step"]
         noise = self.rng.normal(0, 0.01 * max(sc["hx"].max(), 1e-9), k)
         done = 1.0 if k >= len(sc["pos"]) else 0.0

@@ -173,8 +173,10 @@ class DataHub(QThread):
         raw = self.r.get(f"lattice:{kind}.index")
         return json.loads(raw) if raw else []
 
-    def request_wire_scan(self, name: str, plane: str = "x"):
-        self.r.hset(f"req:wire:{name}", "plane", plane)
+    def request_wire_scan(self, name: str, plane: str = "x",
+                          points: int = 64, ppp: int = 1):
+        self.r.hset(f"req:wire:{name}", mapping={
+            "plane": plane, "points": points, "ppp": ppp})
 
     def select_3d_station(self, name: str):
         """Choose the scanner station where the GPU tracker dumps a 3D cloud."""

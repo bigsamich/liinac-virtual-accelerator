@@ -21,8 +21,21 @@ class ProfilesPage(Page):
         self.sel_ws.addItems(self.wss)
         self.btn_scan = QPushButton("Start scan")
         self.lbl_fit = QLabel("fit: —")
+        from PyQt6.QtWidgets import QSpinBox
+        self.spin_pts = QSpinBox()
+        self.spin_pts.setRange(8, 256)
+        self.spin_pts.setValue(64)
+        self.spin_pts.setToolTip("number of wire positions in the scan")
+        self.spin_ppp = QSpinBox()
+        self.spin_ppp.setRange(1, 20)
+        self.spin_ppp.setValue(1)
+        self.spin_ppp.setToolTip("pulses the wire dwells at each position")
         bar.addWidget(QLabel("Scanner:"))
         bar.addWidget(self.sel_ws)
+        bar.addWidget(QLabel("points:"))
+        bar.addWidget(self.spin_pts)
+        bar.addWidget(QLabel("pulses/pt:"))
+        bar.addWidget(self.spin_ppp)
         bar.addWidget(self.btn_scan)
         bar.addStretch(1)
         bar.addWidget(self.lbl_fit)
@@ -99,7 +112,9 @@ class ProfilesPage(Page):
         self.body.addWidget(self.p_emit, 1)
 
         self.btn_scan.clicked.connect(
-            lambda: self.hub.request_wire_scan(self.sel_ws.currentText()))
+            lambda: self.hub.request_wire_scan(
+                self.sel_ws.currentText(), points=self.spin_pts.value(),
+                ppp=self.spin_ppp.value()))
         self.hub.scan.connect(self._on_scan)
         self.hub.deep.connect(self._on_deep)
 
@@ -124,8 +139,24 @@ class ProfilesPage(Page):
             self.c_ex.setData(data["emit_s"], data["emit_x_um"])
             self.c_ey.setData(data["emit_s"], data["emit_y_um"])
         cloud = data.get("cloud")
-        if cloud is not None and self.gl_view is not None \
-                and self.isVisible():
+        if cloud is not None:
+            self._last_cloud = (cloud, data.get("cloud_at", "?"))
+        elif self.gl_view is not None and not getattr(self, "_last_cloud", None):
+            self.lbl_3d.setText("waiting for next GPU pass (~3 s)…")
+        if cloud is not None and self.gl_view is not None:
+            self._render_cloud(cloud, data.get("cloud_at", "?"))
+
+    def showEvent(self, ev):
+        super().showEvent(ev)
+        # re-assert the station (service may have restarted) and re-render
+        if self.wss:
+            self.hub.select_3d_station(self.sel_3d.currentText())
+        lc = getattr(self, "_last_cloud", None)
+        if lc and self.gl_view is not None:
+            self._render_cloud(*lc)
+
+    def _render_cloud(self, cloud, station):
+        try:
             pts = np.asarray(cloud, dtype=np.float32).T  # (n, 3) in mm
             # normalize z (bunch length) to the transverse scale for display
             span = max(float(np.abs(pts[:, :2]).max()), 1e-3)
@@ -139,5 +170,8 @@ class ProfilesPage(Page):
             colors[:, 3] = 0.55
             self.gl_scatter.setData(pos=pts * (10.0 / span), color=colors)
             self.lbl_3d.setText(
-                f"{data.get('cloud_at', '?')} — {len(pts):,} particles "
-                f"(z stretched ×{span/zspan:.2g} for display)")
+                f"{station} — {len(pts):,} particles "
+                f"(z stretched ×{span/zspan:.2g} for display; drag to rotate)")
+        except Exception as e:   # runtime GL failure: degrade gracefully
+            self.lbl_3d.setText(f"3D render failed: {e}")
+            self.gl_view = None
