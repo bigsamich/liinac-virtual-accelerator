@@ -221,8 +221,18 @@ class EnvelopeEngine:
                 phi_set = float(st.get("phase", el.params["phi_deg"]))
                 dphi = 0.0
                 if t_des_arr is not None:
-                    dphi = 360.0 * el.params["freq_mhz"] * 1e6 * (t - t_des_arr[i])
-                    dphi = (dphi + 180.0) % 360.0 - 180.0
+                    # synchrotron re-centering, gated to the linear bucket:
+                    # small timing errors are pulled back toward synchronous
+                    # (real bunches oscillate, they don't run away), but
+                    # large errors (trips) are outside the bucket and stay
+                    # open-loop -> the phase-slip cascade remains fatal
+                    f_hz = el.params["freq_mhz"] * 1e6
+                    dphi_raw = ((360.0 * f_hz * (t - t_des_arr[i]) + 180.0)
+                                % 360.0 - 180.0)
+                    if abs(dphi_raw) < 30.0:
+                        t = t + 0.25 * (t_des_arr[i] - t)
+                    dphi = ((360.0 * f_hz * (t - t_des_arr[i]) + 180.0)
+                            % 360.0 - 180.0)
                 # drift through half gap, kick, drift through second half
                 half = drift(L / 2.0, beta, gamma)
                 c6 = half @ c6
