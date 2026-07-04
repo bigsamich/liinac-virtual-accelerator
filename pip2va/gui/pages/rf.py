@@ -62,6 +62,7 @@ class PhaseScanWorker(QThread):
 
 from .. import theme
 from . import register
+from ..plotkit import CrosshairPlot
 from .common import Page, make_plot
 
 
@@ -103,8 +104,8 @@ class RfPage(Page):
         det_bar.addWidget(self.btn_scan)
         det_bar.addWidget(self.btn_reset)
         self.body.addLayout(det_bar)
-        self.p_det = make_plot("detuning [Hz]", xlabel="pulse")
-        self.c_det = self.p_det.plot(pen=pg.mkPen(theme.ACCENT, width=1.5))
+        self.p_det = CrosshairPlot("detuning [Hz]", xlabel="pulse")
+        self.c_det = self.p_det.plot(pen=pg.mkPen(theme.ACCENT, width=1.5), name="detuning")
         self.body.addWidget(self.p_det, 1)
 
         self._index: list[str] | None = None
@@ -237,4 +238,6 @@ class RfPage(Page):
                         float(data["detuning_hz"][j]))
         if self._sel and self._sel in self._hist:
             h = self._hist[self._sel]
-            self.c_det.setData(np.arange(len(h)), np.fromiter(h, float))
+            arr = np.fromiter(h, float)
+            self.c_det.setData(np.arange(len(h)), arr)
+            self.p_det.update_y(arr)
