@@ -1,0 +1,64 @@
+name: pip2va
+
+x-service: &svc
+  image: pip2va-base
+  build:
+    context: .
+    dockerfile: docker/base.Dockerfile
+  environment:
+    PIP2VA_REDIS_URL: redis://redis:6379/0
+  depends_on:
+    redis:
+      condition: service_healthy
+  restart: unless-stopped
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+    restart: unless-stopped
+
+  timing:
+    <<: *svc
+    command: python -m pip2va.services.timing.main
+
+  magnet-sim:
+    <<: *svc
+    command: python -m pip2va.services.magnet_sim.main
+
+  rf-sim:
+    <<: *svc
+    command: python -m pip2va.services.rf_sim.main
+
+  diag-sim:
+    <<: *svc
+    command: python -m pip2va.services.diag_sim.main
+
+  mps:
+    <<: *svc
+    command: python -m pip2va.services.mps.main
+
+  beam-physics:
+    build:
+      context: .
+      dockerfile: docker/beam-physics.Dockerfile
+    environment:
+      PIP2VA_REDIS_URL: redis://redis:6379/0
+      PIP2VA_MACRO_PARTICLES: "100000"
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

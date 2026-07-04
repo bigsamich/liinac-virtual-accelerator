@@ -16,7 +16,7 @@ def stack():
     beam.on_start()
     diag = DiagSimService(redis_client=r)
     diag.on_start()
-    mps = MpsService(redis_client=r)
+    mps = MpsService(redis_client=r, learn_pulses=0)  # armed immediately
     mps.on_start()
     return r, beam, diag, mps
 

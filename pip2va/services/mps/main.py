@@ -1,10 +1,15 @@
 """Machine Protection System: beam-permit watchdog.
 
 Watches the measured BLM stream; if the 10-pulse rolling mean at any monitor
-exceeds the loss limit, drops the beam permit (state:mps.permit=0), latches,
+exceeds its threshold, drops the beam permit (state:mps.permit=0), latches,
 and logs to stream:mps.events. Reset (settings:mps:main reset=1) is accepted
-only once the rolling loss is back under the limit. Device fault events are
-logged to the same event stream.
+only once the rolling loss is back under threshold.
+
+Thresholds come from a commissioning-style baseline capture: for the first
+`learn_pulses` after start (or after settings:mps:main relearn=1) the MPS
+records per-BLM mean/std of the running machine and sets
+threshold = max(hands-on limit, 3 x design level, mean + 6 sigma, 2 x mean).
+Device fault events are logged to the same event stream.
 """
 from __future__ import annotations
 
@@ -23,17 +28,40 @@ class MpsService(Service):
     name = "mps"
     extra_channels = (keys.CH_FAULT,)
 
+    def __init__(self, redis_client=None, settings=None, learn_pulses: int = 200):
+        super().__init__(redis_client=redis_client, settings=settings)
+        self.learn_pulses = learn_pulses
+
     def on_start(self):
         self.r.setnx("state:mps.permit", 1)
         self.limit = self.lat.meta.get("loss_limit_wpm", 1.0)
         blms = self.lat.instruments("blm")
         self.blm_names = [e.name for e in blms]
-        # per-BLM threshold table: generic limit, or 3x the design level where
-        # by-design losses (chopper/scraper regions) exceed it
-        self.thresholds = np.array([
+        # static floor: generic limit, or 3x the design level where by-design
+        # losses (chopper/scraper regions) exceed it
+        self.base_thresholds = np.array([
             max(self.limit, 3.0 * e.params.get("design_wpm", 0.0))
             for e in blms])
+        self.thresholds = self.base_thresholds.copy()
         self.window: collections.deque = collections.deque(maxlen=WINDOW)
+        self._learn_left = self.learn_pulses
+        self._learn_n = 0
+        self._learn_sum = np.zeros(len(blms))
+        self._learn_sq = np.zeros(len(blms))
+        if self.learn_pulses:
+            self._event("learning", f"baseline capture, {self.learn_pulses} pulses")
+
+    def _finish_learning(self):
+        n = max(self._learn_n, 1)
+        mean = self._learn_sum / n
+        std = np.sqrt(np.maximum(self._learn_sq / n - mean ** 2, 0.0))
+        m = min(len(mean), len(self.base_thresholds))
+        self.thresholds = np.maximum(
+            self.base_thresholds[:m],
+            np.maximum(mean[:m] + 6.0 * std[:m], 2.0 * mean[:m]))
+        self.r.set("state:mps.thresholds",
+                   codec.pack(0, {"wpm": self.thresholds}))
+        self._event("armed", f"thresholds set from {n}-pulse baseline")
 
     def _event(self, kind: str, detail: str):
         self.r.xadd(keys.stream("mps.events"),
@@ -49,7 +77,16 @@ class MpsService(Service):
         if entries:
             _, wpm = codec.unpack(entries[0][1][b"d"])
             self.window.append(wpm["wpm"])
-        if not self.window:
+            if self._learn_left > 0:
+                v = wpm["wpm"]
+                if len(v) == len(self._learn_sum):
+                    self._learn_sum += v
+                    self._learn_sq += v ** 2
+                    self._learn_n += 1
+                self._learn_left -= 1
+                if self._learn_left == 0:
+                    self._finish_learning()
+        if not self.window or self._learn_left > 0:
             return
         mean = np.mean(np.stack(self.window), axis=0)
         thr = self.thresholds[:len(mean)] if len(mean) <= len(self.thresholds) \
@@ -67,9 +104,17 @@ class MpsService(Service):
             self.publish_event(keys.CH_MPS, {"permit": 0, "blm": name,
                                              "wpm": float(mean[worst])})
 
-        # reset requests
+        # reset / relearn requests
         skey = keys.settings("mps", "main")
         st = self.read_hash(skey)
+        if st.get("relearn"):
+            self.r.hdel(skey, "relearn")
+            self._learn_left = self.learn_pulses or 200
+            self._learn_n = 0
+            self._learn_sum[:] = 0.0
+            self._learn_sq[:] = 0.0
+            self._event("learning", "baseline re-capture requested")
+            return
         if st.get("reset"):
             self.r.hdel(skey, "reset")
             if excess[worst] <= 1.0:
