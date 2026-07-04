@@ -46,10 +46,8 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central)
 
         self._page_classes = list(pages.items())
-        for s in self.lat.sections:
-            self._page_classes.append(
-                (f"  › {s.name}",
-                 lambda hub, lat, _s=s.name: SectionPage(hub, lat, _s)))
+        self._section_cls = SectionPage
+        self._section_pages: dict[str, QWidget] = {}
         self._built: dict[int, QWidget] = {}
         for label, _ in self._page_classes:
             self.nav.addItem(label)
@@ -123,6 +121,18 @@ class MainWindow(QMainWindow):
             if lbl == label:
                 self.nav.setCurrentRow(i)
                 return
+
+    def goto_section(self, name: str):
+        """Open a section view in place (not in the nav list)."""
+        if name not in self._section_pages:
+            w = self._section_cls(self.hub, self.lat, name)
+            if hasattr(w, "backRequested"):
+                w.backRequested.connect(lambda: self.goto("Dashboard"))
+            self._section_pages[name] = w
+            self.stack.addWidget(w)
+        self.nav.clearSelection()
+        self.nav.setCurrentRow(-1)
+        self.stack.setCurrentWidget(self._section_pages[name])
 
     def _on_state(self, st: dict):
         if not st:

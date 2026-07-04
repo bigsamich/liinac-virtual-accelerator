@@ -47,7 +47,12 @@ class AutotuneService(Service):
         self.r.hsetnx(keys.settings("autotune", "main"), "enable", 0)
         self.r.hsetnx(keys.settings("autotune", "main"), "restore", 0)
         self._resp = self._measure_response()
-        self._pinv = np.linalg.pinv(self._resp, rcond=0.05)
+        # Tikhonov-regularized inverse: filter factors s/(s^2 + lam^2) damp
+        # the weak singular directions that otherwise dump huge strength into
+        # a handful of correctors while the rest idle.
+        u, s, vt = np.linalg.svd(self._resp, full_matrices=False)
+        lam = 0.15 * s.max()
+        self._pinv = (vt.T * (s / (s ** 2 + lam ** 2))) @ u.T
         self.r.hset("state:autotune", mapping={
             "status": "idle", "orbit_rms_um": -1.0})
         log.info("response matrix %s, pinv ready", self._resp.shape)
