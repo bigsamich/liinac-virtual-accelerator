@@ -12,7 +12,7 @@ import threading
 import redis
 from PyQt6.QtCore import QThread, pyqtSignal
 
-from pip2va.common import codec, keys
+from pip2va.common import audit, codec, keys
 from pip2va.common.config import Settings
 
 STREAM_SIGNALS = {
@@ -118,7 +118,11 @@ class DataHub(QThread):
     def set_setting(self, cls: str, name: str, field: str, value):
         key = keys.settings(cls, name)
         self.r.hset(key, field, value)
+        audit.log_setting(self.r, key, field, value, "gui")
         self.r.publish(keys.CH_SETTINGS, json.dumps({"key": key}))
+
+    def settings_log(self, n: int = 100) -> list[dict]:
+        return audit.read_log(self.r, n)
 
     def get_settings(self, cls: str, name: str) -> dict:
         raw = self.r.hgetall(keys.settings(cls, name))
@@ -175,6 +179,11 @@ class DataHub(QThread):
         self.r.hset(key, mapping={"type": ftype, "magnitude": magnitude})
         if ttl_s > 0:
             self.r.expire(key, ttl_s)
+        audit.log_setting(self.r, key, ftype, magnitude, "fault-injection")
+
+    def active_faults(self) -> list[str]:
+        return sorted(k.decode() if isinstance(k, bytes) else k
+                      for k in self.r.scan_iter("fault:*"))
 
     def clear_fault(self, cls: str, name: str):
         self.r.delete(keys.fault(cls, name))

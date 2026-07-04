@@ -49,7 +49,10 @@ class MagnetSimService(Service):
 
     def on_event(self, channel, data):
         if isinstance(data, dict) and "key" in data:
-            self._dirty.add(data["key"])
+            if str(data["key"]).startswith("bulk:"):
+                self._dirty.update(skey for _, _, _, skey, _ in self.devices)
+            else:
+                self._dirty.add(data["key"])
 
     def on_tick(self, pulse_id: int):
         vals = np.zeros(len(self.devices), dtype=np.float32)

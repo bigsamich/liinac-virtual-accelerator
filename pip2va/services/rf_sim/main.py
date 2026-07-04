@@ -73,7 +73,11 @@ class RfSimService(Service):
 
     def on_event(self, channel, data):
         if isinstance(data, dict) and "key" in data:
-            self._dirty.add(data["key"])
+            if str(data["key"]).startswith("bulk:"):
+                self._dirty.update(keys.settings("rf", c.el.name)
+                                   for c in self.cavs)
+            else:
+                self._dirty.add(data["key"])
 
     def on_tick(self, pulse_id: int):
         t = pulse_id * self.dt

@@ -44,6 +44,10 @@ services:
     <<: *svc
     command: python -m pip2va.services.mps.main
 
+  autotune:
+    <<: *svc
+    command: python -m pip2va.services.autotune.main
+
   beam-physics:
     build:
       context: .
