@@ -3,13 +3,14 @@ from __future__ import annotations
 
 import math
 
-# H- baseline loss coefficients (tuned to reproduce the published scale:
-# design machine sits well under the 0.1 W/m criterion, IBS dominant in the
-# SC linac — see docs/research/pip2_machine_report.md §6). Only meaningful for
-# the bunched beam downstream of the RFQ (the neutralized LEBT DC beam is
-# handled by transport alone).
-RESIDUAL_GAS_FRAC_PER_M = 5e-9      # fractional loss per metre
-IBS_COEFF = 4.0e-17                  # scaled by I^2 / ((bg)^3 * sigma volume)
+# H- loss physics with verified parametrizations
+# (docs/research/srf_beamline_report.md §7):
+#   intrabeam stripping: Lebedev, sigma_max = 4e-19 m^2
+#   residual gas: sigma = 1e-19/beta^2 cm^2 per H atom, H2 at PRESSURE_TORR
+SIGMA_IBST_M2 = 4.0e-19
+PRESSURE_TORR = 1e-8
+E_CHARGE = 1.602e-19
+F_BUNCH_HZ = 162.5e6
 
 
 def tail_fraction(aperture: float, centroid: float, sigma: float) -> float:
@@ -30,9 +31,26 @@ def scrape_fraction(ax: float, cx: float, sx: float,
     return fx + fy - fx * fy
 
 
-def hminus_baseline_frac_per_m(i_ma: float, betagamma: float,
-                               sx: float, sy: float, sz: float) -> float:
-    """Intrabeam stripping + residual-gas stripping, fractional loss per metre."""
-    vol = max(sx * sy * sz, 1e-12)
-    ibs = IBS_COEFF * (i_ma ** 2) / (max(betagamma, 1e-3) ** 3 * vol)
-    return RESIDUAL_GAS_FRAC_PER_M + ibs
+def hminus_baseline_frac_per_m(i_ma: float, beta: float, gamma: float,
+                               sx: float, sy: float, sz: float,
+                               thx: float = 1e-3, thy: float = 1e-3,
+                               ths: float = 1e-3) -> float:
+    """Intrabeam stripping (Lebedev) + residual-gas stripping, frac/m.
+
+    i_ma: in-pulse line current [mA]; th*: rms divergences x'/y' and dp/p.
+    """
+    # residual gas: sigma = 1e-19/beta^2 cm^2/atom, 2 atoms per H2 molecule,
+    # n = 3.3e8 cm^-3 per 1e-8 Torr -> per metre factor 100
+    gas = 100.0 * 3.3e8 * (PRESSURE_TORR / 1e-8) * 2.0 \
+        * 1e-19 / max(beta * beta, 1e-6)
+    # intrabeam stripping
+    n_bunch = (i_ma * 1e-3) / (F_BUNCH_HZ * E_CHARGE)
+    a, b, c = gamma * thx, gamma * thy, ths
+    norm = math.sqrt(a * a + b * b + c * c)
+    if norm < 1e-12:
+        return gas
+    form = 1.0 + 0.155 * ((a + b + c) / (math.sqrt(3.0) * norm) - 1.0)
+    vol = max(sx * sy * sz, 1e-15)
+    ibst = (n_bunch * SIGMA_IBST_M2 * norm * form
+            / (8.0 * math.pi ** 2 * gamma ** 2 * vol))
+    return gas + ibst

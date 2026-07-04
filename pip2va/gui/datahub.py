@@ -25,6 +25,7 @@ STREAM_SIGNALS = {
     "profile.scan": "scan",
     "wf.toroid": "wfToroid",
     "wf.capture": "wfCapture",
+    "wf.rf": "wfRf",
 }
 
 
@@ -38,6 +39,7 @@ class DataHub(QThread):
     scan = pyqtSignal(int, object)
     wfToroid = pyqtSignal(int, object)
     wfCapture = pyqtSignal(int, object)
+    wfRf = pyqtSignal(int, object)
     mpsEvent = pyqtSignal(object)
     beamState = pyqtSignal(object)
     connected = pyqtSignal(bool)
@@ -178,10 +180,11 @@ class DataHub(QThread):
         """Choose the scanner station where the GPU tracker dumps a 3D cloud."""
         self.r.hset(keys.settings("wf3d", "main"), "station", name)
 
-    def select_waveforms(self, names: list[str]):
+    def select_waveforms(self, names: list[str], rf_names: list[str] = ()):
         """Choose up to 8 devices for continuous intra-pulse capture."""
-        self.r.hset(keys.settings("wfsel", "main"),
-                    "devices", ",".join(names[:8]))
+        self.r.hset(keys.settings("wfsel", "main"), mapping={
+            "devices": ",".join(names[:8]),
+            "rf": ",".join(list(rf_names)[:8])})
 
     def get_postmortem(self):
         blob = self.r.get("wf:postmortem")

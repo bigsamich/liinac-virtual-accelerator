@@ -281,7 +281,10 @@ class EnvelopeEngine:
                 f_base = 0.0
                 if w > 2.0:  # bunched beam only (post-RFQ)
                     f_base = loss_mod.hminus_baseline_frac_per_m(
-                        i_ma * f_surv, beta * gamma, sx, sy, sz) * L
+                        i_ma * f_surv, beta, gamma, sx, sy, sz,
+                        thx=math.sqrt(max(sig[1, 1], 0.0)),
+                        thy=math.sqrt(max(sig[3, 3], 0.0)),
+                        ths=math.sqrt(max(sig[5, 5], 0.0))) * L
                 f_lost = min(1.0, f_scrape + f_base)
                 if f_lost > 0.0:
                     p_w = (f_lost * f_surv * i_ma * 1e-3 * self.duty

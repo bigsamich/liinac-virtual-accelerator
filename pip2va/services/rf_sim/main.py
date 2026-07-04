@@ -1,9 +1,12 @@
-"""RF system simulator: one LLRF-controlled cavity per rfgap/rfq element.
+"""RF system simulator — physical SRF model (v4b).
 
-Models per cavity: amplitude servo (fast first-order), phase set + jitter,
-detuning = microphonics (3-tone + noise) + Lorentz-force detuning pulled back
-by a slow tuner servo, forward-power estimate, quench/trip latch with
-explicit-reset semantics, and fault injection (trip / detune).
+Every 20 Hz tick integrates the complex cavity-envelope equation across the
+0.55 ms pulse window for all cavities at once (see cavity_model.py): PI LLRF
+with loop delay, gated beam loading + feedforward, stochastic microphonics,
+Lorentz-force detuning with piezo compensation, physical quenches (Q0
+collapse), CEBAF-style gradient-dependent stochastic trips, and explicit
+reset semantics. Cavities selected in settings:wfsel:main (field "rf")
+publish their intra-pulse waveforms to stream:wf.rf.
 """
 from __future__ import annotations
 
@@ -13,42 +16,14 @@ import math
 import numpy as np
 
 from pip2va.common import keys
-from pip2va.common.devmodel import FirstOrderDevice
 from pip2va.services.base import Service, main_for
 
-MICRO_TONES = ((11.7, 3.0), (27.3, 2.0), (46.1, 1.2))  # (Hz, Hz-amplitude)
+from .cavity_model import DT, NSTEP, CavityModel
 
-
-class Cavity:
-    def __init__(self, el, rng):
-        self.el = el
-        p = el.params
-        self.is_rfq = el.type == "rfq"
-        self.v_design = p.get("v_mv", p.get("v_design", 1.0))
-        self.quench = p.get("quench_mv", 1.3 * self.v_design)
-        self.half_bw = p.get("half_bw_hz", 40.0)
-        self.phi_design = p.get("phi_deg", 0.0)
-        self.v_max = p.get("v_max_mv", self.v_design)
-        self.amp = FirstOrderDevice(self.v_design, 0.15, 6e-4, 0.0, rng)
-        self.phase_set = self.phi_design
-        self.lfd_comp = 0.9          # piezo compensates 90% of static LFD
-        self.tuner_offset = 0.0      # slow tuner state [Hz]
-        self.det_drift = 0.0
-        self.phases = rng.uniform(0, 2 * math.pi, size=len(MICRO_TONES))
-        self.rng = rng
-
-    def detuning(self, t: float, dt: float) -> float:
-        micro = sum(a * math.sin(2 * math.pi * f * t + p)
-                    for (f, a), p in zip(MICRO_TONES, self.phases))
-        micro += self.rng.normal(0.0, 0.8)
-        lfd = -20.0 * (self.amp.value / max(self.v_max, 1e-9)) ** 2
-        # slow thermal/helium-pressure drift: bounded random walk, ~30 min tc
-        self.det_drift += (self.rng.normal(0.0, 0.004)
-                           - self.det_drift * dt / 1800.0)
-        raw = micro + lfd * (1.0 - self.lfd_comp) + self.det_drift * 30.0
-        # slow tuner servo nulls the mean detuning (time constant ~30 s)
-        self.tuner_offset += (raw - self.tuner_offset) * dt / 30.0
-        return raw - self.tuner_offset
+# CEBAF-style stochastic trip law: ln(rate/hour) = A + B*G[MV/m]
+TRIP_B = 0.9
+TRIP_A = -12.63 - 6.10 * TRIP_B
+PULSES_PER_HOUR = 72000.0
 
 
 class RfSimService(Service):
@@ -56,82 +31,146 @@ class RfSimService(Service):
     extra_channels = (keys.CH_SETTINGS,)
 
     def on_start(self):
-        rng = np.random.default_rng(1962)
-        self.dt = 1.0 / self.settings.tick_hz
-        self.cavs: list[Cavity] = []
-        for el in self.lat.elements:
-            if el.type not in ("rfgap", "rfq"):
-                continue
-            cav = Cavity(el, rng)
+        self.rng = np.random.default_rng(1962)
+        self.cavs = [e for e in self.lat.elements
+                     if e.type in ("rfgap", "rfq")]
+        n = len(self.cavs)
+        self.model = CavityModel(self.cavs, self.rng,
+                                 tick_dt=1.0 / self.settings.tick_hz)
+        self.v_set = np.zeros(n)
+        self.phi_set = np.zeros(n)
+        self.quench_lim = np.array([
+            c.params.get("quench_mv",
+                         1.3 * c.params.get("v_mv", c.params.get("v_design", 1.0)))
+            for c in self.cavs])
+        self.tripped = np.zeros(n, dtype=bool)
+        for j, el in enumerate(self.cavs):
             skey = keys.settings("rf", el.name)
-            self.r.hsetnx(skey, "amp", cav.v_design)
-            self.r.hsetnx(skey, "phase", cav.phi_design)
-            self.cavs.append(cav)
+            vd = el.params.get("v_mv", el.params.get("v_design", 1.0))
+            pd = el.params.get("phi_deg", 0.0)
+            self.r.hsetnx(skey, "amp", vd)
+            self.r.hsetnx(skey, "phase", pd)
+            st = self.read_hash(skey)
+            self.v_set[j] = float(st.get("amp", vd))
+            self.phi_set[j] = float(st.get("phase", pd))
+        self.model.pretune(self.v_set)
         self.r.set("lattice:rf.index",
-                   json.dumps([c.el.name for c in self.cavs]))
-        self._dirty = {keys.settings("rf", c.el.name) for c in self.cavs}
+                   json.dumps([c.name for c in self.cavs]))
+        self._pos = {c.name: j for j, c in enumerate(self.cavs)}
+        self._dirty: set = set()
+        self._t_wf = np.arange(NSTEP) * DT * 1e3   # ms axis
 
     def on_event(self, channel, data):
         if isinstance(data, dict) and "key" in data:
             if str(data["key"]).startswith("bulk:"):
-                self._dirty.update(keys.settings("rf", c.el.name)
+                self._dirty.update(keys.settings("rf", c.name)
                                    for c in self.cavs)
             else:
                 self._dirty.add(data["key"])
 
-    def on_tick(self, pulse_id: int):
-        t = pulse_id * self.dt
-        n = len(self.cavs)
-        amp = np.zeros(n, dtype=np.float32)
-        phase = np.zeros(n, dtype=np.float32)
-        det = np.zeros(n, dtype=np.float32)
-        stat = np.zeros(n, dtype=np.float32)
-        fwd = np.zeros(n, dtype=np.float32)
+    # ------------------------------------------------------------- per tick
+
+    def _apply_settings(self):
         pipe = self.r.pipeline(transaction=False)
-        for i, cav in enumerate(self.cavs):
-            el = cav.el
-            skey = keys.settings("rf", el.name)
-            rkey = keys.readback("rf", el.name)
-            if skey in self._dirty:
-                st = self.read_hash(skey)
-                cav.amp.setpoint = max(0.0, float(st.get("amp",
-                                                         cav.amp.setpoint)))
-                ph = float(st.get("phase", cav.phase_set))
-                cav.phase_set = (ph + 180.0) % 360.0 - 180.0
-                if cav.amp.tripped and st.get("reset"):
-                    fkey = keys.fault("rf", el.name)
-                    if cav.amp.setpoint <= cav.quench and not self.r.exists(fkey):
-                        cav.amp.try_reset()
-                        cav.amp.value = 0.0  # re-fill from zero
-                    pipe.hdel(skey, "reset")
-                self._dirty.discard(skey)
-            # quench on excessive setpoint or injected fault
-            fkey = keys.fault("rf", el.name)
-            fl = self.read_hash(fkey) if self.r.exists(fkey) else {}
-            if not cav.amp.tripped and (cav.amp.setpoint > cav.quench
-                                        or fl.get("type") == "trip"):
-                cav.amp.trip()
-                self.publish_event(keys.CH_FAULT, {"key": rkey})
-            d = cav.detuning(t, self.dt)
-            if fl.get("type") == "detune":
-                d += float(fl.get("magnitude", 0.0))
-            a = cav.amp.step(self.dt)
-            # residual phase error from detuning under closed-loop LLRF
-            ph = (cav.phase_set
-                  + math.degrees(math.atan2(d, cav.half_bw)) * 0.02
-                  + cav.rng.normal(0.0, 0.06))
-            p_fwd = (a / max(cav.v_max, 1e-9)) ** 2 * (1.0 + (d / cav.half_bw) ** 2)
-            amp[i], phase[i], det[i] = a, ph, d
-            stat[i] = 1.0 if cav.amp.tripped else 0.0
-            fwd[i] = p_fwd
-            pipe.hset(rkey, mapping={
-                "amp": float(a), "phase": float(ph), "detuning_hz": float(d),
-                "forward_pw": float(p_fwd),
-                "status": "tripped" if cav.amp.tripped else "ok"})
+        for skey in list(self._dirty):
+            self._dirty.discard(skey)
+            name = skey.split(":", 2)[-1]
+            j = self._pos.get(name)
+            if j is None:
+                continue
+            st = self.read_hash(skey)
+            self.v_set[j] = max(0.0, float(st.get("amp", self.v_set[j])))
+            ph = float(st.get("phase", self.phi_set[j]))
+            self.phi_set[j] = (ph + 180.0) % 360.0 - 180.0
+            if st.get("reset") and self.tripped[j]:
+                fkey = keys.fault("rf", name)
+                if self.v_set[j] <= self.quench_lim[j] \
+                        and not self.r.exists(fkey):
+                    self.tripped[j] = False
+                    self.model.clear_quench(np.array([j]), self.v_set[j])
+                pipe.hdel(skey, "reset")
+        pipe.execute()
+
+    def _apply_faults(self):
+        self.model.ext_det[:] = 0.0
+        for k in self.r.scan_iter("fault:rf:*"):
+            name = (k.decode() if isinstance(k, bytes) else k).split(":", 2)[-1]
+            j = self._pos.get(name)
+            if j is None:
+                continue
+            fl = self.read_hash(keys.fault("rf", name))
+            if fl.get("type") == "trip" and not self.tripped[j]:
+                self._trip(j)
+            elif fl.get("type") == "detune":
+                self.model.ext_det[j] = float(fl.get("magnitude", 0.0))
+
+    def _trip(self, j: int):
+        self.tripped[j] = True
+        self.model.start_quench(np.array([j]))
+        self.publish_event(keys.CH_FAULT,
+                           {"key": keys.readback("rf", self.cavs[j].name)})
+
+    def on_tick(self, pulse_id: int):
+        self._apply_settings()
+        self._apply_faults()
+        m = self.model
+        n = len(self.cavs)
+
+        # quench conditions: over-limit setpoint, or stochastic (CEBAF law)
+        e_acc = self.v_set / m.bank.leff
+        over = (self.v_set > self.quench_lim) & ~self.tripped
+        p_trip = np.exp(TRIP_A + TRIP_B * e_acc) / PULSES_PER_HOUR
+        stoch = (self.rng.random(n) < p_trip) & ~self.tripped
+        for j in np.nonzero(over | stoch)[0]:
+            self._trip(int(j))
+
+        permit = self.r.get("state:mps.permit")
+        beam_on = permit is None or permit in (b"1", "1")
+        chop = self.read_hash(keys.settings("chopper", "main"))
+        duty = float(chop.get("duty",
+                              1.0 - self.lat.meta.get("chop_fraction", 0.6)))
+        src = self.read_hash(keys.settings("source", "main"))
+        i_ma = float(src.get("current_ma",
+                             self.lat.meta.get("peak_current_ma", 5.0)))
+
+        # waveform selection
+        sel = str(self.read_hash(keys.settings("wfsel", "main")).get("rf", ""))
+        want = [self._pos[nm] for nm in sel.split(",") if nm in self._pos][:8]
+
+        m.microphonics_step()
+        res = m.run_window(self.v_set, self.phi_set, i_ma, beam_on, duty,
+                           self.tripped, want_wf=want or None)
+
+        amp = res["amp"] * (1 + self.rng.normal(0, 2e-4, n))
+        phase = self.phi_set + res["phase_err"] \
+            + self.rng.normal(0, 0.02, n)
+        det = res["detuning"]
+        fwd = res["p_for"] / 1e3   # kW
+        stat = self.tripped.astype(np.float32)
+
+        pipe = self.r.pipeline(transaction=False)
+        for j, el in enumerate(self.cavs):
+            pipe.hset(keys.readback("rf", el.name), mapping={
+                "amp": float(amp[j]), "phase": float(phase[j]),
+                "detuning_hz": float(det[j]), "forward_pw": float(fwd[j]),
+                "status": "tripped" if self.tripped[j] else "ok"})
         pipe.execute()
         self.publish_stream("rf.cavity", pulse_id, {
-            "amp": amp, "phase": phase, "detuning_hz": det,
-            "status": stat, "forward_pw": fwd})
+            "amp": amp.astype(np.float32),
+            "phase": phase.astype(np.float32),
+            "detuning_hz": det.astype(np.float32),
+            "status": stat, "forward_pw": fwd.astype(np.float32)})
+
+        if want and res["wf"] is not None:
+            amps, phs, fwds, dets = res["wf"]
+            data = {"t_ms": self._t_wf.astype(np.float32)}
+            for col, j in enumerate(want):
+                nm = self.cavs[j].name
+                data[f"{nm}:amp"] = amps[:, col].astype(np.float32)
+                data[f"{nm}:phase"] = phs[:, col].astype(np.float32)
+                data[f"{nm}:fwd_kw"] = fwds[:, col].astype(np.float32)
+                data[f"{nm}:det"] = dets[:, col].astype(np.float32)
+            self.publish_stream("wf.rf", pulse_id, data)
 
 
 if __name__ == "__main__":
