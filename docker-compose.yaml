@@ -48,6 +48,19 @@ services:
     <<: *svc
     command: python -m pip2va.services.autotune.main
 
+  web-gui:
+    build:
+      context: .
+      dockerfile: docker/web-gui.Dockerfile
+    environment:
+      PIP2VA_REDIS_URL: redis://redis:6379/0
+    ports:
+      - "6080:6080"
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
   beam-physics:
     build:
       context: .

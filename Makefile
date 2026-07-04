@@ -12,6 +12,10 @@ logs:
 gui:           ## run the control-room GUI on the host
 	.venv/bin/pip2va-gui
 
+gui-web:       ## serve the full GUI in a browser (noVNC on :6080)
+	docker compose up -d --build web-gui
+	@echo "GUI in browser:  http://localhost:6080/vnc.html  (or http://gb10:6080/vnc.html)" 
+
 test:
 	.venv/bin/python -m pytest tests/ -q
 
