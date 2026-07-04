@@ -168,7 +168,7 @@ class AutotuneService(Service):
                     bi = self._bpm_index(bpm.name)
                     meas0 = bb["m0"][bi + plane * self._nbpm]
                     self.r.hset("state:bba.offsets", f"{bpm.name}:{err_key}",
-                                meas0 - x_true)
+                                float(meas0 - x_true))
             bb["i"] += 1
             bb["phase"] = 0
 

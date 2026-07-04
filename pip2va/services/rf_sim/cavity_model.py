@@ -36,7 +36,8 @@ FAMILY = {
 # SSA ratings [kW] (verified table) — absolute, NOT relative to the drive:
 # de-rated capture cavities carry beam loading far above their own voltage
 SSA_KW = {"HWR": 7.0, "SSR1": 7.0, "SSR2": 20.0, "LB650": 40.0,
-          "HB650": 70.0, "buncher": 3.0, "debuncher": 15.0}
+          "HB650": 70.0, "buncher": 3.0, "debuncher": 300.0,
+          "RFQ": 500.0}  # RFQ: 2x75 kW SSAs; amp is a normalized scale
 
 WINDOW_S = 0.55e-3
 BEAM_S = 0.54e-3
@@ -74,7 +75,9 @@ class CavityModel:
         self.tick_dt = tick_dt
         n = len(cavities)
         self.n = n
-        fam = [c.params.get("family", "buncher") for c in cavities]
+        fam = [c.params.get("family",
+                            "RFQ" if getattr(c, "type", "") == "rfq"
+                            else "buncher") for c in cavities]
         roq = np.array([FAMILY.get(f, FAMILY["buncher"])[0] for f in fam])
         leff = np.array([FAMILY.get(f, FAMILY["buncher"])[1] for f in fam])
         kl = np.array([FAMILY.get(f, FAMILY["buncher"])[2] for f in fam])
