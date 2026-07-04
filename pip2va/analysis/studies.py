@@ -28,6 +28,7 @@ import numpy as np
 
 from pip2va.common.lattice import load_lattice
 
+from . import knowledge as _kb
 from . import llm
 
 VALID_FIELDS = {
@@ -106,7 +107,10 @@ def plan_from_text(text: str, timeout: float = 240.0) -> tuple[dict, str]:
         "messages": [
             {"role": "system", "content": PLAN_SYSTEM},
             {"role": "user", "content":
-                f"Device catalog:\n{device_catalog(text)}\n\nRequest: {text}"},
+                f"Device catalog:\n{device_catalog(text)}\n"
+                + (f"\nPrior study findings (use them to pick spans/rates):"
+                   f"\n{_kb.context(text)}\n" if _kb.context(text) else "")
+                + f"\nRequest: {text}"},
         ],
     }
     req = urllib.request.Request(

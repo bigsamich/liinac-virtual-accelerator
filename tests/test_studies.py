@@ -67,3 +67,27 @@ def test_executor_runs_and_restores():
     # rule report renders
     rep = studies.rule_report(plan, result)
     assert "best operating point" in rep
+
+
+def test_presets_all_validate():
+    from pip2va.analysis import study_presets
+    for nm in study_presets.PRESETS:
+        plan = study_presets.get_plan(nm)
+        plan, _ = studies.validate_plan(plan)
+        assert plan["steps"] >= 2
+
+
+def test_knowledge_roundtrip(tmp_path, monkeypatch):
+    from pip2va.analysis import knowledge
+    monkeypatch.setattr(knowledge, "KB_PATH", tmp_path / "kb.jsonl")
+    plan = {"name": "kb-test", "kind": "sweep",
+            "sweeps": [{"cls": "rf", "device": "SSR2:CAV17",
+                        "field": "phase", "from": -30, "to": -20}]}
+    result = {"status": "aborted-trip", "steps": [
+        {"set_values": [-30], "transmission": 0.99, "worst_blm": 0.5,
+         "w_tof": 800, "orbit_rms_mm": 0.3},
+        {"set_values": [-20], "transmission": 0.95, "worst_blm": 80.0,
+         "w_tof": 799, "orbit_rms_mm": 0.4}]}
+    knowledge.append(knowledge.summarize_result(plan, result))
+    ctx = knowledge.context("what happens near SSR2 CAV17 phase")
+    assert "trips the MPS" in ctx and "CAV17" in ctx

@@ -109,6 +109,16 @@ def collect_evidence(r, lat: Lattice) -> dict:
     ev["magnet_anomalies"] = mag_anom[:15]
 
     # --- active fault injections (training scenarios)
+    # prior beam-study findings relevant to the loss region
+    try:
+        from . import knowledge as _kb
+        q = " ".join(filter(None, [ev.get("trip_blm", ""),
+                                   ev.get("trip_blm_section", "")]))
+        ctx = _kb.context(q or "study")
+        if ctx:
+            ev["prior_study_findings"] = ctx.splitlines()[:6]
+    except Exception:
+        pass
     ev["active_fault_injections"] = [
         k.decode() if isinstance(k, bytes) else k
         for k in r.scan_iter("fault:*")]

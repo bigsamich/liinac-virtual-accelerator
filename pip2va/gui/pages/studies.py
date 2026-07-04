@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import (QCheckBox, QFileDialog, QHBoxLayout, QLabel,
                              QPushButton, QSplitter, QTextEdit, QVBoxLayout,
                              QWidget)
 
-from pip2va.analysis import studies
+from pip2va.analysis import knowledge, studies, study_presets
 
 from .. import theme
 from . import register
@@ -56,7 +56,17 @@ class StudiesPage(Page):
         STUDY_DIR.mkdir(parents=True, exist_ok=True)
 
         # ---- natural-language request
+        from PyQt6.QtWidgets import QComboBox, QTabWidget
         bar = QHBoxLayout()
+        self.sel_preset = QComboBox()
+        self.sel_preset.addItem("— presets —")
+        for nm, pr in study_presets.PRESETS.items():
+            self.sel_preset.addItem(nm)
+            self.sel_preset.setItemData(self.sel_preset.count() - 1,
+                                        pr["teaches"], 3)  # tooltip
+        self.btn_preset = QPushButton("Load preset")
+        bar.addWidget(self.sel_preset)
+        bar.addWidget(self.btn_preset)
         self.ed = QLineEdit()
         self.ed.setPlaceholderText(
             'e.g. "sweep SSR2:CAV17 phase ±15° and amplitude ±5% over two '
@@ -122,13 +132,55 @@ class StudiesPage(Page):
         rl.addWidget(self.txt_report, 1)
         split.addWidget(right)
         split.setSizes([380, 260, 480])
-        self.body.addWidget(split, 1)
+        tabs = QTabWidget()
+        run_tab = QWidget()
+        rt = QVBoxLayout(run_tab)
+        rt.setContentsMargins(0, 0, 0, 0)
+        rt.addWidget(split)
+        tabs.addTab(run_tab, "Plan && Run")
+
+        # ---- Previous studies tab
+        hist = QWidget()
+        hl = QHBoxLayout(hist)
+        hleft = QVBoxLayout()
+        hleft.addWidget(QLabel("Completed studies:"))
+        self.lst_hist = QListWidget()
+        hleft.addWidget(self.lst_hist, 1)
+        row_h = QHBoxLayout()
+        self.btn_hist_refresh = QPushButton("Refresh")
+        self.btn_hist_load = QPushButton("Load plan → editor")
+        self.btn_hist_ai = QPushButton("AI re-analysis")
+        for b in (self.btn_hist_refresh, self.btn_hist_load,
+                  self.btn_hist_ai):
+            row_h.addWidget(b)
+        hleft.addLayout(row_h)
+        hl.addLayout(hleft, 1)
+        hr = QVBoxLayout()
+        hr.addWidget(QLabel("Report / knowledge:"))
+        self.txt_hist = QTextEdit()
+        self.txt_hist.setReadOnly(True)
+        hr.addWidget(self.txt_hist, 2)
+        hr.addWidget(QLabel("Knowledge base (feeds the AI planner "
+                            "and trip analysis):"))
+        self.txt_kb = QTextEdit()
+        self.txt_kb.setReadOnly(True)
+        self.txt_kb.setMaximumHeight(150)
+        hr.addWidget(self.txt_kb)
+        hl.addLayout(hr, 2)
+        tabs.addTab(hist, "Previous studies")
+        self.body.addWidget(tabs, 1)
 
         self._queue: list[dict] = []
         self._running: dict | None = None
         self._worker = None
         self._rep_worker = None
         self.btn_plan.clicked.connect(self._plan)
+        self.btn_preset.clicked.connect(self._load_preset)
+        self.btn_hist_refresh.clicked.connect(self._hist_refresh)
+        self.lst_hist.currentTextChanged.connect(self._hist_show)
+        self.btn_hist_load.clicked.connect(self._hist_to_editor)
+        self.btn_hist_ai.clicked.connect(self._hist_ai)
+        self._hist_refresh()
         self.ed.returnPressed.connect(self._plan)
         self.btn_queue.clicked.connect(self._enqueue)
         self.btn_save.clicked.connect(self._save)
@@ -142,6 +194,64 @@ class StudiesPage(Page):
         self._timer = QTimer(self)
         self._timer.timeout.connect(self._poll)
         self._timer.start(1000)
+
+    def _load_preset(self):
+        nm = self.sel_preset.currentText()
+        if nm not in study_presets.PRESETS:
+            return
+        plan = study_presets.get_plan(nm)
+        plan, note = studies.validate_plan(plan)
+        self.txt_plan.setPlainText(json.dumps(plan, indent=1))
+        self.lbl_note.setText(
+            f"preset '{nm}' — teaches: "
+            f"{study_presets.PRESETS[nm]['teaches']}  [{note}]")
+
+    # --------------------------------------------------------- history tab
+
+    def _hist_files(self):
+        return sorted(STUDY_DIR.glob("result-*.json"), reverse=True)
+
+    def _hist_refresh(self):
+        self.lst_hist.clear()
+        for f in self._hist_files():
+            self.lst_hist.addItem(f.stem.replace("result-", ""))
+        kb = knowledge.load(30)
+        self.txt_kb.setPlainText("\n".join(
+            "- " + k.get("summary", "") for k in reversed(kb)) or
+            "(empty — completed studies will appear here)")
+
+    def _hist_sel(self):
+        it = self.lst_hist.currentItem()
+        if not it:
+            return None
+        f = STUDY_DIR / f"result-{it.text()}.json"
+        try:
+            return json.loads(f.read_text())
+        except (OSError, ValueError):
+            return None
+
+    def _hist_show(self, _txt):
+        data = self._hist_sel()
+        if data:
+            self.txt_hist.setPlainText(
+                studies.rule_report(data["plan"], data["result"]))
+
+    def _hist_to_editor(self):
+        data = self._hist_sel()
+        if data:
+            self.txt_plan.setPlainText(json.dumps(data["plan"], indent=1))
+            self.lbl_note.setText("plan loaded from history — edit spans/"
+                                  "steps for the next-generation study")
+
+    def _hist_ai(self):
+        data = self._hist_sel()
+        if not data:
+            return
+        self.txt_hist.setPlainText("AI re-analysis running…")
+        self._rep_worker = ReportWorker(data["plan"], data["result"])
+        self._rep_worker.done.connect(
+            lambda t, e: self.txt_hist.setPlainText(f"[{e}]\n\n{t}"))
+        self._rep_worker.start()
 
     # -------------------------------------------------------------- planning
 
@@ -240,6 +350,8 @@ class StudiesPage(Page):
             ts = time.strftime("%Y%m%d-%H%M%S")
             (STUDY_DIR / f"result-{plan['name']}-{ts}.json").write_text(
                 json.dumps({"plan": plan, "result": result}, indent=1))
+            knowledge.append(knowledge.summarize_result(plan, result))
+            self._hist_refresh()
             if self.chk_auto.isChecked() and self._queue:
                 self._run_next()
 
