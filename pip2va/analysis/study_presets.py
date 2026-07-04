@@ -29,9 +29,9 @@ PRESETS = {
         "teaches": "safe source-current ramp rate and how losses scale with "
                    "current (informs intensity increases)",
         "plan": {"name": "source-ramp-4-6", "kind": "ramp",
-                 "description": "source 4 -> 6 mA in gentle steps",
+                 "description": "source 5 -> 6 mA in gentle steps from the operating point",
                  "sweeps": [{"cls": "source", "device": "main",
-                             "field": "current_ma", "from": 4.0, "to": 6.0}],
+                             "field": "current_ma", "from": 5.0, "to": 6.0}],
                  "steps": 9, "dwell_s": 2.5, "restore": True},
     },
     "chopper-duty-scan": {
@@ -47,9 +47,9 @@ PRESETS = {
         "teaches": "orbit response and loss onset for a single trim "
                    "(informs steering budgets and drift trips)",
         "plan": {"name": "corrector-response-ssr1", "kind": "sweep",
-                 "description": "SSR1:C3 x-trim -2 to +2 A orbit response",
+                 "description": "SSR1:C3 x-trim -0.8 to +0.8 A orbit response",
                  "sweeps": [{"cls": "magnet", "device": "SSR1:C3",
-                             "field": "current_x", "from": -2.0, "to": 2.0}],
+                             "field": "current_x", "from": -0.8, "to": 0.8}],
                  "steps": 9, "dwell_s": 2.0, "restore": True},
     },
     "quad-scan-lb650": {
