@@ -49,11 +49,12 @@ keyed by pulse ID:
 | Service | Role |
 |---|---|
 | `timing` | 20 Hz master clock, monotonic pulse IDs |
-| `beam-physics` | **GPU.** Envelope pass every pulse (~6 ms: centroid + 6D sigma transport, phase-slip cavity physics, KV space charge, Gaussian-tail + H⁻ stripping losses). A free-running CuPy macroparticle tracker (100k particles, ~0.8 s/pass on GB10) publishes profiles, phase space, emittance, and a particle-true loss map. |
+| `beam-physics` | **GPU.** Envelope pass every pulse (~7 ms: centroid + 6D sigma transport, phase-slip cavity physics, 3D-ellipsoid space charge with longitudinal debunching, Gaussian-tail + H⁻ stripping losses). A free-running CuPy macroparticle tracker (400k particles, nonlinear Gaussian SC kicks, ~2.9 s/pass on GB10) publishes profiles, phase space, emittance, and a particle-true loss map. |
 | `rf-sim` | Per-cavity LLRF: amplitude servo, microphonics + Lorentz-force detuning, tuner servo, quench/trip latches |
 | `magnet-sim` | Power supplies: slew, ripple, thermal drift, trips |
-| `diag-sim` | Turns ground truth into noisy measurements (BPM/BLM/toroid/wire-scanner models). The GUI **never** sees ground truth. |
-| `mps` | Beam permit: commissioning-style BLM baseline capture → per-monitor thresholds, latched trips, gated reset |
+| `diag-sim` | Turns ground truth into noisy measurements (BPM/BLM/toroid/wire-scanner models) **plus intra-pulse waveforms** (1000 samples across the 0.55 ms pulse) and the trip postmortem buffer. The GUI **never** sees ground truth. |
+| `mps` | Beam permit: commissioning-style BLM baseline capture (only while delivering beam) → per-monitor thresholds, latched trips, gated reset |
+| `autotune` | RESCUE restore-to-design + continuous SVD orbit correction |
 
 Setting flow: GUI writes `settings:*` hash → publishes `settings.changed` →
 owning sim slews its readback realistically → `beam-physics` transports the
@@ -63,17 +64,34 @@ losses spike, and the MPS pulls the permit — the real failure cascade.
 
 ## GUI pages
 
-Overview (synoptic), Instrumentation dashboard, Orbit (20 Hz, reference
+Overview (synoptic, click a section to open its view), Instrumentation
+dashboard (toroids + live orbit and loss panels), Orbit (20 Hz, reference
 diff), Losses (bars + waterfall vs the 0.1/1 W/m criteria), Magnets & trims,
 RF (per-cavity table + detuning detail + tuner/reset), Profiles & phase
-space (live wire scans, x–x′/y–y′/z–δ from the GPU tracker), Source & LEBT
-(source current, chopper pattern), MPS (permit, trip log, reset, and an
-expert fault-injection panel for training scenarios).
+space (live wire scans, x–x′/y–y′/z–δ from the GPU tracker), Waveforms
+(intra-pulse 1000-sample traces: live toroids, selectable BPM/BLM capture,
+trip postmortem buffer), Source & LEBT, MPS (permit, trip log, root-cause
+analysis, expert fault injector) — plus a dedicated view per lattice section.
+
+An always-visible banner carries the beam-permit state with **RESET PERMIT**,
+**RESCUE** (autotune restores every setpoint to design, resets tripped
+devices, and re-arms the permit), and an **Auto-tune orbit** toggle (SVD
+orbit correction against a model-measured response matrix).
+
+## Trip root-cause analysis
+
+Every MPS trip triggers an instant rule-based diagnosis on the MPS page:
+loss location, tripped devices upstream, active fault injections, and
+recent setpoint changes from the audit trail (`stream:settings.log`).
+"Deep analysis" sends the same evidence pack to a **local LLM via Ollama**
+(default `qwen3.6:latest`, configurable with `PIP2VA_LLM_MODEL` /
+`PIP2VA_OLLAMA_URL`) for a physics narrative with recovery steps — and falls
+back to the rule-based text if the LLM is unreachable.
 
 ## Development
 
 ```bash
-make test           # 62 tests: physics vs analytic results, services on fakeredis, GUI offscreen
+make test           # 73 tests: physics vs analytic results, services on fakeredis, GUI offscreen
 make lattice        # regenerate pip2va/lattice/pip2_lattice.yaml + numerical re-match
 .venv/bin/python scripts/bench_envelope.py
 ```
