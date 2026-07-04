@@ -85,8 +85,24 @@ class DiagSimService(Service):
                             for b in self.bpms])
         ssum = np.maximum(tr["bpm_sum"] * (1 + rng.normal(0, i_noise))
                           + rng.normal(0, 0.002, nb), 0.0)
+        # TOF energy: derived from BPM phase pairs; noise per
+        # dE/E = gamma(gamma+1) * dphi*beta*c/(2*pi*f*L)  (arXiv:2509.14214)
+        w_true = tr.get("bpm_w")
+        if w_true is not None and len(w_true):
+            gam = 1.0 + w_true / 939.294
+            bet = np.sqrt(np.maximum(1 - 1 / gam ** 2, 1e-9))
+            s_pos = np.array([b.s for b in self.bpms])
+            L = np.maximum(np.gradient(s_pos), 0.5)
+            dphi = np.radians(ph_sig)
+            rel = gam * (gam + 1) * dphi * bet * 3e8 / (
+                2 * np.pi * 162.5e6 * L)
+            w_tof = np.maximum(
+                w_true * (1 + rng.normal(0, np.minimum(rel, 0.05))), 0.0)
+        else:
+            w_tof = np.zeros(nb)
         self.publish_stream("bpm.orbit", pulse_id,
-                            {"x": x, "y": y, "phase": ph, "sum": ssum})
+                            {"x": x, "y": y, "phase": ph, "sum": ssum,
+                             "w_tof": w_tof})
 
         # BLMs
         frac = np.array([b.params.get("noise_frac", 0.05) for b in self.blms])

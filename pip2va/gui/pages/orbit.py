@@ -39,7 +39,8 @@ class OrbitPage(Page):
         self.curves = []
         for name, unit, color in (("x", "mm", theme.ACCENT),
                                   ("y", "mm", "#ffb74d"),
-                                  ("phase", "deg", "#ba68c8")):
+                                  ("phase", "deg", "#ba68c8"),
+                                  ("W (TOF)", "MeV", "#4db6ac")):
             p = CrosshairPlot(f"{name} [{unit}]",
                               device_names=self.bpm_names)
             c = p.plot(pen=pg.mkPen(color, width=1.5), symbol="o",
@@ -90,15 +91,16 @@ class OrbitPage(Page):
             return
         self._last_draw = now
         x, y, ph = data["x"] * 1e3, data["y"] * 1e3, data["phase"]
+        wt = data.get("w_tof", np.zeros_like(x))
         if self.chk_diff.isChecked() and self._ref is not None:
             x = x - self._ref["x"] * 1e3
             y = y - self._ref["y"] * 1e3
             ph = ph - self._ref["phase"]
         xs = self._xs()
         n = min(len(xs), len(x))
-        for curve, vals in zip(self.curves, (x, y, ph)):
+        for curve, vals in zip(self.curves, (x, y, ph, wt)):
             curve.setData(xs[:n], vals[:n])
-        for p, vals in zip(self.plots, (x, y, ph)):
+        for p, vals in zip(self.plots, (x, y, ph, wt)):
             p.update_y(vals[:n])
         self.lbl_rms.setText(
             f"rms: x {np.std(x):.3f} mm   y {np.std(y):.3f} mm   "

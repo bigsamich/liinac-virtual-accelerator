@@ -87,6 +87,10 @@ class BeamPhysicsService(Service):
 
     def on_tick(self, pulse_id: int):
         t0 = time.perf_counter()
+        phys = self.read_hash(keys.settings("physics", "main"))
+        for k, v in phys.items():
+            if isinstance(v, float) and k in self.engine.phys:
+                self.engine.phys[k] = v
         ds, stale = self._collect_device_state()
         permit = self.r.get("state:mps.permit")
         beam_on = permit is None or permit in (b"1", "1")
@@ -101,6 +105,7 @@ class BeamPhysicsService(Service):
             "bpm_x": res.bpm_x, "bpm_y": res.bpm_y,
             "bpm_phase": res.bpm_phase, "bpm_sum": res.bpm_sum,
             "blm_wpm": res.blm_wpm, "toroid_i": res.toroid_i,
+            "bpm_w": res.bpm_w,
         })
         lag_ms = (time.perf_counter() - t0) * 1e3
         pipe = self.r.pipeline(transaction=False)

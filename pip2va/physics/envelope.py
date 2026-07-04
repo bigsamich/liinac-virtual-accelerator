@@ -53,6 +53,7 @@ class EnvelopeResult:
     bpm_sum: np.ndarray        # intensity [mA]
     blm_wpm: np.ndarray
     toroid_i: np.ndarray       # [mA]
+    bpm_w: np.ndarray = None   # design-frame energy at BPMs [MeV]
     emit_x_um: float = 0.0
     emit_y_um: float = 0.0
 
@@ -115,6 +116,7 @@ class EnvelopeEngine:
             bpm_sum=np.zeros(len(self._bpm_idx)),
             blm_wpm=np.zeros(len(self._blm_idx)),
             toroid_i=np.zeros(len(self._tor_idx)),
+            bpm_w=np.zeros(len(self._bpm_idx)),
         )
         if not beam_on:
             return out
@@ -332,6 +334,7 @@ class EnvelopeEngine:
                     ph = 360.0 * f_bunch * (t - t_des_arr[i])
                     out.bpm_phase[bpm_k] = (ph + 180.0) % 360.0 - 180.0
                 out.bpm_sum[bpm_k] = i_ma * f_surv
+                out.bpm_w[bpm_k] = w
                 bpm_k += 1
             elif typ == "blm":
                 blm_k += 1
