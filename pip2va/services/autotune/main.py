@@ -163,6 +163,28 @@ class AutotuneService(Service):
                 and _tt.time() - float(f.get(b"t", 0)) < 8.0
                 for _, f in self.r.xrevrange(keys.stream("mps.events"),
                                              count=8))
+            # marginal trip (< 1.3x threshold): the session's baseline has
+            # gone stale, not a real limit — re-baseline and retry the step
+            marginal = False
+            for _, f in self.r.xrevrange(keys.stream("mps.events"), count=5):
+                if f.get(b"kind") == b"trip":
+                    import re as _re
+                    m = _re.search(rb"([\d.]+) W/m \(limit ([\d.]+)",
+                                   f.get(b"detail", b""))
+                    if m and float(m.group(1)) < 1.3 * float(m.group(2)):
+                        marginal = True
+                    break
+            if marginal and stu.get("rebl", 0) < 2:
+                stu["rebl"] = stu.get("rebl", 0) + 1
+                stu["k"] -= 1
+                stu["dwell_left"] = 0
+                stu["settle"] = 4
+                self.r.hset(keys.settings("mps", "main"), "relearn", 1)
+                self.r.hset(keys.settings("mps", "main"), "reset", 1)
+                self.r.hset("state:study", "status",
+                            f"marginal trip: re-baselining and retrying "
+                            f"({stu['rebl']}/2)")
+                return
             if recent_errant and stu.get("retries", 0) < 2:
                 stu["retries"] = stu.get("retries", 0) + 1
                 stu["k"] -= 1              # redo the interrupted step
