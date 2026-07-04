@@ -22,6 +22,7 @@ def r():
 def test_datahub_emits_orbit(qtbot, r):
     hub = DataHub(redis_client=r)
     hub.start()
+    assert hub.wait_ready(3.0)
     try:
         with qtbot.waitSignal(hub.orbit, timeout=5000) as blocker:
             r.xadd(keys.stream("bpm.orbit"), {"d": codec.pack(7, {

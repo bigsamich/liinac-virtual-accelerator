@@ -7,6 +7,7 @@ scan requests, fault injection) go through explicit methods here.
 from __future__ import annotations
 
 import json
+import threading
 
 import redis
 from PyQt6.QtCore import QThread, pyqtSignal
@@ -43,6 +44,7 @@ class DataHub(QThread):
         self.r = redis_client if redis_client is not None else \
             redis.Redis.from_url(self.settings.redis_url)
         self._running = False
+        self._ready = threading.Event()
 
     # ------------------------------------------------------------ stream loop
 
@@ -57,6 +59,7 @@ class DataHub(QThread):
                 streams[nm] = last[0][0] if last else "0-0"
             except redis.RedisError:
                 streams[nm] = "0-0"
+        self._ready.set()   # start positions resolved; new entries will emit
         ok = None
         while self._running:
             try:
@@ -101,6 +104,10 @@ class DataHub(QThread):
             return st
         except (redis.RedisError, ValueError):
             return {}
+
+    def wait_ready(self, timeout: float = 2.0) -> bool:
+        """Block until the stream reader has resolved its start positions."""
+        return self._ready.wait(timeout)
 
     def stop(self):
         self._running = False
