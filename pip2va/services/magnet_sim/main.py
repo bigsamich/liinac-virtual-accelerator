@@ -49,7 +49,10 @@ class MagnetSimService(Service):
 
     def on_event(self, channel, data):
         if isinstance(data, dict) and "key" in data:
-            self._dirty.add(data["key"])
+            if str(data["key"]).startswith("bulk:"):
+                self._dirty.update(skey for _, _, _, skey, _ in self.devices)
+            else:
+                self._dirty.add(data["key"])
 
     def on_tick(self, pulse_id: int):
         vals = np.zeros(len(self.devices), dtype=np.float32)
@@ -70,7 +73,8 @@ class MagnetSimService(Service):
                     dev.trip()
                     self.publish_event(keys.CH_FAULT, {"key": rkey})
                 elif fl.get("type") == "drift":
-                    dev.drift += float(fl.get("magnitude", 0.0)) * self.dt
+                    # magnitude is in amps per MINUTE of injected drift
+                    dev.drift += float(fl.get("magnitude", 0.0)) * self.dt / 60.0
             elif dev.tripped and st is not None and st.get("reset"):
                 dev.try_reset()
                 pipe.hdel(skey, "reset")

@@ -42,8 +42,10 @@ class Cavity:
                     for (f, a), p in zip(MICRO_TONES, self.phases))
         micro += self.rng.normal(0.0, 0.8)
         lfd = -20.0 * (self.amp.value / max(self.v_max, 1e-9)) ** 2
-        self.det_drift += self.rng.normal(0.0, 0.02) - self.det_drift * dt / 600.0
-        raw = micro + lfd * (1.0 - self.lfd_comp) + self.det_drift * 60.0
+        # slow thermal/helium-pressure drift: bounded random walk, ~30 min tc
+        self.det_drift += (self.rng.normal(0.0, 0.004)
+                           - self.det_drift * dt / 1800.0)
+        raw = micro + lfd * (1.0 - self.lfd_comp) + self.det_drift * 30.0
         # slow tuner servo nulls the mean detuning (time constant ~30 s)
         self.tuner_offset += (raw - self.tuner_offset) * dt / 30.0
         return raw - self.tuner_offset
@@ -71,7 +73,11 @@ class RfSimService(Service):
 
     def on_event(self, channel, data):
         if isinstance(data, dict) and "key" in data:
-            self._dirty.add(data["key"])
+            if str(data["key"]).startswith("bulk:"):
+                self._dirty.update(keys.settings("rf", c.el.name)
+                                   for c in self.cavs)
+            else:
+                self._dirty.add(data["key"])
 
     def on_tick(self, pulse_id: int):
         t = pulse_id * self.dt

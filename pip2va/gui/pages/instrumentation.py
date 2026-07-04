@@ -51,17 +51,52 @@ class InstrumentationPage(Page):
                       for k in range(len(self.tors) - 1)]])
         self.body.addWidget(self.p_bars, 1)
 
+        # live orbit + loss mini-panels
+        from .common import add_section_shading
+        row2 = QHBoxLayout()
+        self.s_bpm = np.array([e.s for e in self.lat.instruments("bpm")])
+        self.p_orbit = make_plot("orbit x/y [mm]")
+        add_section_shading(self.p_orbit, self.lat)
+        self.c_ox = self.p_orbit.plot(pen=pg.mkPen(theme.ACCENT, width=1))
+        self.c_oy = self.p_orbit.plot(pen=pg.mkPen("#ffb74d", width=1))
+        row2.addWidget(self.p_orbit, 1)
+        self.s_blm = np.array([e.s for e in self.lat.instruments("blm")])
+        self.p_loss = make_plot("loss [W/m]")
+        add_section_shading(self.p_loss, self.lat)
+        self.loss_bars = pg.BarGraphItem(x=self.s_blm,
+                                         height=np.zeros(len(self.s_blm)),
+                                         width=1.2, brush=theme.WARN)
+        self.p_loss.addItem(self.loss_bars)
+        row2.addWidget(self.p_loss, 1)
+        self.body.addLayout(row2, 2)
+
         # device health summary
         self.lbl_health = QLabel("device health: —")
         self.body.addWidget(self.lbl_health)
 
         self.hist = [collections.deque(maxlen=400) for _ in self.tors]
+        self._draw_gate = 0
+        self.hub.orbit.connect(self._on_orbit)
+        self.hub.losses.connect(self._on_losses)
         self.hub.toroids.connect(self._on_toroids)
         self.hub.rf.connect(self._on_rf)
         self.hub.magnets.connect(self._on_magnets)
         self._rf_trips = 0
         self._mag_trips = 0
         self.pulse_ms = self.lat.meta.get("beam_ms", 0.54)
+
+    def _on_orbit(self, _pid, data):
+        self._draw_gate += 1
+        if not self.isVisible() or self._draw_gate % 4:
+            return  # ~5 Hz redraw is plenty for a dashboard panel
+        n = min(len(self.s_bpm), len(data["x"]))
+        self.c_ox.setData(self.s_bpm[:n], data["x"][:n] * 1e3)
+        self.c_oy.setData(self.s_bpm[:n], data["y"][:n] * 1e3)
+
+    def _on_losses(self, _pid, data):
+        if not self.isVisible() or self._draw_gate % 4:
+            return
+        self.loss_bars.setOpts(height=data["wpm"][:len(self.s_blm)])
 
     def _on_toroids(self, _pid, data):
         i = data["i_ma"]

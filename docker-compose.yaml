@@ -44,13 +44,17 @@ services:
     <<: *svc
     command: python -m pip2va.services.mps.main
 
+  autotune:
+    <<: *svc
+    command: python -m pip2va.services.autotune.main
+
   beam-physics:
     build:
       context: .
       dockerfile: docker/beam-physics.Dockerfile
     environment:
       PIP2VA_REDIS_URL: redis://redis:6379/0
-      PIP2VA_MACRO_PARTICLES: "100000"
+      PIP2VA_MACRO_PARTICLES: "400000"
     depends_on:
       redis:
         condition: service_healthy

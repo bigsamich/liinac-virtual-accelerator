@@ -59,8 +59,7 @@ class OverviewPage(Page):
     def _goto_section(self, name):
         w = self.window()
         if hasattr(w, "goto"):
-            w.goto({"LEBT": "Source & LEBT", "RFQ": "RF",
-                    "MEBT": "Magnets"}.get(name, "Orbit"))
+            w.goto(f"  › {name}")
 
     def _on_state(self, st):
         if not st:

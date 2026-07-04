@@ -12,7 +12,7 @@ import threading
 import redis
 from PyQt6.QtCore import QThread, pyqtSignal
 
-from pip2va.common import codec, keys
+from pip2va.common import audit, codec, keys
 from pip2va.common.config import Settings
 
 STREAM_SIGNALS = {
@@ -23,6 +23,8 @@ STREAM_SIGNALS = {
     "magnet.readback": "magnets",
     "beam.deep": "deep",
     "profile.scan": "scan",
+    "wf.toroid": "wfToroid",
+    "wf.capture": "wfCapture",
 }
 
 
@@ -34,6 +36,8 @@ class DataHub(QThread):
     magnets = pyqtSignal(int, object)
     deep = pyqtSignal(int, object)
     scan = pyqtSignal(int, object)
+    wfToroid = pyqtSignal(int, object)
+    wfCapture = pyqtSignal(int, object)
     mpsEvent = pyqtSignal(object)
     beamState = pyqtSignal(object)
     connected = pyqtSignal(bool)
@@ -118,7 +122,11 @@ class DataHub(QThread):
     def set_setting(self, cls: str, name: str, field: str, value):
         key = keys.settings(cls, name)
         self.r.hset(key, field, value)
+        audit.log_setting(self.r, key, field, value, "gui")
         self.r.publish(keys.CH_SETTINGS, json.dumps({"key": key}))
+
+    def settings_log(self, n: int = 100) -> list[dict]:
+        return audit.read_log(self.r, n)
 
     def get_settings(self, cls: str, name: str) -> dict:
         raw = self.r.hgetall(keys.settings(cls, name))
@@ -166,8 +174,36 @@ class DataHub(QThread):
     def request_wire_scan(self, name: str, plane: str = "x"):
         self.r.hset(f"req:wire:{name}", "plane", plane)
 
+    def select_waveforms(self, names: list[str]):
+        """Choose up to 8 devices for continuous intra-pulse capture."""
+        self.r.hset(keys.settings("wfsel", "main"),
+                    "devices", ",".join(names[:8]))
+
+    def get_postmortem(self):
+        blob = self.r.get("wf:postmortem")
+        return codec.unpack(blob) if blob else None
+
     def mps_reset(self):
         self.r.hset(keys.settings("mps", "main"), "reset", 1)
+
+    def get_state(self, name: str) -> dict:
+        raw = self.r.hgetall(f"state:{name}")
+        out = {}
+        for k, v in raw.items():
+            k = k.decode() if isinstance(k, bytes) else k
+            v = v.decode() if isinstance(v, bytes) else v
+            try:
+                out[k] = float(v)
+            except (TypeError, ValueError):
+                out[k] = v
+        return out
+
+    def set_autotune(self, enable: bool):
+        self.set_setting("autotune", "main", "enable", int(enable))
+
+    def rescue(self):
+        """One-shot restore of the whole machine to design settings."""
+        self.set_setting("autotune", "main", "restore", 1)
 
     def inject_fault(self, cls: str, name: str, ftype: str,
                      magnitude: float = 0.0, ttl_s: int = 0):
@@ -175,6 +211,11 @@ class DataHub(QThread):
         self.r.hset(key, mapping={"type": ftype, "magnitude": magnitude})
         if ttl_s > 0:
             self.r.expire(key, ttl_s)
+        audit.log_setting(self.r, key, ftype, magnitude, "fault-injection")
+
+    def active_faults(self) -> list[str]:
+        return sorted(k.decode() if isinstance(k, bytes) else k
+                      for k in self.r.scan_iter("fault:*"))
 
     def clear_fault(self, cls: str, name: str):
         self.r.delete(keys.fault(cls, name))

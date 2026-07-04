@@ -5,8 +5,9 @@ import argparse
 import sys
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QLabel, QListWidget,
-                             QMainWindow, QStackedWidget, QStatusBar, QWidget)
+from PyQt6.QtWidgets import (QApplication, QCheckBox, QFrame, QHBoxLayout,
+                             QLabel, QListWidget, QMainWindow, QPushButton,
+                             QStackedWidget, QStatusBar, QVBoxLayout, QWidget)
 
 from pip2va.common.config import Settings
 from pip2va.common.lattice import load_lattice
@@ -25,10 +26,15 @@ class MainWindow(QMainWindow):
         self.resize(1480, 920)
 
         from .pages import load_all
+        from .pages.section import SectionPage
         pages = load_all()
 
         central = QWidget()
-        lay = QHBoxLayout(central)
+        outer = QVBoxLayout(central)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.setSpacing(0)
+        outer.addWidget(self._build_banner())
+        lay = QHBoxLayout()
         lay.setContentsMargins(0, 0, 0, 0)
         lay.setSpacing(0)
         self.nav = QListWidget()
@@ -36,9 +42,14 @@ class MainWindow(QMainWindow):
         self.stack = QStackedWidget()
         lay.addWidget(self.nav)
         lay.addWidget(self.stack, 1)
+        outer.addLayout(lay, 1)
         self.setCentralWidget(central)
 
         self._page_classes = list(pages.items())
+        for s in self.lat.sections:
+            self._page_classes.append(
+                (f"  › {s.name}",
+                 lambda hub, lat, _s=s.name: SectionPage(hub, lat, _s)))
         self._built: dict[int, QWidget] = {}
         for label, _ in self._page_classes:
             self.nav.addItem(label)
@@ -70,6 +81,33 @@ class MainWindow(QMainWindow):
         if self._page_classes:
             self.nav.setCurrentRow(0)
 
+    def _build_banner(self) -> QWidget:
+        """Always-visible permit strip: state, reset, rescue, autotune."""
+        bar = QFrame()
+        bar.setObjectName("panel")
+        lay = QHBoxLayout(bar)
+        lay.setContentsMargins(12, 6, 12, 6)
+        self.banner_led = Led(theme.WARN, size=18)
+        self.banner_lbl = QLabel("BEAM PERMIT: —")
+        self.banner_lbl.setStyleSheet("font-size:15px; font-weight:bold;")
+        self.btn_permit = QPushButton("RESET PERMIT")
+        self.btn_permit.clicked.connect(self.hub.mps_reset)
+        self.btn_rescue = QPushButton("RESCUE (restore design)")
+        self.btn_rescue.setObjectName("danger")
+        self.btn_rescue.clicked.connect(self.hub.rescue)
+        self.chk_autotune = QCheckBox("Auto-tune orbit")
+        self.chk_autotune.toggled.connect(self.hub.set_autotune)
+        self.lbl_tune = QLabel("")
+        self.lbl_tune.setStyleSheet("color:#8b96a5;")
+        lay.addWidget(self.banner_led)
+        lay.addWidget(self.banner_lbl)
+        lay.addStretch(1)
+        lay.addWidget(self.lbl_tune)
+        lay.addWidget(self.chk_autotune)
+        lay.addWidget(self.btn_rescue)
+        lay.addWidget(self.btn_permit)
+        return bar
+
     def _show_page(self, row: int):
         if row < 0 or not self._page_classes:
             return
@@ -92,8 +130,23 @@ class MainWindow(QMainWindow):
         self.lbl_pulse.setText(f"pulse {int(st.get('pulse_id', 0))}")
         self.lbl_w.setText(f"W {st.get('w_out', 0):.1f} MeV")
         self.lbl_t.setText(f"T {100 * st.get('transmission', 0):.1f} %")
-        self.led_permit.set_color(
-            theme.OK if st.get("permit") else theme.ALARM)
+        ok = bool(st.get("permit"))
+        self.led_permit.set_color(theme.OK if ok else theme.ALARM)
+        self.banner_led.set_color(theme.OK if ok else theme.ALARM)
+        self.banner_lbl.setText(
+            "BEAM PERMIT: ENABLED" if ok else "BEAM PERMIT: INHIBITED — "
+            "see MPS page for analysis")
+        self.banner_lbl.setStyleSheet(
+            f"font-size:15px; font-weight:bold; "
+            f"color:{theme.OK if ok else theme.ALARM};")
+        tune = self.hub.get_state("autotune")
+        if tune:
+            status = tune.get("status", "")
+            rms = tune.get("orbit_rms_um", -1)
+            txt = f"autotune: {status}"
+            if isinstance(rms, float) and rms >= 0:
+                txt += f" (orbit rms {rms:.0f} µm)"
+            self.lbl_tune.setText(txt)
 
     def closeEvent(self, ev):
         self.hub.stop()
