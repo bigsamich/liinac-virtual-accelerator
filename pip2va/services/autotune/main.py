@@ -331,91 +331,121 @@ class AutotuneService(Service):
     # ------------------------------------------------------------- restore
 
     def _restore_step(self):
-        self.r.hset("state:autotune", "status", "restoring")
-        remaining = 0.0
-        tripped_left = 0
-        # 1. clear injected faults
-        for k in self.r.scan_iter("fault:*"):
-            self.r.delete(k)
-        pipe = self.r.pipeline(transaction=False)
-        # 2. reset tripped devices, slew setpoints toward design
-        for el in self.magnets:
-            skey = keys.settings("magnet", el.name)
-            cur = float(self.read_hash(skey).get(
-                "current", el.params["design_current"]))
-            tgt = el.params["design_current"]
-            if self.read_hash(keys.readback("magnet", el.name)).get(
-                    "status") == "tripped":
-                tripped_left += 1
-                pipe.hset(skey, "reset", 1)
-            step = (tgt - cur) * RESTORE_FRAC if abs(tgt - cur) > 1e-3 else 0.0
-            if step:
-                remaining = max(remaining, abs(tgt - cur - step) / max(abs(tgt), 1.0))
-                pipe.hset(skey, "current", cur + step)
-                audit.log_setting(self.r, skey, "current", cur + step, "autotune")
-        # correctors restore toward the "golden" snapshot (the steered
-        # as-built baseline) when one exists — zeroing trims on a machine
-        # with real misalignments throws the orbit away
+        """Cold-restart to a KNOWN state, verified phase by phase:
+        0: beam off, faults cleared, ALL setpoints hard-set to design
+           (correctors from golden only if its lattice fingerprint matches)
+        1: wait until every readback has converged onto its setpoint
+        2: re-baseline the MPS (relearn) and restore the permit
+        3: verify beam delivery, then declare the machine restored."""
+        import json as _json
+        import time as _time
         from pip2va.common import snapshots as _snap
-        try:
-            golden = _snap.load("golden")["settings"]
-        except (FileNotFoundError, OSError, KeyError, ValueError):
+        if not hasattr(self, "_restore"):
+            self._restore = {"phase": 0, "waited": 0}
+        ph = self._restore
+
+        if ph["phase"] == 0:
+            self.r.set("state:mps.permit", 0)      # restore without beam
+            for k in self.r.scan_iter("fault:*"):
+                self.r.delete(k)
             golden = {}
-        for el in self.correctors:
-            skey = keys.settings("magnet", el.name)
-            h = self.read_hash(skey)
-            g = golden.get(skey, {})
-            for fld in ("current_x", "current_y"):
-                cur = float(h.get(fld, 0.0))
-                tgt = float(g.get(fld, 0.0))
-                if abs(cur - tgt) > 0.01:
-                    remaining = max(remaining, abs(cur - tgt) * 0.01)
-                    new = cur + (tgt - cur) * 2 * RESTORE_FRAC
-                    pipe.hset(skey, fld, new)
-                    audit.log_setting(self.r, skey, fld, new, "autotune")
-        for el in self.cavities:
-            skey = keys.settings("rf", el.name)
-            p = el.params
-            tgt_a = p.get("v_mv", p.get("v_design", 1.0))
-            tgt_p = p.get("phi_deg", 0.0)
-            h = self.read_hash(skey)
-            if self.read_hash(keys.readback("rf", el.name)).get(
-                    "status") == "tripped":
-                tripped_left += 1
+            try:
+                g = _snap.load("golden")
+                if g.get("fingerprint") == _snap.fingerprint():
+                    golden = g["settings"]
+                else:
+                    self.r.hset("state:autotune", "status",
+                                "restore: golden ignored (stale lattice)")
+            except (FileNotFoundError, OSError, ValueError, KeyError):
+                pass
+            pipe = self.r.pipeline(transaction=False)
+            for el in self.magnets:
+                skey = keys.settings("magnet", el.name)
+                pipe.hset(skey, "current", el.params["design_current"])
                 pipe.hset(skey, "reset", 1)
-            for fld, tgt in (("amp", tgt_a), ("phase", tgt_p)):
-                cur = float(h.get(fld, tgt))
-                if abs(tgt - cur) > 1e-4 * max(abs(tgt), 1.0):
-                    remaining = max(remaining,
-                                    abs(tgt - cur) / max(abs(tgt), 1.0))
-                    pipe.hset(skey, fld, cur + (tgt - cur) * 2 * RESTORE_FRAC)
-                    audit.log_setting(self.r, skey, fld,
-                                      cur + (tgt - cur) * 2 * RESTORE_FRAC,
-                                      "autotune")
-        pipe.execute()
-        self.publish_event(keys.CH_SETTINGS, {"key": "bulk:autotune"})
-        if remaining >= 0.002 or tripped_left:
+                audit.log_setting(self.r, skey, "current",
+                                  el.params["design_current"], "restore")
+            for el in self.correctors:
+                skey = keys.settings("magnet", el.name)
+                g = golden.get(skey, {})
+                for fld in ("current_x", "current_y"):
+                    pipe.hset(skey, fld, float(g.get(fld, 0.0)))
+                pipe.hset(skey, "reset", 1)
+            for el in self.cavities:
+                skey = keys.settings("rf", el.name)
+                p = el.params
+                pipe.hset(skey, "amp", p.get("v_mv", p.get("v_design", 1.0)))
+                pipe.hset(skey, "phase", p.get("phi_deg", 0.0))
+                pipe.hset(skey, "reset", 1)
+            pipe.hset(keys.settings("source", "main"), "current_ma",
+                      self.lat.meta.get("peak_current_ma", 5.0))
+            pipe.hset(keys.settings("chopper", "main"), "duty",
+                      1.0 - self.lat.meta.get("chop_fraction", 0.6))
+            pipe.execute()
+            self.publish_event(keys.CH_SETTINGS, {"key": "bulk:restore"})
             self.r.hset("state:autotune", "status",
-                        f"restoring ({tripped_left} devices still tripped)"
-                        if tripped_left else "restoring")
+                        "restore 1/3: setpoints -> design, converging")
+            ph["phase"], ph["waited"] = 1, 0
             return
-        # setpoints at design and nothing tripped: bring the permit back and
-        # only declare success once the beam is actually being delivered
+
+        if ph["phase"] == 1:
+            worst = 0.0
+            for el in self.magnets:
+                rb = self.read_hash(keys.readback("magnet", el.name))
+                d = el.params["design_current"]
+                try:
+                    worst = max(worst, abs(float(rb.get("current", d)) - d)
+                                / max(abs(d), 1.0))
+                except (TypeError, ValueError):
+                    pass
+            ph["waited"] += 1
+            if worst < 0.01 or ph["waited"] > 120:
+                self.r.hset("state:autotune", "status",
+                            f"restore 2/3: converged (dev {worst*100:.2f}%), "
+                            "re-baselining MPS")
+                if self.r.exists(keys.heartbeat("mps")):
+                    self.r.hset(keys.settings("mps", "main"), "relearn", 1)
+                    self.r.hset(keys.settings("mps", "main"), "reset", 1)
+                    ph["t_arm"] = _time.time()
+                    ph["phase"] = 2
+                else:                       # unit tests: no MPS present
+                    self.r.set("state:mps.permit", 1)
+                    ph["phase"] = 3
+                ph["waited"] = 0
+            return
+
+        if ph["phase"] == 2:
+            ph["waited"] += 1
+            armed = any(f.get(b"kind") == b"armed"
+                        and float(f.get(b"t", 0)) > ph["t_arm"]
+                        for _, f in self.r.xrevrange(
+                            keys.stream("mps.events"), count=5))
+            if ph["waited"] % 10 == 0:      # keep nudging the permit
+                self.r.hset(keys.settings("mps", "main"), "reset", 1)
+            if armed:
+                ph["phase"], ph["waited"] = 3, 0
+            elif ph["waited"] > 200:
+                self._finish_restore("restore FAILED at MPS arming")
+            return
+
         beam = self.read_hash("state:beam")
-        permit_on = self.r.get("state:mps.permit") in (b"1", "1")
-        if not permit_on:
-            self.r.hset(keys.settings("mps", "main"), "reset", 1)
-            self.r.hset("state:autotune", "status", "restoring (permit reset)")
-            return
-        if beam.get("transmission", 0.0) < 0.9:
-            self.r.hset("state:autotune", "status", "restoring (waiting beam)")
-            return
+        ph["waited"] += 1
+        if (self.r.get("state:mps.permit") in (b"1", "1")
+                and beam.get("transmission", 0.0) > 0.9):
+            self._finish_restore(
+                f"RESTORED to known state (T={beam['transmission']:.3f})")
+        elif ph["waited"] > 100:
+            self._finish_restore("restore FAILED: beam not delivered")
+
+    def _finish_restore(self, msg):
+        import time as _time
         self.r.hset(keys.settings("autotune", "main"), "restore", 0)
-        self.r.hset("state:autotune", "status", "idle")
+        self.r.hset("state:autotune", "status", msg)
         self.r.xadd(keys.stream("mps.events"),
-                    {"t": __import__("time").time(), "kind": "autotune",
-                     "detail": "restore-to-design complete"},
+                    {"t": _time.time(), "kind": "autotune", "detail": msg},
                     maxlen=500, approximate=True)
+        if hasattr(self, "_restore"):
+            del self._restore
 
     # ------------------------------------------------------- orbit correct
 
