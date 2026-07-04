@@ -168,8 +168,10 @@ class Builder:
 # ---------------------------------------------------------------- machine
 
 
-def build() -> dict:
+def build(mebt_gq: float = 2.8, mebt_ratio: float = 1.1,
+          rfq_beta: float = 1.2) -> dict:
     b = Builder()
+    b.rfq_beta = rfq_beta
 
     # ---- LEBT: 30 keV, 3 solenoids (0.62 T pk class), electrostatic chopper
     ap = 0.02
@@ -179,15 +181,15 @@ def build() -> dict:
                   "energy_kev": 30.0},
           knobs={"current_ma": "settings:source:main"})
     b.drift(0.20, ap)
-    b.solenoid(0.25, sol_field(b.w, 0.70, 0.25), ap)
+    b.solenoid(0.25, sol_field(b.w, 0.70, 0.25, mu_deg=100.0), ap)
     b.drift(0.20, ap)
-    b.solenoid(0.25, sol_field(b.w, 0.70, 0.25), ap)
+    b.solenoid(0.25, sol_field(b.w, 0.70, 0.25, mu_deg=100.0), ap)
     b.drift(0.15, ap)
     b.add("chopper", "LEBT:CHOP", 0.16, 0.016,
           params={"kind": "lebt", "blocking_kv": 5.0},
           knobs={"duty": "settings:chopper:main"})
     b.drift(0.15, ap)
-    b.solenoid(0.25, sol_field(b.w, 0.70, 0.25), ap)
+    b.solenoid(0.25, sol_field(b.w, 0.70, 0.25, mu_deg=100.0), ap)
     b.drift(0.10, ap)
     b.toroid(ap)
     b.end()
@@ -207,15 +209,23 @@ def build() -> dict:
     ap = 0.014
     b.begin("MEBT", 162.5)
     b.toroid(ap)
-    gq = 2.8  # T/m initial guess
+    # Symmetric triplets (+g, -g*r, +g), alternating overall polarity per
+    # group. Values found by scripts/scan_mebt.py with the envelope engine.
+    gq = mebt_gq
+    ratio = mebt_ratio
+    gsign = [1.0]
 
     def doublet():
-        b.quad(0.10, gq, ap); b.drift(0.12, ap); b.quad(0.10, -gq, ap)
+        s = gsign[0]
+        b.quad(0.10, s * gq, ap); b.drift(0.12, ap); b.quad(0.10, -s * gq, ap)
+        gsign[0] = -gsign[0]
 
     def triplet():
-        b.quad(0.10, gq, ap); b.drift(0.12, ap)
-        b.quad(0.10, -gq * 1.35, ap); b.drift(0.12, ap)
-        b.quad(0.10, gq, ap)
+        s = gsign[0]
+        b.quad(0.10, s * gq, ap); b.drift(0.12, ap)
+        b.quad(0.10, -s * gq * ratio, ap); b.drift(0.12, ap)
+        b.quad(0.10, s * gq, ap)
+        gsign[0] = -gsign[0]
 
     def pkg():
         b.corrector(ap); b.bpm(ap)
@@ -234,7 +244,7 @@ def build() -> dict:
           params={"kind": "mebt", "kicker": "helical-200ohm"},
           knobs={"duty": "settings:chopper:main"})
     b.drift(0.10, ap); b.bpm(ap)                                    # chopper-region BPM
-    b.add("aperture", "MEBT:ABS", 0.25, 0.008,
+    b.add("aperture", "MEBT:ABS", 0.25, 0.010,
           params={"kind": "absorber", "rating_kw": 21.0})
     b.blm()   # absorber-region loss monitor
     b.drift(0.10, ap)
@@ -420,6 +430,7 @@ def build() -> dict:
             "loss_warn_wpm": 0.1,
             "emit_t_um": 0.20,             # rms norm transverse at RFQ exit
             "emit_l_um": 0.28,             # rms norm longitudinal
+            "rfq_exit_beta_m": b.rfq_beta,  # design Twiss beta at RFQ exit
             "chop_fraction": 0.6,          # fraction of bunches removed
         },
         "sections": b.sections,

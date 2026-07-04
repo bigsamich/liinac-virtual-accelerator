@@ -12,6 +12,7 @@ meta:
   loss_warn_wpm: 0.1
   emit_t_um: 0.2
   emit_l_um: 0.28
+  rfq_exit_beta_m: 2.4
   chop_fraction: 0.6
 sections:
 - name: LEBT
@@ -97,8 +98,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 14.576
-    design_b: 0.14576
+    design_current: 15.0213
+    design_b: 0.150213
   knobs:
     current: settings:magnet:LEBT:SOL1
 - name: LEBT:D2
@@ -117,8 +118,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 14.576
-    design_b: 0.14576
+    design_current: 17.2848
+    design_b: 0.172848
   knobs:
     current: settings:magnet:LEBT:SOL2
 - name: LEBT:D3
@@ -156,8 +157,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 14.576
-    design_b: 0.14576
+    design_current: 29.146
+    design_b: 0.29146
   knobs:
     current: settings:magnet:LEBT:SOL3
 - name: LEBT:D5
@@ -221,8 +222,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 28.0
-    design_grad: 2.8
+    design_current: 41.9913
+    design_grad: 4.19913
   knobs:
     current: settings:magnet:MEBT:Q1
 - name: MEBT:D2
@@ -241,8 +242,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: -28.0
-    design_grad: -2.8
+    design_current: -53.2827
+    design_grad: -5.32827
   knobs:
     current: settings:magnet:MEBT:Q2
 - name: MEBT:D3
@@ -310,8 +311,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 28.0
-    design_grad: 2.8
+    design_current: -17.6985
+    design_grad: -1.76985
   knobs:
     current: settings:magnet:MEBT:Q3
 - name: MEBT:D5
@@ -330,8 +331,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: -37.8
-    design_grad: -3.78
+    design_current: 78.9434
+    design_grad: 7.89434
   knobs:
     current: settings:magnet:MEBT:Q4
 - name: MEBT:D6
@@ -350,8 +351,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 28.0
-    design_grad: 2.8
+    design_current: -55.6462
+    design_grad: -5.56462
   knobs:
     current: settings:magnet:MEBT:Q5
 - name: MEBT:D7
@@ -423,8 +424,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 28.0
-    design_grad: 2.8
+    design_current: 37.5466
+    design_grad: 3.75466
   knobs:
     current: settings:magnet:MEBT:Q6
 - name: MEBT:D9
@@ -443,8 +444,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: -37.8
-    design_grad: -3.78
+    design_current: -84.5336
+    design_grad: -8.45336
   knobs:
     current: settings:magnet:MEBT:Q7
 - name: MEBT:D10
@@ -463,8 +464,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 28.0
-    design_grad: 2.8
+    design_current: 59.9322
+    design_grad: 5.99322
   knobs:
     current: settings:magnet:MEBT:Q8
 - name: MEBT:D11
@@ -533,7 +534,7 @@ elements:
   s: 10.04
   length: 0.25
   section: MEBT
-  aperture_radius: 0.008
+  aperture_radius: 0.01
   params:
     kind: absorber
     rating_kw: 21.0
@@ -564,8 +565,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 28.0
-    design_grad: 2.8
+    design_current: -57.8517
+    design_grad: -5.78517
   knobs:
     current: settings:magnet:MEBT:Q9
 - name: MEBT:D14
@@ -584,8 +585,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: -37.8
-    design_grad: -3.78
+    design_current: 85.9702
+    design_grad: 8.59702
   knobs:
     current: settings:magnet:MEBT:Q10
 - name: MEBT:D15
@@ -604,8 +605,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 28.0
-    design_grad: 2.8
+    design_current: -45.7095
+    design_grad: -4.57095
   knobs:
     current: settings:magnet:MEBT:Q11
 - name: MEBT:D16
@@ -682,8 +683,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 28.0
-    design_grad: 2.8
+    design_current: 36.0035
+    design_grad: 3.60035
   knobs:
     current: settings:magnet:MEBT:Q12
 - name: MEBT:D18
@@ -702,8 +703,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: -37.8
-    design_grad: -3.78
+    design_current: -74.2975
+    design_grad: -7.42975
   knobs:
     current: settings:magnet:MEBT:Q13
 - name: MEBT:D19
@@ -722,8 +723,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 28.0
-    design_grad: 2.8
+    design_current: 60.4559
+    design_grad: 6.04559
   knobs:
     current: settings:magnet:MEBT:Q14
 - name: MEBT:D20
@@ -775,8 +776,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 28.0
-    design_grad: 2.8
+    design_current: -37.8809
+    design_grad: -3.78809
   knobs:
     current: settings:magnet:MEBT:Q15
 - name: MEBT:D21
@@ -795,8 +796,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: -37.8
-    design_grad: -3.78
+    design_current: 79.4507
+    design_grad: 7.94507
   knobs:
     current: settings:magnet:MEBT:Q16
 - name: MEBT:D22
@@ -815,8 +816,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 28.0
-    design_grad: 2.8
+    design_current: -72.3646
+    design_grad: -7.23646
   knobs:
     current: settings:magnet:MEBT:Q17
 - name: MEBT:D23
@@ -893,8 +894,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 28.0
-    design_grad: 2.8
+    design_current: 68.7268
+    design_grad: 6.87268
   knobs:
     current: settings:magnet:MEBT:Q18
 - name: MEBT:D25
@@ -913,8 +914,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: -37.8
-    design_grad: -3.78
+    design_current: -81.7679
+    design_grad: -8.17679
   knobs:
     current: settings:magnet:MEBT:Q19
 - name: MEBT:D26
@@ -933,8 +934,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 28.0
-    design_grad: 2.8
+    design_current: 49.4462
+    design_grad: 4.94462
   knobs:
     current: settings:magnet:MEBT:Q20
 - name: MEBT:D27
@@ -986,8 +987,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 28.0
-    design_grad: 2.8
+    design_current: -33.0502
+    design_grad: -3.30502
   knobs:
     current: settings:magnet:MEBT:Q21
 - name: MEBT:D28
@@ -1006,8 +1007,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: -37.8
-    design_grad: -3.78
+    design_current: 51.0735
+    design_grad: 5.10735
   knobs:
     current: settings:magnet:MEBT:Q22
 - name: MEBT:D29
@@ -1026,8 +1027,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 28.0
-    design_grad: 2.8
+    design_current: -64.4901
+    design_grad: -6.44901
   knobs:
     current: settings:magnet:MEBT:Q23
 - name: MEBT:D30
@@ -1078,8 +1079,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 28.0
-    design_grad: 2.8
+    design_current: 62.6216
+    design_grad: 6.26216
   knobs:
     current: settings:magnet:MEBT:Q24
 - name: MEBT:D31
@@ -1098,8 +1099,8 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: -28.0
-    design_grad: -2.8
+    design_current: -33.8924
+    design_grad: -3.38924
   knobs:
     current: settings:magnet:MEBT:Q25
 - name: MEBT:D32
@@ -1205,8 +1206,8 @@ elements:
   aperture_radius: 0.0165
   params:
     field_per_amp: 0.01
-    design_current: 116.672
-    design_b: 1.16672
+    design_current: 78.8588
+    design_b: 0.788588
   knobs:
     current: settings:magnet:HWR:SOL1
 - name: HWR:C1
@@ -1282,8 +1283,8 @@ elements:
   aperture_radius: 0.0165
   params:
     field_per_amp: 0.01
-    design_current: 134.488
-    design_b: 1.34488
+    design_current: 168.9596
+    design_b: 1.689596
   knobs:
     current: settings:magnet:HWR:SOL2
 - name: HWR:C2
@@ -1369,8 +1370,8 @@ elements:
   aperture_radius: 0.0165
   params:
     field_per_amp: 0.01
-    design_current: 150.222
-    design_b: 1.50222
+    design_current: 254.3845
+    design_b: 2.543845
   knobs:
     current: settings:magnet:HWR:SOL3
 - name: HWR:C3
@@ -1446,8 +1447,8 @@ elements:
   aperture_radius: 0.0165
   params:
     field_per_amp: 0.01
-    design_current: 164.472
-    design_b: 1.64472
+    design_current: 262.7325
+    design_b: 2.627325
   knobs:
     current: settings:magnet:HWR:SOL4
 - name: HWR:C4
@@ -1533,8 +1534,8 @@ elements:
   aperture_radius: 0.0165
   params:
     field_per_amp: 0.01
-    design_current: 177.596
-    design_b: 1.77596
+    design_current: 255.0313
+    design_b: 2.550313
   knobs:
     current: settings:magnet:HWR:SOL5
 - name: HWR:C5
@@ -1610,8 +1611,8 @@ elements:
   aperture_radius: 0.0165
   params:
     field_per_amp: 0.01
-    design_current: 189.827
-    design_b: 1.89827
+    design_current: 253.0681
+    design_b: 2.530681
   knobs:
     current: settings:magnet:HWR:SOL6
 - name: HWR:C6
@@ -1697,8 +1698,8 @@ elements:
   aperture_radius: 0.0165
   params:
     field_per_amp: 0.01
-    design_current: 201.329
-    design_b: 2.01329
+    design_current: 144.6035
+    design_b: 1.446035
   knobs:
     current: settings:magnet:HWR:SOL7
 - name: HWR:C7
@@ -1774,8 +1775,8 @@ elements:
   aperture_radius: 0.0165
   params:
     field_per_amp: 0.01
-    design_current: 212.22
-    design_b: 2.1222
+    design_current: 181.6172
+    design_b: 1.816172
   knobs:
     current: settings:magnet:HWR:SOL8
 - name: HWR:C8
@@ -1907,8 +1908,8 @@ elements:
   aperture_radius: 0.015
   params:
     field_per_amp: 0.01
-    design_current: 191.641
-    design_b: 1.91641
+    design_current: 216.104
+    design_b: 2.16104
   knobs:
     current: settings:magnet:SSR1:SOL1
 - name: SSR1:C1
@@ -2002,8 +2003,8 @@ elements:
   aperture_radius: 0.015
   params:
     field_per_amp: 0.01
-    design_current: 212.767
-    design_b: 2.12767
+    design_current: 289.5907
+    design_b: 2.895907
   knobs:
     current: settings:magnet:SSR1:SOL2
 - name: SSR1:C2
@@ -2107,8 +2108,8 @@ elements:
   aperture_radius: 0.015
   params:
     field_per_amp: 0.01
-    design_current: 232.038
-    design_b: 2.32038
+    design_current: 261.1947
+    design_b: 2.611947
   knobs:
     current: settings:magnet:SSR1:SOL3
 - name: SSR1:C3
@@ -2202,8 +2203,8 @@ elements:
   aperture_radius: 0.015
   params:
     field_per_amp: 0.01
-    design_current: 249.881
-    design_b: 2.49881
+    design_current: 240.006
+    design_b: 2.40006
   knobs:
     current: settings:magnet:SSR1:SOL4
 - name: SSR1:C4
@@ -2323,8 +2324,8 @@ elements:
   aperture_radius: 0.015
   params:
     field_per_amp: 0.01
-    design_current: 266.584
-    design_b: 2.66584
+    design_current: 306.766
+    design_b: 3.06766
   knobs:
     current: settings:magnet:SSR1:SOL5
 - name: SSR1:C5
@@ -2418,8 +2419,8 @@ elements:
   aperture_radius: 0.015
   params:
     field_per_amp: 0.01
-    design_current: 282.35
-    design_b: 2.8235
+    design_current: 333.9894
+    design_b: 3.339894
   knobs:
     current: settings:magnet:SSR1:SOL6
 - name: SSR1:C6
@@ -2523,8 +2524,8 @@ elements:
   aperture_radius: 0.015
   params:
     field_per_amp: 0.01
-    design_current: 297.327
-    design_b: 2.97327
+    design_current: 427.1606
+    design_b: 4.271606
   knobs:
     current: settings:magnet:SSR1:SOL7
 - name: SSR1:C7
@@ -2618,8 +2619,8 @@ elements:
   aperture_radius: 0.015
   params:
     field_per_amp: 0.01
-    design_current: 311.63
-    design_b: 3.1163
+    design_current: 356.7311
+    design_b: 3.567311
   knobs:
     current: settings:magnet:SSR1:SOL8
 - name: SSR1:C8
@@ -2707,8 +2708,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 229.353
-    design_b: 2.29353
+    design_current: 214.0288
+    design_b: 2.140288
   knobs:
     current: settings:magnet:SSR2:SOL1
 - name: SSR2:C1
@@ -2794,8 +2795,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 256.473
-    design_b: 2.56473
+    design_current: 271.3513
+    design_b: 2.713513
   knobs:
     current: settings:magnet:SSR2:SOL2
 - name: SSR2:C2
@@ -2891,8 +2892,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 281.193
-    design_b: 2.81193
+    design_current: 285.0124
+    design_b: 2.850124
   knobs:
     current: settings:magnet:SSR2:SOL3
 - name: SSR2:C3
@@ -2970,8 +2971,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 292.846
-    design_b: 2.92846
+    design_current: 300.1114
+    design_b: 3.001114
   knobs:
     current: settings:magnet:SSR2:SOL4
 - name: SSR2:C4
@@ -3057,8 +3058,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 314.996
-    design_b: 3.14996
+    design_current: 361.99
+    design_b: 3.6199
   knobs:
     current: settings:magnet:SSR2:SOL5
 - name: SSR2:C5
@@ -3154,8 +3155,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 335.861
-    design_b: 3.35861
+    design_current: 333.5584
+    design_b: 3.335584
   knobs:
     current: settings:magnet:SSR2:SOL6
 - name: SSR2:C6
@@ -3243,8 +3244,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 345.883
-    design_b: 3.45883
+    design_current: 332.776
+    design_b: 3.32776
   knobs:
     current: settings:magnet:SSR2:SOL7
 - name: SSR2:C7
@@ -3330,8 +3331,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 365.223
-    design_b: 3.65223
+    design_current: 411.3301
+    design_b: 4.113301
   knobs:
     current: settings:magnet:SSR2:SOL8
 - name: SSR2:C8
@@ -3427,8 +3428,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 383.74
-    design_b: 3.8374
+    design_current: 363.54
+    design_b: 3.6354
   knobs:
     current: settings:magnet:SSR2:SOL9
 - name: SSR2:C9
@@ -3506,8 +3507,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 392.726
-    design_b: 3.92726
+    design_current: 383.9074
+    design_b: 3.839074
   knobs:
     current: settings:magnet:SSR2:SOL10
 - name: SSR2:C10
@@ -3593,8 +3594,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 410.213
-    design_b: 4.10213
+    design_current: 440.6357
+    design_b: 4.406357
   knobs:
     current: settings:magnet:SSR2:SOL11
 - name: SSR2:C11
@@ -3690,8 +3691,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 427.12
-    design_b: 4.2712
+    design_current: 404.1719
+    design_b: 4.041719
   knobs:
     current: settings:magnet:SSR2:SOL12
 - name: SSR2:C12
@@ -3779,8 +3780,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 435.377
-    design_b: 4.35377
+    design_current: 439.8642
+    design_b: 4.398642
   knobs:
     current: settings:magnet:SSR2:SOL13
 - name: SSR2:C13
@@ -3866,8 +3867,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 451.534
-    design_b: 4.51534
+    design_current: 461.615
+    design_b: 4.61615
   knobs:
     current: settings:magnet:SSR2:SOL14
 - name: SSR2:C14
@@ -3963,8 +3964,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 467.256
-    design_b: 4.67256
+    design_current: 417.4802
+    design_b: 4.174802
   knobs:
     current: settings:magnet:SSR2:SOL15
 - name: SSR2:C15
@@ -4042,8 +4043,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 474.967
-    design_b: 4.74967
+    design_current: 523.4092
+    design_b: 5.234092
   knobs:
     current: settings:magnet:SSR2:SOL16
 - name: SSR2:C16
@@ -4129,8 +4130,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 490.114
-    design_b: 4.90114
+    design_current: 401.9743
+    design_b: 4.019743
   knobs:
     current: settings:magnet:SSR2:SOL17
 - name: SSR2:C17
@@ -4226,8 +4227,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 504.921
-    design_b: 5.04921
+    design_current: 468.2033
+    design_b: 4.682033
   knobs:
     current: settings:magnet:SSR2:SOL18
 - name: SSR2:C18
@@ -4315,8 +4316,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 512.207
-    design_b: 5.12207
+    design_current: 653.9068
+    design_b: 6.539068
   knobs:
     current: settings:magnet:SSR2:SOL19
 - name: SSR2:C19
@@ -4402,8 +4403,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 526.557
-    design_b: 5.26557
+    design_current: 228.4164
+    design_b: 2.284164
   knobs:
     current: settings:magnet:SSR2:SOL20
 - name: SSR2:C20
@@ -4499,8 +4500,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 540.634
-    design_b: 5.40634
+    design_current: 547.6803
+    design_b: 5.476803
   knobs:
     current: settings:magnet:SSR2:SOL21
 - name: SSR2:C21
@@ -4692,8 +4693,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 97.271
-    design_grad: 9.7271
+    design_current: 114.1594
+    design_grad: 11.41594
   knobs:
     current: settings:magnet:LB650:Q1
 - name: LB650:D6
@@ -4712,8 +4713,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -97.271
-    design_grad: -9.7271
+    design_current: -111.1019
+    design_grad: -11.11019
   knobs:
     current: settings:magnet:LB650:Q2
 - name: LB650:C1
@@ -4887,8 +4888,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 105.943
-    design_grad: 10.5943
+    design_current: 112.4616
+    design_grad: 11.24616
   knobs:
     current: settings:magnet:LB650:Q3
 - name: LB650:D13
@@ -4907,8 +4908,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -105.943
-    design_grad: -10.5943
+    design_current: -107.0717
+    design_grad: -10.70717
   knobs:
     current: settings:magnet:LB650:Q4
 - name: LB650:C2
@@ -5072,8 +5073,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 114.197
-    design_grad: 11.4197
+    design_current: 96.0053
+    design_grad: 9.60053
   knobs:
     current: settings:magnet:LB650:Q5
 - name: LB650:D20
@@ -5092,8 +5093,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -114.197
-    design_grad: -11.4197
+    design_current: -106.4933
+    design_grad: -10.64933
   knobs:
     current: settings:magnet:LB650:Q6
 - name: LB650:C3
@@ -5267,8 +5268,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 122.119
-    design_grad: 12.2119
+    design_current: 127.3377
+    design_grad: 12.73377
   knobs:
     current: settings:magnet:LB650:Q7
 - name: LB650:D27
@@ -5287,8 +5288,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -122.119
-    design_grad: -12.2119
+    design_current: -131.3849
+    design_grad: -13.13849
   knobs:
     current: settings:magnet:LB650:Q8
 - name: LB650:C4
@@ -5452,8 +5453,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 129.77
-    design_grad: 12.977
+    design_current: 128.5908
+    design_grad: 12.85908
   knobs:
     current: settings:magnet:LB650:Q9
 - name: LB650:D34
@@ -5472,8 +5473,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -129.77
-    design_grad: -12.977
+    design_current: -134.7309
+    design_grad: -13.47309
   knobs:
     current: settings:magnet:LB650:Q10
 - name: LB650:C5
@@ -5637,8 +5638,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 137.194
-    design_grad: 13.7194
+    design_current: 140.0353
+    design_grad: 14.00353
   knobs:
     current: settings:magnet:LB650:Q11
 - name: LB650:D41
@@ -5657,8 +5658,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -137.194
-    design_grad: -13.7194
+    design_current: -146.0184
+    design_grad: -14.60184
   knobs:
     current: settings:magnet:LB650:Q12
 - name: LB650:C6
@@ -5832,8 +5833,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 144.427
-    design_grad: 14.4427
+    design_current: 149.3745
+    design_grad: 14.93745
   knobs:
     current: settings:magnet:LB650:Q13
 - name: LB650:D48
@@ -5852,8 +5853,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -144.427
-    design_grad: -14.4427
+    design_current: -149.2866
+    design_grad: -14.92866
   knobs:
     current: settings:magnet:LB650:Q14
 - name: LB650:C7
@@ -6017,8 +6018,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 151.496
-    design_grad: 15.1496
+    design_current: 132.4211
+    design_grad: 13.24211
   knobs:
     current: settings:magnet:LB650:Q15
 - name: LB650:D55
@@ -6037,8 +6038,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -151.496
-    design_grad: -15.1496
+    design_current: -147.4696
+    design_grad: -14.74696
   knobs:
     current: settings:magnet:LB650:Q16
 - name: LB650:C8
@@ -6202,8 +6203,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 158.423
-    design_grad: 15.8423
+    design_current: 158.0954
+    design_grad: 15.80954
   knobs:
     current: settings:magnet:LB650:Q17
 - name: LB650:D62
@@ -6222,8 +6223,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -158.423
-    design_grad: -15.8423
+    design_current: -162.961
+    design_grad: -16.2961
   knobs:
     current: settings:magnet:LB650:Q18
 - name: LB650:C9
@@ -6469,8 +6470,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 131.236
-    design_grad: 13.1236
+    design_current: 145.5509
+    design_grad: 14.55509
   knobs:
     current: settings:magnet:HB650:Q1
 - name: HB650:D8
@@ -6489,8 +6490,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -131.236
-    design_grad: -13.1236
+    design_current: -143.3818
+    design_grad: -14.33818
   knobs:
     current: settings:magnet:HB650:Q2
 - name: HB650:C1
@@ -6716,8 +6717,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 140.933
-    design_grad: 14.0933
+    design_current: 131.1709
+    design_grad: 13.11709
   knobs:
     current: settings:magnet:HB650:Q3
 - name: HB650:D17
@@ -6736,8 +6737,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -140.933
-    design_grad: -14.0933
+    design_current: -123.8417
+    design_grad: -12.38417
   knobs:
     current: settings:magnet:HB650:Q4
 - name: HB650:C2
@@ -6973,8 +6974,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 150.404
-    design_grad: 15.0404
+    design_current: 159.2252
+    design_grad: 15.92252
   knobs:
     current: settings:magnet:HB650:Q5
 - name: HB650:D26
@@ -6993,8 +6994,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -150.404
-    design_grad: -15.0404
+    design_current: -163.1089
+    design_grad: -16.31089
   knobs:
     current: settings:magnet:HB650:Q6
 - name: HB650:C3
@@ -7220,8 +7221,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 159.688
-    design_grad: 15.9688
+    design_current: 215.9832
+    design_grad: 21.59832
   knobs:
     current: settings:magnet:HB650:Q7
 - name: HB650:D35
@@ -7240,8 +7241,8 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -159.688
-    design_grad: -15.9688
+    design_current: -286.2789
+    design_grad: -28.62789
   knobs:
     current: settings:magnet:HB650:Q8
 - name: HB650:C4
@@ -7313,8 +7314,8 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 65.0
-    design_grad: 6.5
+    design_current: 158.6788
+    design_grad: 15.86788
   knobs:
     current: settings:magnet:BTL:Q1
 - name: BTL:C1
@@ -7356,8 +7357,8 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -65.0
-    design_grad: -6.5
+    design_current: -74.7771
+    design_grad: -7.47771
   knobs:
     current: settings:magnet:BTL:Q2
 - name: BTL:C2
@@ -7409,8 +7410,8 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 65.0
-    design_grad: 6.5
+    design_current: 145.4051
+    design_grad: 14.54051
   knobs:
     current: settings:magnet:BTL:Q3
 - name: BTL:C3
@@ -7478,8 +7479,8 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -65.0
-    design_grad: -6.5
+    design_current: -106.0162
+    design_grad: -10.60162
   knobs:
     current: settings:magnet:BTL:Q4
 - name: BTL:C4
@@ -7531,8 +7532,8 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 65.0
-    design_grad: 6.5
+    design_current: 67.6223
+    design_grad: 6.76223
   knobs:
     current: settings:magnet:BTL:Q5
 - name: BTL:C5
@@ -7610,8 +7611,8 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -65.0
-    design_grad: -6.5
+    design_current: -82.1686
+    design_grad: -8.21686
   knobs:
     current: settings:magnet:BTL:Q6
 - name: BTL:C6
@@ -7663,8 +7664,8 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 65.0
-    design_grad: 6.5
+    design_current: 81.041
+    design_grad: 8.1041
   knobs:
     current: settings:magnet:BTL:Q7
 - name: BTL:C7
@@ -7742,8 +7743,8 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -65.0
-    design_grad: -6.5
+    design_current: -84.773
+    design_grad: -8.4773
   knobs:
     current: settings:magnet:BTL:Q8
 - name: BTL:C8
@@ -7805,8 +7806,8 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 65.0
-    design_grad: 6.5
+    design_current: 81.6701
+    design_grad: 8.16701
   knobs:
     current: settings:magnet:BTL:Q9
 - name: BTL:C9
@@ -7884,8 +7885,8 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -65.0
-    design_grad: -6.5
+    design_current: -87.6344
+    design_grad: -8.76344
   knobs:
     current: settings:magnet:BTL:Q10
 - name: BTL:C10
@@ -7937,8 +7938,8 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 65.0
-    design_grad: 6.5
+    design_current: 83.7804
+    design_grad: 8.37804
   knobs:
     current: settings:magnet:BTL:Q11
 - name: BTL:C11
@@ -8016,8 +8017,8 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -65.0
-    design_grad: -6.5
+    design_current: -42.1296
+    design_grad: -4.21296
   knobs:
     current: settings:magnet:BTL:Q12
 - name: BTL:C12
