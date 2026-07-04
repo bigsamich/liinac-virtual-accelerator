@@ -112,7 +112,8 @@ class AutotuneService(Service):
                 originals.append(float(self.read_hash(skey).get(
                     sw["field"], sw["from"])))
             self._study = {"plan": plan, "orig": originals, "k": -1,
-                           "dwell_left": 0, "steps": [], "grace": 15}
+                           "dwell_left": 0, "steps": [], "grace": 15,
+                           "settle": 4}
             self.r.hset("state:study", mapping={
                 "status": "running", "step": 0,
                 "total": plan["steps"]})
@@ -154,7 +155,31 @@ class AutotuneService(Service):
             self.r.hset("state:study", "status", "arming beam")
             return
         if stu["k"] >= 0 and not permit_on:
+            # distinguish a real scan-induced trip from an errant-beam
+            # glitch that happened to land in our window: retry those
+            import time as _tt
+            recent_errant = any(
+                f.get(b"kind") == b"errant"
+                and _tt.time() - float(f.get(b"t", 0)) < 8.0
+                for _, f in self.r.xrevrange(keys.stream("mps.events"),
+                                             count=8))
+            if recent_errant and stu.get("retries", 0) < 2:
+                stu["retries"] = stu.get("retries", 0) + 1
+                stu["k"] -= 1              # redo the interrupted step
+                stu["dwell_left"] = 0
+                stu["settle"] = 4
+                self.r.hset(keys.settings("mps", "main"), "reset", 1)
+                self.r.hset("state:study", "status",
+                            f"errant-beam glitch: retrying step "
+                            f"(retry {stu['retries']}/2)")
+                return
             finish("aborted-trip")   # empirical limit found mid-scan
+            return
+        # settle after arming: let the previous study's restore transient
+        # wash out of the MPS rolling window before step 1
+        if stu["k"] < 0 and stu["settle"] > 0:
+            stu["settle"] -= 1
+            self.r.hset("state:study", "status", "settling")
             return
 
         if stu["dwell_left"] > 0:
