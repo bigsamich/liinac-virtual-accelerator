@@ -265,7 +265,15 @@ class AutotuneService(Service):
         beam = self.read_hash("state:beam")
         orbit = float(np.sqrt(np.mean(np.concatenate(
             [np.mean(xs, axis=0), np.mean(ys, axis=0)]) ** 2)) * 1e3)             if xs else 0.0
+        emit_x = emit_y = 0.0
+        e = self.r.xrevrange(keys.stream("beam.deep"), count=1)
+        if e:
+            _, dd = codec.unpack(e[0][1][b"d"])
+            if len(dd.get("emit_x_um", [])):
+                emit_x = float(dd["emit_x_um"][-1])
+                emit_y = float(dd["emit_y_um"][-1])
         return {"step": k + 1,
+                "emit_x_um": emit_x, "emit_y_um": emit_y,
                 "set_values": [float(v) for v in
                                self._study.get("values",
                                                [0] * len(plan["sweeps"]))],
