@@ -86,6 +86,31 @@ def test_mps_trips_on_sustained_loss_and_reset_gated(stack):
     assert r.get("state:mps.permit") == b"1"
 
 
+def test_mps_learning_waits_for_beam(stack):
+    r, beam, diag, _ = stack
+    mps = MpsService(redis_client=r, learn_pulses=5)
+    mps.on_start()
+    nblm = 46
+    quiet = np.full(nblm, 0.02, dtype=np.float32)
+
+    # beam off: learning must not consume pulses
+    r.set("state:mps.permit", 0)
+    r.hset("state:beam", mapping={"transmission": 0.0})
+    for k in range(1, 8):
+        r.xadd(keys.stream("blm.losses"), {"d": codec.pack(k, {"wpm": quiet})})
+        mps.on_tick(k)
+    assert mps._learn_left == 5
+
+    # beam on and delivering: learning completes, thresholds published
+    r.set("state:mps.permit", 1)
+    r.hset("state:beam", mapping={"transmission": 0.99})
+    for k in range(8, 15):
+        r.xadd(keys.stream("blm.losses"), {"d": codec.pack(k, {"wpm": quiet})})
+        mps.on_tick(k)
+    assert mps._learn_left == 0
+    assert r.exists("state:mps.thresholds")
+
+
 def test_wire_scan_lifecycle(stack):
     r, beam, diag, _ = stack
     ws = diag.lat.instruments("wire_scanner")[0].name

@@ -78,19 +78,28 @@ class MpsService(Service):
             _, wpm = codec.unpack(entries[0][1][b"d"])
             self.window.append(wpm["wpm"])
             if self._learn_left > 0:
-                v = wpm["wpm"]
-                if len(v) == len(self._learn_sum):
-                    self._learn_sum += v
-                    self._learn_sq += v ** 2
-                    self._learn_n += 1
-                self._learn_left -= 1
-                if self._learn_left == 0:
-                    self._finish_learning()
-        if not self.window or self._learn_left > 0:
+                # only learn from a machine that is actually delivering beam —
+                # capturing dark current would collapse thresholds to the floor
+                beam = self.read_hash("state:beam")
+                delivering = (self.r.get("state:mps.permit") in (b"1", "1")
+                              and beam.get("transmission", 0.0) > 0.5)
+                if delivering:
+                    v = wpm["wpm"]
+                    if len(v) == len(self._learn_sum):
+                        self._learn_sum += v
+                        self._learn_sq += v ** 2
+                        self._learn_n += 1
+                    self._learn_left -= 1
+                    if self._learn_left == 0:
+                        self._finish_learning()
+        if not self.window:
             return
         mean = np.mean(np.stack(self.window), axis=0)
         thr = self.thresholds[:len(mean)] if len(mean) <= len(self.thresholds) \
             else np.full(len(mean), self.limit)
+        learning = self._learn_left > 0
+        if learning:
+            thr = thr * 5.0   # commissioning mode: lenient but never unprotected
         excess = mean / thr
         worst = int(np.argmax(excess))
         permit = self.r.get("state:mps.permit") in (b"1", "1", None)
