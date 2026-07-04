@@ -15,7 +15,7 @@ def register(label: str):
 def load_all():
     """Import all page modules so they self-register."""
     import importlib
-    for mod in ("overview", "instrumentation", "orbit", "losses", "magnets",
+    for mod in ("overview", "orbit", "losses", "magnets",
                 "rf", "profiles", "waveforms", "source", "mps"):
         try:
             importlib.import_module(f"{__name__}.{mod}")

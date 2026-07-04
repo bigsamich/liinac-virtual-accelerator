@@ -36,6 +36,8 @@ class MacroResult:
     emit_y_um: np.ndarray
     sig_x_mm: np.ndarray
     sig_y_mm: np.ndarray
+    cloud: np.ndarray | None = None        # (3, n) x/y/z [mm] at cloud_at
+    cloud_at: str | None = None
 
 
 class MacroTracker:
@@ -62,7 +64,8 @@ class MacroTracker:
     # ---------------------------------------------------------------- run
 
     def run(self, device_state: dict, current_ma: float | None = None,
-            beam_on: bool = True, aperture_override: dict | None = None
+            beam_on: bool = True, aperture_override: dict | None = None,
+            cloud_at: str | None = None, cloud_n: int = 30_000
             ) -> MacroResult:
         xp = self.xp
         m = self.meta
@@ -98,6 +101,7 @@ class MacroTracker:
         w = self.w_init if self.w_init is not None else 0.030
         X = self._sample_init(rng, w)          # (6, n) on backend
         alive = xp.ones(n, dtype=bool)
+        cloud = None
         f_bunch = m.get("bunch_freq_mhz", 162.5) * 1e6
 
         for i, el in enumerate(els):
@@ -204,6 +208,10 @@ class MacroTracker:
                     alive = alive & ~newly
 
             # instruments / snapshots
+            if el.name == cloud_at:
+                idx = self.xp.nonzero(alive)[0][:cloud_n]
+                pts = self.xp.stack([X[0][idx], X[2][idx], X[4][idx]]) * 1e3
+                cloud = bk.asnumpy(pts).astype(np.float32)
             if el.name in self._ws:
                 profiles[el.name] = self._profile(X, alive, el)
             if el.name in self._emit_at:
@@ -222,7 +230,8 @@ class MacroTracker:
             profiles=profiles, phase_space=phase_space,
             emit_s=np.array(emit_s), emit_x_um=np.array(emit_x),
             emit_y_um=np.array(emit_y),
-            sig_x_mm=np.array(sig_xs) * 1e3, sig_y_mm=np.array(sig_ys) * 1e3)
+            sig_x_mm=np.array(sig_xs) * 1e3, sig_y_mm=np.array(sig_ys) * 1e3,
+            cloud=cloud, cloud_at=cloud_at if cloud is not None else None)
 
     # ------------------------------------------------------------ internals
 

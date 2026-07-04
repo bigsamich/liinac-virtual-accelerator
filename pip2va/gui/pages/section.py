@@ -3,11 +3,12 @@ from __future__ import annotations
 
 import numpy as np
 import pyqtgraph as pg
-from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import (QDoubleSpinBox, QHBoxLayout, QLabel,
+from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtWidgets import (QDoubleSpinBox, QHBoxLayout, QLabel, QPushButton,
                              QTableWidget, QTableWidgetItem)
 
 from .. import theme
+from ..plotkit import CrosshairPlot
 from .common import Page, make_plot
 
 CONTROLLED = {"rfgap", "rfq", "solenoid", "quad", "corrector"}
@@ -15,6 +16,8 @@ CONTROLLED = {"rfgap", "rfq", "solenoid", "quad", "corrector"}
 
 class SectionPage(Page):
     """One lattice section: header, local orbit/losses, device table."""
+
+    backRequested = pyqtSignal()
 
     def __init__(self, hub, lat, section: str):
         self.section = section
@@ -26,6 +29,13 @@ class SectionPage(Page):
         sec = lat.section(sec_name)
         self.els = [e for e in lat.elements if e.section == sec_name]
 
+        top = QHBoxLayout()
+        back = QPushButton("← Dashboard")
+        back.clicked.connect(self.backRequested.emit)
+        top.addWidget(back)
+        top.addStretch(1)
+        self.body.addLayout(top)
+
         cav_n = sum(1 for e in self.els if e.type in ("rfgap", "rfq"))
         mag_n = sum(1 for e in self.els if e.type in ("solenoid", "quad"))
         hdr = QLabel(
@@ -36,13 +46,15 @@ class SectionPage(Page):
         hdr.setStyleSheet(f"color:{theme.ACCENT};")
         self.body.addWidget(hdr)
 
-        # local orbit + losses side by side
+        # local orbit + losses side by side (device-name axes)
         row = QHBoxLayout()
         all_bpms = lat.instruments("bpm")
         self.bpm_idx = [i for i, e in enumerate(all_bpms)
                         if e.section == sec_name]
-        self.bpm_s = np.array([all_bpms[i].s for i in self.bpm_idx])
-        self.p_orbit = make_plot("orbit [mm]")
+        bpm_names = [all_bpms[i].name for i in self.bpm_idx]
+        self.bpm_s = np.arange(len(self.bpm_idx), dtype=float)
+        self.p_orbit = CrosshairPlot("orbit [mm]",
+                                     device_names=bpm_names or ["-"])
         self.c_x = self.p_orbit.plot(pen=pg.mkPen(theme.ACCENT, width=1.5),
                                      symbol="o", symbolSize=5,
                                      symbolBrush=theme.ACCENT, name="x")
@@ -55,11 +67,12 @@ class SectionPage(Page):
         all_blms = lat.instruments("blm")
         self.blm_idx = [i for i, e in enumerate(all_blms)
                         if e.section == sec_name]
-        blm_s = np.array([all_blms[i].s for i in self.blm_idx])
-        self.p_loss = make_plot("loss [W/m]")
+        blm_names = [all_blms[i].name for i in self.blm_idx]
+        self.p_loss = CrosshairPlot("loss [W/m]",
+                                    device_names=blm_names or ["-"])
         self.loss_bars = pg.BarGraphItem(
-            x=blm_s if len(blm_s) else np.array([sec.s_start]),
-            height=np.zeros(max(len(blm_s), 1)), width=0.8,
+            x=np.arange(max(len(self.blm_idx), 1), dtype=float),
+            height=np.zeros(max(len(self.blm_idx), 1)), width=0.7,
             brush=theme.WARN)
         self.p_loss.addItem(self.loss_bars)
         row.addWidget(self.p_loss, 1)
@@ -83,7 +96,9 @@ class SectionPage(Page):
             if el.type in ("rfgap", "rfq"):
                 st = self.hub.get_settings("rf", el.name)
                 p = el.params
-                amp = self._spin(0.0, 30.0, float(st.get(
+                qlim = p.get("quench_mv",
+                             1.3 * p.get("v_mv", p.get("v_design", 1.0)))
+                amp = self._spin(0.0, qlim * 1.2, float(st.get(
                     "amp", p.get("v_mv", p.get("v_design", 1.0)))), 3)
                 amp.valueChanged.connect(
                     lambda v, el=el: self.hub.set_setting("rf", el.name, "amp", v))
@@ -96,15 +111,17 @@ class SectionPage(Page):
                 self.table.setCellWidget(r, 3, ph)
             elif el.type == "corrector":
                 st = self.hub.get_settings("magnet", el.name)
+                lim = el.params.get("max_amp", 10.0)
                 for col, fld in ((2, "current_x"), (3, "current_y")):
-                    sp = self._spin(-10, 10, float(st.get(fld, 0.0)), 3)
+                    sp = self._spin(-lim, lim, float(st.get(fld, 0.0)), 3)
                     sp.valueChanged.connect(
                         lambda v, el=el, fld=fld: self.hub.set_setting(
                             "magnet", el.name, fld, v))
                     self.table.setCellWidget(r, col, sp)
             else:  # solenoid / quad
                 st = self.hub.get_settings("magnet", el.name)
-                sp = self._spin(-2000, 2000, float(st.get(
+                lim = el.params.get("max_current", 2000.0)
+                sp = self._spin(-lim, lim, float(st.get(
                     "current", el.params["design_current"])), 3)
                 sp.valueChanged.connect(
                     lambda v, el=el: self.hub.set_setting(
@@ -145,6 +162,7 @@ class SectionPage(Page):
         y = data["y"][self.bpm_idx] * 1e3
         self.c_x.setData(self.bpm_s, x)
         self.c_y.setData(self.bpm_s, y)
+        self.p_orbit.update_y(x, y)
 
     def _on_losses(self, _pid, data):
         if not self.isVisible() or not len(self.blm_idx):

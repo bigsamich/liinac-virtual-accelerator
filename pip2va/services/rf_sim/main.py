@@ -94,8 +94,10 @@ class RfSimService(Service):
             rkey = keys.readback("rf", el.name)
             if skey in self._dirty:
                 st = self.read_hash(skey)
-                cav.amp.setpoint = float(st.get("amp", cav.amp.setpoint))
-                cav.phase_set = float(st.get("phase", cav.phase_set))
+                cav.amp.setpoint = max(0.0, float(st.get("amp",
+                                                         cav.amp.setpoint)))
+                ph = float(st.get("phase", cav.phase_set))
+                cav.phase_set = (ph + 180.0) % 360.0 - 180.0
                 if cav.amp.tripped and st.get("reset"):
                     fkey = keys.fault("rf", el.name)
                     if cav.amp.setpoint <= cav.quench and not self.r.exists(fkey):

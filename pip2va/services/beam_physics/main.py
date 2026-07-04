@@ -121,8 +121,11 @@ class BeamPhysicsService(Service):
                  tracker.n, tracker.xp.__name__)
         while True:
             snap = self._latest
+            station = self.read_hash(keys.settings("wf3d", "main")).get(
+                "station") or None
             try:
-                res = tracker.run(snap["ds"], beam_on=snap["beam_on"])
+                res = tracker.run(snap["ds"], beam_on=snap["beam_on"],
+                                  cloud_at=station)
             except Exception:
                 log.exception("macro pass failed")
                 time.sleep(2.0)
@@ -142,6 +145,9 @@ class BeamPhysicsService(Service):
                 for pl, (img, ext) in planes.items():
                     data[f"ps:{sec}:{pl}"] = img
                     data[f"ps:{sec}:{pl}:ext"] = ext
+            if res.cloud is not None:
+                data["cloud"] = res.cloud
+                data["cloud_at"] = res.cloud_at
             self.publish_stream("beam.deep", snap["pulse_id"], data)
             time.sleep(0.05)
 

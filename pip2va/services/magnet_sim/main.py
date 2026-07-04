@@ -64,7 +64,13 @@ class MagnetSimService(Service):
                 seen_settings[skey] = self.read_hash(skey)
             st = seen_settings.get(skey)
             if st is not None:
-                dev.setpoint = float(st.get(f, dev.setpoint))
+                sp = float(st.get(f, dev.setpoint))
+                # supply limits: correctors +/-max_amp, others +/-max_current
+                lim = (el.params.get("max_amp") if el.type == "corrector"
+                       else el.params.get("max_current"))
+                if lim:
+                    sp = max(-lim, min(lim, sp))
+                dev.setpoint = sp
             # fault injection
             fkey = keys.fault("magnet", el.name)
             if self.r.exists(fkey):

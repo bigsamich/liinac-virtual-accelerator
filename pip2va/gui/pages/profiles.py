@@ -59,6 +59,36 @@ class ProfilesPage(Page):
             self.ps_items[key] = item
         self.body.addLayout(imgs, 2)
 
+        # 3D beam cloud at a scanner station (GPU tracker, GL scatter)
+        cloud_bar = QHBoxLayout()
+        cloud_bar.addWidget(QLabel("3D beam cloud at:"))
+        self.sel_3d = QComboBox()
+        self.sel_3d.addItems(self.wss)
+        cloud_bar.addWidget(self.sel_3d)
+        self.lbl_3d = QLabel("")
+        self.lbl_3d.setStyleSheet("color:#8b96a5;")
+        cloud_bar.addWidget(self.lbl_3d)
+        cloud_bar.addStretch(1)
+        self.body.addLayout(cloud_bar)
+        self.gl_view = None
+        try:
+            import pyqtgraph.opengl as gl
+            self.gl = gl
+            self.gl_view = gl.GLViewWidget()
+            self.gl_view.setMinimumHeight(260)
+            self.gl_view.setCameraPosition(distance=40, elevation=18)
+            grid = gl.GLGridItem()
+            grid.scale(2, 2, 1)
+            self.gl_view.addItem(grid)
+            self.gl_scatter = gl.GLScatterPlotItem(size=1.5, pxMode=True)
+            self.gl_view.addItem(self.gl_scatter)
+            self.body.addWidget(self.gl_view, 3)
+        except Exception as e:               # headless / no OpenGL context
+            self.body.addWidget(QLabel(f"3D view unavailable: {e}"))
+        self.sel_3d.currentTextChanged.connect(self.hub.select_3d_station)
+        if self.wss:
+            self.hub.select_3d_station(self.sel_3d.currentText())
+
         # emittance vs s from the deep pass
         self.p_emit = make_plot("εₙ [µm]", xlabel="s [m]")
         self.c_ex = self.p_emit.plot(pen=pg.mkPen(theme.ACCENT, width=1.5),
@@ -93,3 +123,21 @@ class ProfilesPage(Page):
         if "emit_s" in data and len(data["emit_s"]):
             self.c_ex.setData(data["emit_s"], data["emit_x_um"])
             self.c_ey.setData(data["emit_s"], data["emit_y_um"])
+        cloud = data.get("cloud")
+        if cloud is not None and self.gl_view is not None \
+                and self.isVisible():
+            pts = np.asarray(cloud, dtype=np.float32).T  # (n, 3) in mm
+            # normalize z (bunch length) to the transverse scale for display
+            span = max(float(np.abs(pts[:, :2]).max()), 1e-3)
+            zspan = max(float(np.abs(pts[:, 2]).max()), 1e-3)
+            pts[:, 2] *= span / zspan
+            r = np.linalg.norm(pts[:, :2], axis=1) / span
+            colors = np.empty((len(pts), 4), dtype=np.float32)
+            colors[:, 0] = 0.31 + 0.6 * r          # core cyan -> halo warm
+            colors[:, 1] = 0.76 - 0.35 * r
+            colors[:, 2] = 0.97 - 0.55 * r
+            colors[:, 3] = 0.55
+            self.gl_scatter.setData(pos=pts * (10.0 / span), color=colors)
+            self.lbl_3d.setText(
+                f"{data.get('cloud_at', '?')} — {len(pts):,} particles "
+                f"(z stretched ×{span/zspan:.2g} for display)")

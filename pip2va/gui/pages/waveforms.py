@@ -1,19 +1,28 @@
-"""Intra-pulse waveform viewer: live toroids, selectable captures, postmortem."""
+"""Intra-pulse waveform viewer.
+
+Check devices in the tree — they start streaming immediately. Currents
+(toroids, BPM sum) and signals (BPM position, BLM loss) get separate plots so
+units never mix. The Postmortem tab shows the frozen trip pulse.
+"""
 from __future__ import annotations
 
 import time
 
 import numpy as np
 import pyqtgraph as pg
-from PyQt6.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QListWidget,
-                             QPushButton, QVBoxLayout)
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QTabWidget,
+                             QTreeWidget, QTreeWidgetItem, QVBoxLayout,
+                             QWidget)
 
 from .. import theme
+from ..plotkit import CrosshairPlot, short_label
 from . import register
-from .common import Page, make_plot
+from .common import Page
 
 COLORS = [theme.ACCENT, "#ffb74d", "#ba68c8", "#4db6ac", "#e57373",
           "#aed581", "#f06292", "#90a4ae"]
+MAX_SEL = 8
 
 
 @register("Waveforms")
@@ -21,115 +30,183 @@ class WaveformsPage(Page):
     title = "Intra-Pulse Waveforms (1000 samples / 0.55 ms)"
 
     def build(self):
-        lat = self.lat
+        lay = QHBoxLayout()
 
-        # ---- live toroid waveform
-        bar = QHBoxLayout()
-        bar.addWidget(QLabel("Toroid:"))
-        self.sel_tor = QComboBox()
-        self.sel_tor.addItems([e.name for e in lat.instruments("toroid")])
-        self.sel_tor.setCurrentIndex(self.sel_tor.count() - 1)
-        bar.addWidget(self.sel_tor)
-        bar.addStretch(1)
-        self.body.addLayout(bar)
-        self.p_tor = make_plot("I [mA]", xlabel="t in pulse [ms]")
-        self.c_tor = self.p_tor.plot(pen=pg.mkPen(theme.ACCENT, width=1.5))
-        self.body.addWidget(self.p_tor, 2)
-
-        # ---- selectable capture
-        cap = QHBoxLayout()
+        # ---- device tree (checkable, instant apply)
         left = QVBoxLayout()
-        left.addWidget(QLabel("Capture devices (up to 8):"))
-        self.sel_cls = QComboBox()
-        self.sel_cls.addItems(["bpm", "blm", "toroid"])
-        self.sel_dev = QComboBox()
-        self.btn_add = QPushButton("Add")
-        self.btn_clear = QPushButton("Clear")
-        row = QHBoxLayout()
-        row.addWidget(self.sel_cls)
-        row.addWidget(self.sel_dev, 1)
-        left.addLayout(row)
-        row2 = QHBoxLayout()
-        row2.addWidget(self.btn_add)
-        row2.addWidget(self.btn_clear)
-        left.addLayout(row2)
-        self.lst = QListWidget()
-        self.lst.setMaximumHeight(120)
-        left.addWidget(self.lst)
-        cap.addLayout(left)
-        self.p_cap = make_plot("signal", xlabel="t in pulse [ms]")
-        self.p_cap.addLegend(offset=(6, 6), labelTextSize="8pt")
-        cap.addWidget(self.p_cap, 3)
-        self.body.addLayout(cap, 3)
-        self._cap_curves: dict[str, pg.PlotDataItem] = {}
+        self.tree = QTreeWidget()
+        self.tree.setHeaderLabel("Devices (check up to 8)")
+        self.tree.setFixedWidth(230)
+        self._items: dict[str, QTreeWidgetItem] = {}
+        for group, typ in (("Toroids", "toroid"), ("BPMs", "bpm"),
+                           ("BLMs", "blm")):
+            g = QTreeWidgetItem([group])
+            g.setFlags(Qt.ItemFlag.ItemIsEnabled)
+            self.tree.addTopLevelItem(g)
+            for e in self.lat.instruments(typ):
+                it = QTreeWidgetItem([short_label(e.name)])
+                it.setData(0, Qt.ItemDataRole.UserRole, (typ, e.name))
+                it.setFlags(Qt.ItemFlag.ItemIsEnabled
+                            | Qt.ItemFlag.ItemIsUserCheckable)
+                it.setCheckState(0, Qt.CheckState.Unchecked)
+                g.addChild(it)
+                self._items[e.name] = it
+            g.setExpanded(typ == "toroid")
+        # sensible default: last toroid checked
+        last_tor = self.lat.instruments("toroid")[-1].name
+        self._items[last_tor].setCheckState(0, Qt.CheckState.Checked)
+        left.addWidget(self.tree, 1)
+        btn_none = QPushButton("Uncheck all")
+        left.addWidget(btn_none)
+        lay.addLayout(left)
 
-        # ---- postmortem
-        pm_bar = QHBoxLayout()
-        self.btn_pm = QPushButton("Load postmortem (trip pulse)")
-        self.lbl_pm = QLabel("no postmortem loaded")
+        # ---- plots
+        tabs = QTabWidget()
+        live = QWidget()
+        vlay = QVBoxLayout(live)
+        self.p_cur = CrosshairPlot("current [mA]", xlabel="t in pulse [ms]")
+        self.p_cur.addLegend(offset=(6, 6), labelTextSize="8pt")
+        self.p_sig = CrosshairPlot("position [mm] / loss [W/m]",
+                                   xlabel="t in pulse [ms]")
+        self.p_sig.addLegend(offset=(6, 6), labelTextSize="8pt")
+        vlay.addWidget(self.p_cur, 1)
+        vlay.addWidget(self.p_sig, 1)
+        tabs.addTab(live, "Live")
+
+        pm = QWidget()
+        pmlay = QVBoxLayout(pm)
+        bar = QHBoxLayout()
+        self.btn_pm = QPushButton("Reload postmortem")
+        self.lbl_pm = QLabel("loads automatically on a trip")
         self.lbl_pm.setStyleSheet("color:#8b96a5;")
-        pm_bar.addWidget(self.btn_pm)
-        pm_bar.addWidget(self.lbl_pm)
-        pm_bar.addStretch(1)
-        self.body.addLayout(pm_bar)
-        self.p_pm = make_plot("BLM [W/m]", xlabel="t in pulse [ms]")
+        bar.addWidget(self.btn_pm)
+        bar.addWidget(self.lbl_pm)
+        bar.addStretch(1)
+        pmlay.addLayout(bar)
+        self.p_pm = CrosshairPlot("BLM [W/m]", xlabel="t in pulse [ms]")
         self.p_pm.addLegend(offset=(6, 6), labelTextSize="8pt")
-        self.body.addWidget(self.p_pm, 2)
+        pmlay.addWidget(self.p_pm, 1)
+        tabs.addTab(pm, "Postmortem (trip pulse)")
+        lay.addWidget(tabs, 1)
+        self.body.addLayout(lay, 1)
+        self.tabs = tabs
 
-        self.sel_cls.currentTextChanged.connect(self._fill_devs)
-        self.btn_add.clicked.connect(self._add_dev)
-        self.btn_clear.clicked.connect(self._clear_devs)
+        self._cur_curves: dict[str, pg.PlotDataItem] = {}
+        self._sig_curves: dict[str, pg.PlotDataItem] = {}
+        self._checked: dict[str, str] = {last_tor: "toroid"}
+        self._last_draw = 0.0
+        self._color_i = 0
+
+        self.tree.itemChanged.connect(self._on_check)
+        btn_none.clicked.connect(self._uncheck_all)
         self.btn_pm.clicked.connect(self._load_pm)
         self.hub.wfToroid.connect(self._on_tor)
         self.hub.wfCapture.connect(self._on_cap)
         self.hub.mpsEvent.connect(self._on_mps)
-        self._fill_devs("bpm")
-        self._last_draw = 0.0
 
-    def _fill_devs(self, cls):
-        self.sel_dev.clear()
-        self.sel_dev.addItems([e.name for e in self.lat.instruments(cls)])
+    # ------------------------------------------------------------ selection
 
-    def _selected(self) -> list[str]:
-        return [self.lst.item(i).text() for i in range(self.lst.count())]
+    def _on_check(self, item, _col):
+        data = item.data(0, Qt.ItemDataRole.UserRole)
+        if data is None:
+            return
+        typ, name = data
+        if item.checkState(0) == Qt.CheckState.Checked:
+            if len(self._checked) >= MAX_SEL:
+                self.tree.blockSignals(True)
+                item.setCheckState(0, Qt.CheckState.Unchecked)
+                self.tree.blockSignals(False)
+                return
+            self._checked[name] = typ
+        else:
+            self._checked.pop(name, None)
+            self._drop_curves(name)
+        # BPM/BLM captures are produced by diag-sim on request
+        self.hub.select_waveforms(
+            [n for n, t in self._checked.items() if t in ("bpm", "blm")])
 
-    def _add_dev(self):
-        names = self._selected()
-        n = self.sel_dev.currentText()
-        if n and n not in names and len(names) < 8:
-            self.lst.addItem(n)
-            self.hub.select_waveforms(self._selected())
-
-    def _clear_devs(self):
-        self.lst.clear()
-        self.p_cap.clear()
-        self.p_cap.addLegend(offset=(6, 6), labelTextSize="8pt")
-        self._cap_curves.clear()
+    def _uncheck_all(self):
+        self.tree.blockSignals(True)
+        for it in self._items.values():
+            it.setCheckState(0, Qt.CheckState.Unchecked)
+        self.tree.blockSignals(False)
+        self._checked.clear()
         self.hub.select_waveforms([])
+        for name in list(self._cur_curves) + list(self._sig_curves):
+            self._drop_curves(name.split("|")[0])
+        self._cur_curves.clear()
+        self._sig_curves.clear()
+        self.p_cur.clear()
+        self.p_cur.addLegend(offset=(6, 6), labelTextSize="8pt")
+        self.p_sig.clear()
+        self.p_sig.addLegend(offset=(6, 6), labelTextSize="8pt")
+
+    def _drop_curves(self, name: str):
+        for store, plot in ((self._cur_curves, self.p_cur),
+                            (self._sig_curves, self.p_sig)):
+            for key in [k for k in store if k.startswith(name)]:
+                plot.pw.removeItem(store.pop(key))
+
+    def _curve(self, store, plot, key: str):
+        if key not in store:
+            pen = pg.mkPen(COLORS[self._color_i % len(COLORS)], width=1.3)
+            self._color_i += 1
+            store[key] = plot.plot(pen=pen, name=short_label(key))
+        return store[key]
+
+    # ------------------------------------------------------------ live data
+
+    def _throttled(self) -> bool:
+        now = time.monotonic()
+        if now - self._last_draw < 0.15:
+            return True
+        self._last_draw = now
+        return False
 
     def _on_tor(self, _pid, data):
-        if not self.isVisible():
+        if not self.isVisible() or "t_ms" not in data or self._throttled():
             return
-        now = time.monotonic()
-        if now - self._last_draw < 0.15:   # ~6 Hz redraw for 1000-pt traces
-            return
-        self._last_draw = now
-        name = self.sel_tor.currentText()
-        if name in data and "t_ms" in data:
-            self.c_tor.setData(data["t_ms"], data[name])
+        t = data["t_ms"]
+        vals = []
+        for name, typ in self._checked.items():
+            if typ == "toroid" and name in data:
+                self._curve(self._cur_curves, self.p_cur,
+                            f"{name}|i").setData(t, data[name])
+                vals.append(data[name])
+        if vals:
+            self.p_cur.update_y(*vals)
 
     def _on_cap(self, _pid, data):
         if not self.isVisible() or "t_ms" not in data:
             return
         t = data["t_ms"]
-        for i, (key, wf) in enumerate(sorted(data.items())):
+        sig_vals, cur_vals = [], []
+        for key, wf in data.items():
             if key == "t_ms":
                 continue
-            if key not in self._cap_curves:
-                pen = pg.mkPen(COLORS[len(self._cap_curves) % len(COLORS)],
-                               width=1.2)
-                self._cap_curves[key] = self.p_cap.plot(pen=pen, name=key)
-            self._cap_curves[key].setData(t, wf)
+            name, field = key.rsplit(":", 1)
+            if name not in self._checked:
+                continue
+            if field in ("x", "y"):
+                c = self._curve(self._sig_curves, self.p_sig,
+                                f"{name}|{field}")
+                c.setData(t, wf * 1e3)     # m -> mm
+                sig_vals.append(wf * 1e3)
+            elif field == "wpm":
+                c = self._curve(self._sig_curves, self.p_sig, f"{name}|wpm")
+                c.setData(t, wf)
+                sig_vals.append(wf)
+            elif field in ("sum", "i"):
+                c = self._curve(self._cur_curves, self.p_cur,
+                                f"{name}|{field}")
+                c.setData(t, wf)
+                cur_vals.append(wf)
+        if sig_vals:
+            self.p_sig.update_y(*sig_vals)
+        if cur_vals:
+            self.p_cur.update_y(*cur_vals)
+
+    # ------------------------------------------------------------ postmortem
 
     def _on_mps(self, ev):
         if ev.get("kind") == "trip":
@@ -148,5 +225,7 @@ class WaveformsPage(Page):
         peaks = sorted(blm.items(), key=lambda kv: -float(np.max(kv[1])))[:5]
         for i, (name, wf) in enumerate(peaks):
             self.p_pm.plot(t, wf, pen=pg.mkPen(COLORS[i], width=1.4),
-                           name=name)
-        self.lbl_pm.setText(f"postmortem: trip pulse {pid}, showing top-5 BLMs")
+                           name=short_label(name))
+        if peaks:
+            self.p_pm.update_y(*[wf for _, wf in peaks])
+        self.lbl_pm.setText(f"trip pulse {pid} — top-5 BLMs shown")

@@ -64,14 +64,22 @@ losses spike, and the MPS pulls the permit — the real failure cascade.
 
 ## GUI pages
 
-Overview (synoptic, click a section to open its view), Instrumentation
-dashboard (toroids + live orbit and loss panels), Orbit (20 Hz, reference
-diff), Losses (bars + waterfall vs the 0.1/1 W/m criteria), Magnets & trims,
+Dashboard (synoptic + toroids + live orbit/loss panels; click a section to
+open its dedicated view in place), Orbit (20 Hz, reference diff, corrector
+usage bars), Losses (bars + waterfall vs the 0.1/1 W/m criteria), Magnets & trims,
 RF (per-cavity table + detuning detail + tuner/reset), Profiles & phase
 space (live wire scans, x–x′/y–y′/z–δ from the GPU tracker), Waveforms
 (intra-pulse 1000-sample traces: live toroids, selectable BPM/BLM capture,
 trip postmortem buffer), Source & LEBT, MPS (permit, trip log, root-cause
-analysis, expert fault injector) — plus a dedicated view per lattice section.
+analysis, expert fault injector).
+
+All plots share a control-room toolkit: crosshair cursor with readout,
+visible grids, rigid auto-Y (expands instantly, shrinks only after sustained
+quiet — no bouncing axes; any manual zoom locks the axis), and device-name
+x-axes (MEBT:BPM01) with a per-plot toggle back to s [m]. Every setpoint is
+bounded by its device limit (supply currents, corrector ±10 A, cavity quench
+levels) and BPMs cannot read beyond their own bore. The Profiles page renders
+a 30k-particle 3D beam cloud from the GPU tracker at any scanner station.
 
 An always-visible banner carries the beam-permit state with **RESET PERMIT**,
 **RESCUE** (autotune restores every setpoint to design, resets tripped
