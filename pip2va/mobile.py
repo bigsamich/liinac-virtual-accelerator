@@ -51,8 +51,7 @@ a{color:#4fc3f7}</style></head><body>
 <input id="ask" placeholder="Ask the machine…" autocomplete="off">
 <button onclick="ask()">Ask</button>
 <div id="ans"></div>
-<p style="text-align:center"><a id="vnclink" href="#" onclick="location.href=location.protocol+'//'+location.hostname+':6080/vnc.html?autoconnect=true&resize=scale'">
-open full control room →</a></p>
+<p style="text-align:center"><a href="/room">open full control room →</a></p>
 <script>
 async function tick(){try{
  const s=await (await fetch('/api/status')).json();
@@ -76,6 +75,79 @@ async function ask(){const q=document.getElementById('ask').value;if(!q)return;
 @app.get("/")
 def index():
     return PAGE
+
+
+ROOM = """<!doctype html><html><head>
+<meta name="viewport"
+ content="width=device-width, initial-scale=1, user-scalable=no">
+<title>PIP-II control room</title><style>
+html,body{margin:0;height:100%;background:#000;overflow:hidden;
+font-family:-apple-system,Segoe UI,Roboto,sans-serif}
+#bar{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;gap:6px;
+padding:6px;background:#0d1117cc;backdrop-filter:blur(6px)}
+#bar button,#bar a{flex:1;padding:10px 0;border-radius:8px;border:0;
+font-size:14px;font-weight:600;text-align:center;text-decoration:none}
+.on{background:#1f6feb;color:#fff}.off{background:#21262d;color:#8b96a5}
+#wrap{position:absolute;top:46px;left:0;right:0;bottom:0;overflow:hidden}
+#frame{width:1920px;height:1080px;border:0;transform-origin:0 0;
+position:absolute;left:0;top:0}
+#pad{position:absolute;inset:0;z-index:5;display:none;touch-action:none}
+</style></head><body>
+<div id="bar">
+ <button id="bi" class="on" onclick="mode(1)">Interact</button>
+ <button id="bp" class="off" onclick="mode(0)">Pan/Zoom</button>
+ <button class="off" onclick="zoom(1.25)">+</button>
+ <button class="off" onclick="zoom(0.8)">&minus;</button>
+ <button class="off" onclick="fit()">Fit</button>
+ <a class="off" href="/">&larr; status</a>
+</div>
+<div id="wrap"><iframe id="frame"></iframe><div id="pad"></div></div>
+<script>
+const f=document.getElementById('frame'),pad=document.getElementById('pad'),
+ wrap=document.getElementById('wrap');
+f.src=location.protocol+'//'+location.hostname
+ +':6080/vnc.html?autoconnect=true&resize=off';
+let s=1,ox=0,oy=0;
+function apply(){f.style.transform=`translate(${ox}px,${oy}px) scale(${s})`}
+function fit(){s=Math.min(wrap.clientWidth/1920,wrap.clientHeight/1080);
+ ox=0;oy=0;apply()}
+function zoom(k){s=Math.max(0.15,Math.min(3,s*k));apply()}
+function mode(interact){pad.style.display=interact?'none':'block';
+ bi.className=interact?'on':'off';bp.className=interact?'off':'on'}
+let touches={};
+pad.addEventListener('touchstart',e=>{
+ for(const t of e.changedTouches)touches[t.identifier]=[t.clientX,t.clientY];
+ e.preventDefault()},{passive:false});
+pad.addEventListener('touchmove',e=>{
+ const ids=Object.keys(touches);
+ if(e.touches.length===1&&ids.length){
+  const t=e.touches[0],p=touches[t.identifier]||[t.clientX,t.clientY];
+  ox+=t.clientX-p[0];oy+=t.clientY-p[1];
+  touches[t.identifier]=[t.clientX,t.clientY];apply();
+ }else if(e.touches.length===2){
+  const a=e.touches[0],b=e.touches[1];
+  const pa=touches[a.identifier]||[a.clientX,a.clientY];
+  const pb=touches[b.identifier]||[b.clientX,b.clientY];
+  const d0=Math.hypot(pa[0]-pb[0],pa[1]-pb[1]);
+  const d1=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+  if(d0>0){const k=d1/d0,cx=(a.clientX+b.clientX)/2,
+   cy=(a.clientY+b.clientY)/2-46;
+   const ns=Math.max(0.15,Math.min(3,s*k));
+   ox=cx-(cx-ox)*(ns/s);oy=cy-(cy-oy)*(ns/s);s=ns;apply();}
+  touches[a.identifier]=[a.clientX,a.clientY];
+  touches[b.identifier]=[b.clientX,b.clientY];
+ }
+ e.preventDefault()},{passive:false});
+pad.addEventListener('touchend',e=>{
+ for(const t of e.changedTouches)delete touches[t.identifier]},
+ {passive:false});
+window.addEventListener('resize',fit);setTimeout(fit,300);
+</script></body></html>"""
+
+
+@app.get("/room")
+def room():
+    return ROOM
 
 
 @app.get("/api/status")
