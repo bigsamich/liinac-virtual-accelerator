@@ -42,6 +42,9 @@ class MainWindow(QMainWindow):
         self.stack = QStackedWidget()
         lay.addWidget(self.nav)
         lay.addWidget(self.stack, 1)
+        from .askpanel import AskPanel
+        self.ask_panel = AskPanel(self.hub)
+        lay.addWidget(self.ask_panel)
         outer.addLayout(lay, 1)
         self.setCentralWidget(central)
 

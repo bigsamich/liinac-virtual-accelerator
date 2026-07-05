@@ -5,9 +5,7 @@ import collections
 
 import numpy as np
 import pyqtgraph as pg
-from PyQt6.QtCore import QThread, pyqtSignal
-from PyQt6.QtWidgets import (QHBoxLayout, QLabel, QLineEdit, QPushButton,
-                             QTextEdit)
+from PyQt6.QtWidgets import QHBoxLayout, QLabel
 
 from .. import theme
 from ..plotkit import CrosshairPlot
@@ -90,42 +88,6 @@ class OverviewPage(Page):
         self.lbl_health = QLabel("device health: —")
         self.body.addWidget(self.lbl_health)
 
-        # ---- ask the machine: LLM Q&A grounded in live state + study KB
-        ask_row = QHBoxLayout()
-        self.ed_ask = QLineEdit()
-        self.ed_ask.setPlaceholderText(
-            "Ask the machine… (status? what happens if I raise the source "
-            "to 6 mA? can I run unchopped? why is BTL:BLM1 high?)")
-        self.btn_ask = QPushButton("Ask")
-        ask_row.addWidget(self.ed_ask, 1)
-        ask_row.addWidget(self.btn_ask)
-        self.body.addLayout(ask_row)
-        self.txt_answer = QTextEdit()
-        self.txt_answer.setReadOnly(True)
-        self.txt_answer.setMaximumHeight(140)
-        self.txt_answer.setPlaceholderText(
-            "Answers combine the live snapshot with measured findings from "
-            "the machine's own beam studies.")
-        self.txt_answer.hide()
-        self.body.addWidget(self.txt_answer)
-        self.btn_ask.clicked.connect(self._ask)
-        self.ed_ask.returnPressed.connect(self._ask)
-        self._ask_worker = None
-
-    def _ask(self):
-        q = self.ed_ask.text().strip()
-        if not q or (self._ask_worker and self._ask_worker.isRunning()):
-            return
-        self.txt_answer.show()
-        self.txt_answer.setPlainText("thinking…")
-        self.btn_ask.setEnabled(False)
-        self._ask_worker = AskWorker(self.hub.r, q)
-        self._ask_worker.done.connect(self._answered)
-        self._ask_worker.start()
-
-    def _answered(self, text, engine):
-        self.btn_ask.setEnabled(True)
-        self.txt_answer.setPlainText(f"[{engine}]\n{text}")
 
         self.t_hist = [collections.deque(maxlen=400) for _ in self.tors]
         self._rf_index = None
@@ -220,17 +182,3 @@ class OverviewPage(Page):
             f"color: {theme.OK if ok else theme.ALARM}; font-weight: bold;")
 
 
-class AskWorker(QThread):
-    done = pyqtSignal(str, str)
-
-    def __init__(self, r, question):
-        super().__init__()
-        self.r, self.q = r, question
-
-    def run(self):
-        try:
-            from pip2va.analysis import assistant
-            text, engine = assistant.ask(self.r, self.q)
-            self.done.emit(text, engine)
-        except Exception as e:
-            self.done.emit(f"assistant error: {e}", "error")
