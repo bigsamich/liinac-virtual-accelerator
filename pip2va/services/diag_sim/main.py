@@ -43,6 +43,10 @@ class DiagSimService(Service):
         self.blms = self.lat.instruments("blm")
         self.tors = self.lat.instruments("toroid")
         self.wss = {e.name: e for e in self.lat.instruments("wire_scanner")}
+        from pip2va.common.laserwire import stations as lw_stations
+        self.lws = dict(lw_stations(self.lat))     # name -> s [m]
+        self._lwscan = None
+        self._cycle = None
         self.i_nom = self.lat.meta.get("nominal_current_ma", 2.0)
         self._scan = None  # active wire scan state
         self.synth = WaveformSynth(self.rng)
@@ -153,6 +157,8 @@ class DiagSimService(Service):
         self._waveforms(pulse_id, tr, i_ma, wpm)
         self._wcm(pulse_id, tr)
         self._wire_scans(pulse_id)
+        self._lw_scans(pulse_id, tr)
+        self._profiler_cycle(pulse_id)
 
     # ------------------------------------------------- wall current monitors
 
@@ -293,8 +299,120 @@ class DiagSimService(Service):
             "ix": np.maximum(sc["hx"][:k] + noise, 0.0),
             "iy": np.maximum(sc["hy"][:k] + noise, 0.0)})
         if done:
+            self._record_rms(sc["name"], sc["pos"], sc["hx"], sc["hy"])
             self.r.delete(f"req:wire:{sc['name']}")
             self._scan = None
+
+    # ------------------------------------------------------- laserwires
+
+    def _lw_scans(self, pulse_id: int, tr: dict):
+        """Photodetachment scans: one laser station at a time, in
+        parallel with (and independent of) the solid-wire scanner."""
+        from pip2va.common.laserwire import LASER_RMS_MM
+        if self._lwscan is None:
+            for name, s_m in self.lws.items():
+                if not self.r.exists(f"req:lw:{name}"):
+                    continue
+                req = self.read_hash(f"req:lw:{name}")
+                npts = int(min(max(req.get("points", 48), 8), 256))
+                ppp = int(min(max(req.get("ppp", 1), 1), 20))
+                s_arr = tr["s"]
+                sx = float(np.interp(s_m, s_arr, tr["sig_x"])) * 1e3
+                sy = float(np.interp(s_m, s_arr, tr["sig_y"])) * 1e3
+                cx = float(np.interp(s_m, s_arr, tr["cx"])) * 1e3
+                cy = float(np.interp(s_m, s_arr, tr["cy"])) * 1e3
+                span = 4.0 * max(sx, sy, 0.3)
+                pos = np.linspace(-span, span, npts)
+                # measured width = beam (+) laser focus in quadrature
+                mx = np.sqrt(sx ** 2 + LASER_RMS_MM ** 2)
+                my = np.sqrt(sy ** 2 + LASER_RMS_MM ** 2)
+                hx = np.exp(-0.5 * ((pos - cx) / mx) ** 2)
+                hy = np.exp(-0.5 * ((pos - cy) / my) ** 2)
+                self._lwscan = {"name": name, "step": 0, "tick": 0,
+                                "ppp": ppp, "pos": pos,
+                                "hx": hx, "hy": hy}
+                break
+        if self._lwscan is None:
+            return
+        sc = self._lwscan
+        sc["tick"] += 1
+        if sc["tick"] % sc["ppp"]:
+            return
+        sc["step"] = min(sc["step"] + 1, len(sc["pos"]))
+        k = sc["step"]
+        # photodetachment counting statistics (Poisson-like)
+        n0 = 4000.0
+        ix = self.rng.poisson(np.maximum(sc["hx"][:k] * n0, 0.01)) / n0
+        iy = self.rng.poisson(np.maximum(sc["hy"][:k] * n0, 0.01)) / n0
+        done = 1.0 if k >= len(sc["pos"]) else 0.0
+        self.publish_stream("profile.scan", pulse_id, {
+            "name": sc["name"], "done": done,
+            "pos_mm": sc["pos"][:k],
+            "ix": ix.astype(np.float64), "iy": iy.astype(np.float64)})
+        if done:
+            self._record_rms(sc["name"], sc["pos"], sc["hx"], sc["hy"])
+            self.r.delete(f"req:lw:{sc['name']}")
+            self._lwscan = None
+
+    # -------------------------------------------------- profiler cycling
+
+    def _record_rms(self, name, pos, hx, hy):
+        if self._cycle is None:
+            return
+        w = np.maximum(hx, 0)
+        mx = np.sum(pos * w) / max(np.sum(w), 1e-9)
+        sx = np.sqrt(np.sum(w * (pos - mx) ** 2) / max(np.sum(w), 1e-9))
+        w = np.maximum(hy, 0)
+        my = np.sum(pos * w) / max(np.sum(w), 1e-9)
+        sy = np.sqrt(np.sum(w * (pos - my) ** 2) / max(np.sum(w), 1e-9))
+        self._cycle["results"][name] = {
+            "sig_x_mm": round(float(sx), 4), "sig_y_mm": round(float(sy), 4)}
+
+    def _profiler_cycle(self, pulse_id: int):
+        """Cycle mode: step through every wire scanner one at a time and,
+        in parallel, every laserwire station one at a time."""
+        st = self.read_hash(keys.settings("profilers", "main"))
+        if not st.get("cycle"):
+            if self._cycle is not None:
+                self._cycle = None
+            return
+        if self._cycle is None:
+            self._cycle = {"ws": list(self.wss), "lw": list(self.lws),
+                           "results": {}}
+        cy = self._cycle
+        ws_pts = int(st.get("ws_points", 64))
+        ws_ppp = int(st.get("ws_ppp", 1))
+        lw_pts = int(st.get("lw_points", 48))
+        lw_ppp = int(st.get("lw_ppp", 1))
+        if self._scan is None and cy["ws"]:
+            nm = cy["ws"].pop(0)
+            self.r.hset(f"req:wire:{nm}", mapping={
+                "plane": "x", "points": ws_pts, "ppp": ws_ppp})
+        if self._lwscan is None and cy["lw"]:
+            nm = cy["lw"].pop(0)
+            self.r.hset(f"req:lw:{nm}", mapping={
+                "plane": "x", "points": lw_pts, "ppp": lw_ppp})
+        n_tot = len(self.wss) + len(self.lws)
+        n_done = len(cy["results"]) + (
+            n_tot - len(cy["ws"]) - len(cy["lw"])
+            - (0 if self._scan is None else 1)
+            - (0 if self._lwscan is None else 1) - len(cy["results"]))
+        self.r.hset("state:profilers", mapping={
+            "status": f"cycling: {len(self.wss)-len(cy['ws'])}/"
+                      f"{len(self.wss)} wires, "
+                      f"{len(self.lws)-len(cy['lw'])}/{len(self.lws)} "
+                      f"lasers", "cycle": 1})
+        if not cy["ws"] and not cy["lw"] and self._scan is None \
+                and self._lwscan is None:
+            import json as _json
+            self.r.set("state:profile.summary", _json.dumps({
+                "t": __import__("time").time(),
+                "stations": cy["results"]}))
+            self.r.hset(keys.settings("profilers", "main"), "cycle", 0)
+            self.r.hset("state:profilers", mapping={
+                "status": f"cycle complete: {len(cy['results'])} laser "
+                          f"stations + {len(self.wss)} wires", "cycle": 0})
+            self._cycle = None
 
     def _deep_profile(self, name: str):
         entries = self.r.xrevrange(keys.stream("beam.deep"), count=1)

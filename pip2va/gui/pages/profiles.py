@@ -6,6 +6,7 @@ import pyqtgraph as pg
 from PyQt6.QtWidgets import QComboBox, QHBoxLayout, QLabel, QPushButton
 
 from .. import theme
+from ..plotkit import CrosshairPlot
 from . import register
 from .common import Page, gauss_fit, make_plot
 
@@ -16,9 +17,14 @@ class ProfilesPage(Page):
 
     def build(self):
         self.wss = [e.name for e in self.lat.instruments("wire_scanner")]
+        from pip2va.common.laserwire import stations as _lw
+        self.lw_pos = dict(_lw(self.lat))
+        self.lws = list(self.lw_pos)
         bar = QHBoxLayout()
         self.sel_ws = QComboBox()
         self.sel_ws.addItems(self.wss)
+        self.sel_ws.insertSeparator(len(self.wss))
+        self.sel_ws.addItems(self.lws)
         self.btn_scan = QPushButton("Start scan")
         self.lbl_fit = QLabel("fit: —")
         from PyQt6.QtWidgets import QSpinBox
@@ -112,10 +118,89 @@ class ProfilesPage(Page):
         self.body.addWidget(self.p_emit, 1)
 
         self.btn_scan.clicked.connect(
-            lambda: self.hub.request_wire_scan(
+            lambda: (self.hub.request_lw_scan if ":LW" in
+                     self.sel_ws.currentText() else
+                     self.hub.request_wire_scan)(
                 self.sel_ws.currentText(), points=self.spin_pts.value(),
                 ppp=self.spin_ppp.value()))
+        # ---- profiler cycle: all wires + all lasers, one at a time each
+        from PyQt6.QtWidgets import QSpinBox
+        cyc = QHBoxLayout()
+        cyc.addWidget(QLabel("<b>Cycle scans</b>  wire pts:"))
+        self.sp_wsp = QSpinBox(); self.sp_wsp.setRange(8, 256)
+        self.sp_wsp.setValue(64); cyc.addWidget(self.sp_wsp)
+        cyc.addWidget(QLabel("ppp:"))
+        self.sp_wsq = QSpinBox(); self.sp_wsq.setRange(1, 20)
+        self.sp_wsq.setValue(1); cyc.addWidget(self.sp_wsq)
+        cyc.addWidget(QLabel("   laser pts:"))
+        self.sp_lwp = QSpinBox(); self.sp_lwp.setRange(8, 256)
+        self.sp_lwp.setValue(48); cyc.addWidget(self.sp_lwp)
+        cyc.addWidget(QLabel("ppp:"))
+        self.sp_lwq = QSpinBox(); self.sp_lwq.setRange(1, 20)
+        self.sp_lwq.setValue(1); cyc.addWidget(self.sp_lwq)
+        self.btn_cycle = QPushButton("Start cycle")
+        self.btn_cyc_stop = QPushButton("Stop")
+        cyc.addWidget(self.btn_cycle)
+        cyc.addWidget(self.btn_cyc_stop)
+        self.lbl_cycle = QLabel("")
+        cyc.addWidget(self.lbl_cycle, 1)
+        self.body.addLayout(cyc)
+
+        # sigma(s) from the last completed cycle: lasers vs wires
+        self.p_sig = CrosshairPlot("rms size [mm]", xlabel="s [m]")
+        self.c_lwx = self.p_sig.plot(pen=None, symbol="o", symbolSize=7,
+                                     symbolBrush="#4fc3f7", name="laser σx")
+        self.c_lwy = self.p_sig.plot(pen=None, symbol="s", symbolSize=7,
+                                     symbolBrush="#81c784", name="laser σy")
+        self.c_wsx = self.p_sig.plot(pen=None, symbol="t", symbolSize=8,
+                                     symbolBrush="#ffb74d", name="wire σx")
+        self.p_sig.addLegend(offset=(6, 6), labelTextSize="8pt")
+        self.body.addWidget(self.p_sig, 2)
+
+        self.btn_cycle.clicked.connect(self._start_cycle)
+        self.btn_cyc_stop.clicked.connect(
+            lambda: self.hub.set_setting("profilers", "main", "cycle", 0))
+        self._cyc_gate = 0
+        self.hub.beamState.connect(self._poll_cycle)
         self.hub.scan.connect(self._on_scan)
+
+    def _start_cycle(self):
+        for f, v in (("ws_points", self.sp_wsp.value()),
+                     ("ws_ppp", self.sp_wsq.value()),
+                     ("lw_points", self.sp_lwp.value()),
+                     ("lw_ppp", self.sp_lwq.value()),
+                     ("cycle", 1)):
+            self.hub.set_setting("profilers", "main", f, v)
+
+    def _poll_cycle(self, _st):
+        self._cyc_gate += 1
+        if not self.isVisible() or self._cyc_gate % 10:
+            return
+        st = {k.decode(): v.decode() for k, v in
+              self.hub.r.hgetall("state:profilers").items()}
+        if st:
+            self.lbl_cycle.setText(st.get("status", ""))
+        raw = self.hub.r.get("state:profile.summary")
+        if not raw:
+            return
+        import json as _json
+        try:
+            summ = _json.loads(raw)["stations"]
+        except (ValueError, KeyError):
+            return
+        ws_pos = {e.name: e.s for e in self.lat.instruments("wire_scanner")}
+        lx, ly, lxs, wx = [], [], [], []
+        for nm, d in summ.items():
+            if ":LW" in nm and nm in self.lw_pos:
+                lx.append((self.lw_pos[nm], d["sig_x_mm"]))
+                ly.append((self.lw_pos[nm], d["sig_y_mm"]))
+            elif nm in ws_pos:
+                wx.append((ws_pos[nm], d["sig_x_mm"]))
+        for curve, pts in ((self.c_lwx, lx), (self.c_lwy, ly),
+                           (self.c_wsx, wx)):
+            if pts:
+                pts.sort()
+                curve.setData([p[0] for p in pts], [p[1] for p in pts])
         self.hub.deep.connect(self._on_deep)
 
     def _on_scan(self, _pid, data):

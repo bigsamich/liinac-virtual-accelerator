@@ -180,6 +180,11 @@ class DataHub(QThread):
         self.r.hset(f"req:wire:{name}", mapping={
             "plane": plane, "points": points, "ppp": ppp})
 
+    def request_lw_scan(self, name: str, plane: str = "x",
+                        points: int = 48, ppp: int = 1):
+        self.r.hset(f"req:lw:{name}", mapping={
+            "plane": plane, "points": points, "ppp": ppp})
+
     def select_3d_station(self, name: str):
         """Choose the scanner station where the GPU tracker dumps a 3D cloud."""
         self.r.hset(keys.settings("wf3d", "main"), "station", name)
