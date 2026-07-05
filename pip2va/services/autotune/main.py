@@ -114,9 +114,14 @@ class AutotuneService(Service):
                 skey = keys.settings(sw["cls"], sw["device"])
                 originals.append(float(self.read_hash(skey).get(
                     sw["field"], sw["from"])))
+            at_on = self.read_hash(
+                keys.settings("autotune", "main")).get("enable") in (1, "1")
+            plan.setdefault("autotune", bool(plan.get("autotune", False)))
             self._study = {"plan": plan, "orig": originals, "k": -1,
                            "dwell_left": 0, "steps": [], "grace": 15,
-                           "settle": 4}
+                           "settle": 4,
+                           "at_meta": {"autotune_flag_at_start": at_on,
+                                       "trim_during_study": plan["autotune"]}}
             self.r.hset("state:study", mapping={
                 "status": "running", "step": 0,
                 "total": plan["steps"]})
@@ -211,6 +216,12 @@ class AutotuneService(Service):
 
         if stu["dwell_left"] > 0:
             stu["dwell_left"] -= 1
+            # operational-mode studies: let the orbit trim run during dwell
+            if plan.get("autotune") and stu["k"] >= 0:
+                try:
+                    self._orbit_step()
+                except Exception:
+                    pass
             return
         # intensity-ramp mode: re-baseline the MPS at each plateau so the
         # loss pattern of the new current becomes the reference
