@@ -135,6 +135,11 @@ a{color:#4fc3f7}</style></head><body>
 <div class="l">delivered mA</div></div>
 </div>
 <div id="events">…</div>
+<div class="card" style="margin-top:10px;text-align:left">
+<b>Studies</b> <a href="/studies" style="float:right">manage →</a>
+<div id="study_run" style="font-size:14px;margin-top:6px">—</div>
+<div id="study_q" class="l" style="white-space:pre-wrap">—</div>
+</div>
 <input id="ask" placeholder="Ask the machine…" autocomplete="off">
 <button id="askbtn" onclick="tap(this);ask()">Ask</button>
 <div id="ans"></div>
