@@ -331,7 +331,7 @@ async function load(){
  const d=await (await fetch('/api/studies')).json();
  run.innerHTML=d.running?`<b>${d.running.name}</b> — ${d.running.status}
   (step ${d.running.step}/${d.running.total})`:'idle';
- queue.textContent=d.queue.length?d.queue.join('\n'):'(empty)';
+ queue.textContent=d.queue.length?d.queue.join('\\n'):'(empty)';
  presets.innerHTML=d.presets.map(p=>
   `<span class="chip" title="${p.teaches}"
     onclick="tap(this);post('/api/queue',{preset:'${p.name}'}).then(r=>{msg(r);load()})">${p.name}</span>`).join('');
