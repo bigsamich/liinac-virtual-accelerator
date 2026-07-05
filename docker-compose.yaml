@@ -54,6 +54,9 @@ services:
       dockerfile: docker/web-gui.Dockerfile
     environment:
       PIP2VA_REDIS_URL: redis://redis:6379/0
+      PIP2VA_OLLAMA_URL: http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "6080:6080"
     depends_on:
