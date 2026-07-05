@@ -13,17 +13,55 @@ import numpy as np
 from PyQt6.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 TYPE_COLORS = {
-    "rfgap":    (1.00, 0.60, 0.10, 0.9),
-    "rfq":      (1.00, 0.40, 0.10, 1.0),
-    "quad":     (0.25, 0.55, 1.00, 0.9),
-    "solenoid": (0.20, 0.85, 0.90, 0.9),
-    "dipole":   (0.95, 0.30, 0.85, 1.0),
-    "corrector": (0.85, 0.85, 0.30, 0.6),
-    "wire_scanner": (0.70, 0.70, 0.70, 0.7),
-    "toroid":   (0.10, 0.95, 0.40, 0.9),
+    "rfgap":    (1.00, 0.55, 0.10, 1.0),
+    "rfq":      (1.00, 0.35, 0.10, 1.0),
+    "quad":     (0.25, 0.55, 1.00, 1.0),
+    "solenoid": (0.15, 0.80, 0.90, 1.0),
+    "dipole":   (0.90, 0.25, 0.85, 1.0),
+    "corrector": (0.85, 0.85, 0.25, 1.0),
+    "wire_scanner": (0.75, 0.75, 0.78, 1.0),
+    "toroid":   (0.10, 0.95, 0.40, 1.0),
+    "bpm":      (0.55, 1.00, 0.65, 1.0),
 }
-TYPE_SIZES = {"rfgap": 6, "rfq": 10, "quad": 6, "solenoid": 7, "dipole": 10,
-              "corrector": 4, "wire_scanner": 4, "toroid": 6}
+
+
+def _cyl(radius, length, cols=10):
+    """Cylinder along +x, centred at origin: (verts, faces)."""
+    a = np.linspace(0, 2 * np.pi, cols, endpoint=False)
+    ring = np.column_stack([np.cos(a), np.sin(a)]) * radius
+    v0 = np.column_stack([np.full(cols, -length / 2), ring])
+    v1 = np.column_stack([np.full(cols, +length / 2), ring])
+    V = np.vstack([v0, v1, [[-length / 2, 0, 0]], [[length / 2, 0, 0]]])
+    F = []
+    for k in range(cols):
+        k2 = (k + 1) % cols
+        F += [[k, cols + k, cols + k2], [k, cols + k2, k2],
+              [2 * cols, k2, k], [2 * cols + 1, cols + k, cols + k2]]
+    return V, np.array(F)
+
+
+def _box(lx, ly, lz):
+    x, y, z = lx / 2, ly / 2, lz / 2
+    V = np.array([[-x, -y, -z], [x, -y, -z], [x, y, -z], [-x, y, -z],
+                  [-x, -y, z], [x, -y, z], [x, y, z], [-x, y, z]])
+    F = np.array([[0, 1, 2], [0, 2, 3], [4, 6, 5], [4, 7, 6],
+                  [0, 4, 5], [0, 5, 1], [1, 5, 6], [1, 6, 2],
+                  [2, 6, 7], [2, 7, 3], [3, 7, 4], [3, 4, 0]])
+    return V, F
+
+
+# shape per type: (kind, args) — sizes exaggerated for 200 m viewing scale
+TYPE_SHAPES = {
+    "rfgap":    ("cyl", dict(radius=0.55)),
+    "rfq":      ("box", dict(ly=1.1, lz=1.1)),
+    "quad":     ("box", dict(ly=0.9, lz=0.9)),
+    "solenoid": ("cyl", dict(radius=0.75)),
+    "dipole":   ("box", dict(ly=1.6, lz=0.7)),
+    "corrector": ("box", dict(ly=0.55, lz=0.55)),
+    "wire_scanner": ("box", dict(ly=0.35, lz=1.4)),
+    "toroid":   ("cyl", dict(radius=0.85)),
+    "bpm":      ("cyl", dict(radius=0.42)),
+}
 ORBIT_EXAG = 0.25       # metres of display per mm of orbit
 LOSS_SCALE = 2.0        # spike height = LOSS_SCALE * log10(1 + W/m)
 
@@ -92,15 +130,33 @@ class Linac3D(QWidget):
             width=3.5, antialias=True)
         self.view.addItem(self.beam_line)
 
-        # static elements, one scatter per type
+        # solid geometry: one merged mesh per element family
         for typ, col in TYPE_COLORS.items():
             els = [e for e in lat.elements if e.type == typ]
             if not els:
                 continue
-            pos = np.array([[*centers[idx[id(e)]], 0.0] for e in els])
-            self.view.addItem(gl.GLScatterPlotItem(
-                pos=pos, color=col, size=TYPE_SIZES.get(typ, 5),
-                pxMode=True))
+            VV, FF, off = [], [], 0
+            for e in els:
+                kind, kw = TYPE_SHAPES[typ]
+                L = max(e.length, 0.35)
+                if kind == "cyl":
+                    v, f = _cyl(kw["radius"], L)
+                else:
+                    v, f = _box(L, kw["ly"], kw["lz"])
+                th = headings[idx[id(e)]]
+                R = np.array([[math.cos(th), -math.sin(th), 0],
+                              [math.sin(th), math.cos(th), 0],
+                              [0, 0, 1]])
+                v = v @ R.T
+                v[:, 0] += centers[idx[id(e)]][0]
+                v[:, 1] += centers[idx[id(e)]][1]
+                VV.append(v)
+                FF.append(f + off)
+                off += len(v)
+            md = gl.MeshData(vertexes=np.vstack(VV), faces=np.vstack(FF))
+            mesh = gl.GLMeshItem(meshdata=md, color=col, shader="shaded",
+                                 smooth=False, computeNormals=True)
+            self.view.addItem(mesh)
 
         # BPMs: live markers displaced by the orbit
         self.bpms = lat.instruments("bpm")
