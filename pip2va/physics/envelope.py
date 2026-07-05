@@ -102,8 +102,9 @@ class EnvelopeEngine:
             i_peak = float(src["current_ma"])
         duty_keep = 1.0 - m.get("chop_fraction", 0.6)
         chop = ds.get("MEBT:CHOP1") or ds.get("CHOP") or {}
-        if "duty" in chop:
-            duty_keep = min(1.0, max(0.0, float(chop["duty"])))
+        if "duty" in chop or "mode" in chop:
+            from pip2va.common.bpg import avg_duty
+            duty_keep = avg_duty(chop)
 
         n = self.n
         out = EnvelopeResult(

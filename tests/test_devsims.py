@@ -114,3 +114,19 @@ def test_utilities_model_and_couplings():
     assert p2[k] - p[k] > 2.0
     d = json.loads(UtilityModel.pack(p2, lcw))
     assert "CM-HB650-3" in d["p_mbar"] and "lcw_c" in d
+
+
+def test_bpg_patterns():
+    import numpy as np
+    from pip2va.common import bpg
+    # booster mode: notch empty, micro-pattern inside the turn
+    st = {"mode": "booster", "duty": 0.4, "turn": 100, "notch": 20}
+    bits = bpg.pattern_bits(st, 200)
+    assert not bits[80:100].any() and not bits[180:200].any()
+    assert 0.25 < bpg.avg_duty(st) < 0.40
+    # custom repeats
+    st = {"mode": "custom", "pattern": "101"}
+    assert list(bpg.pattern_bits(st, 6)) == [True, False, True] * 2
+    # stuck bucket forces a chopped bucket to pass
+    st = {"mode": "custom", "pattern": "1000", "stuck_bucket": 2}
+    assert bpg.pattern_bits(st, 4)[2]

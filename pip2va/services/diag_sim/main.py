@@ -171,7 +171,6 @@ class DiagSimService(Service):
         1e-4-level extinction of removed bunches); LEBT-side structure is
         unchopped so BTL:WCM1 shows the delivered train."""
         st = self.read_hash(keys.settings("chopper", "main"))
-        duty = float(st.get("duty", 0.4))
         src = self.read_hash(keys.settings("source", "main"))
         i_src = float(src.get("current_ma", 5.0))
         beam_on = bool(tr.get("beam_on", 1)) if isinstance(
@@ -179,11 +178,10 @@ class DiagSimService(Service):
         # bunch charge at 162.5 MHz from source current [nC/bunch]
         q_full = i_src * 1e-3 / 162.5e6 * 1e9
         n = self.WCM_N
-        # chopper pattern: keep floor(duty*P) of every P=10 buckets — the
-        # programmable Booster-injection pattern, simplified to its duty
-        P = 10
-        keep = max(0, min(P, round(duty * P)))
-        pat = (np.arange(n) % P) < keep
+        # the ACTUAL programmed pattern from the bunch pattern generator
+        from pip2va.common import bpg
+        bucket0 = pulse_id * self.WCM_N % 65536
+        pat = bpg.pattern_bits(st, n, bucket0)
         extinction = 10 ** self.rng.normal(-4.0, 0.15)   # chopped leakage
         jitter = self.rng.normal(1.0, 0.01, n)           # bunch-charge noise
         q_mebt = np.where(pat, q_full, q_full * extinction) * jitter
@@ -198,8 +196,25 @@ class DiagSimService(Service):
         sz = tr.get("wcm_sig_ps")
         sig_mebt = float(sz[0]) if sz is not None else 380.0
         sig_btl = float(sz[1]) if sz is not None and len(sz) > 1 else 28.0
+        # pattern verification: measured (WCM) vs programmed bits
+        meas = q_mebt > 0.5 * max(q_full, 1e-9)
+        mismatch = int(np.sum(meas != pat)) if beam_on else 0
+        self._bpg_bad = getattr(self, "_bpg_bad", 0)
+        self._bpg_bad = self._bpg_bad + 1 if mismatch else 0
+        self.r.hset("state:bpg", mapping={
+            "programmed_duty": round(float(np.mean(pat)), 4),
+            "measured_duty": round(float(np.mean(meas)), 4),
+            "mismatch_buckets": mismatch, "mode": st.get("mode", "duty")})
+        if self._bpg_bad == 60:      # ~3 s persistent: warn, don't trip
+            self.r.xadd(keys.stream("mps.events"),
+                        {"t": __import__("time").time(), "kind": "bpg",
+                         "detail": f"bunch-pattern mismatch: {mismatch} "
+                                   f"buckets differ from programmed "
+                                   f"pattern (chopper fault?)"},
+                        maxlen=500, approximate=True)
         self.publish_stream("wf.wcm", pulse_id, {
-            "bucket0": np.array([pulse_id * self.WCM_N % 65536]),
+            "bucket0": np.array([bucket0]),
+            "pat": pat.astype(np.float32),
             "MEBT:WCM1:q_nc": q_mebt.astype(np.float32),
             "MEBT:WCM1:sig_ps": np.array([sig_mebt], dtype=np.float32),
             "BTL:WCM1:q_nc": q_btl.astype(np.float32),

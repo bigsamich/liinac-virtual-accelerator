@@ -153,7 +153,8 @@ class RfSimService(Service):
         permit = self.r.get("state:mps.permit")
         beam_on = permit is None or permit in (b"1", "1")
         chop = self.read_hash(keys.settings("chopper", "main"))
-        duty = float(chop.get("duty",
+        from pip2va.common.bpg import avg_duty as _avg_duty
+        duty = _avg_duty(chop) if chop else float(chop.get("duty",
                               1.0 - self.lat.meta.get("chop_fraction", 0.6)))
         src = self.read_hash(keys.settings("source", "main"))
         i_ma = float(src.get("current_ma",
