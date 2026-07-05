@@ -121,6 +121,14 @@ class Linac3D(QWidget):
             b.setFixedWidth(44)
             b.clicked.connect(lambda _, n=nm: self._preset(n))
             bar.addWidget(b)
+        if section is None:
+            from PyQt6.QtWidgets import QComboBox
+            bar.addWidget(QLabel(" zoom:"))
+            self.sel_zoom = QComboBox()
+            self.sel_zoom.addItem("full machine")
+            self.sel_zoom.addItems([s.name for s in lat.sections])
+            self.sel_zoom.currentTextChanged.connect(self._zoom_section)
+            bar.addWidget(self.sel_zoom)
         self.lbl_hover = QLabel("hover for nearby BPM/BLM/BCM; "
                                 "triple-click moves the zoom center")
         self.lbl_hover.setStyleSheet(
@@ -288,6 +296,24 @@ class Linac3D(QWidget):
         self._clicks: list[float] = []
 
     # -------------------------------------------------------------- camera
+
+    def _zoom_section(self, name):
+        from PyQt6.QtGui import QVector3D
+        if name == "full machine":
+            self.view.opts["center"] = self._home[0]
+            self.view.setCameraPosition(distance=self._home[1])
+            self.view.update()
+            return
+        ks = [k for k, e in enumerate(self.lat.elements)
+              if e.section == name]
+        if not ks:
+            return
+        cs = self.centers[ks]
+        self.view.opts["center"] = QVector3D(
+            float(cs[:, 0].mean()), float(cs[:, 1].mean()), 0.0)
+        span = float(np.ptp(cs[:, 0])) + float(np.ptp(cs[:, 1]))
+        self.view.setCameraPosition(distance=max(10.0, span * 0.7))
+        self.view.update()
 
     def _preset(self, nm):
         d = self.view.opts["distance"]
