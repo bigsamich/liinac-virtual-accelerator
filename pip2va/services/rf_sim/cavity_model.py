@@ -115,6 +115,7 @@ class CavityModel:
         self.ring_ph = rng.uniform(0, 2 * np.pi, (len(MECH_MODES), n))
         self._e2_prev = np.zeros(n)
         self.ext_det = np.zeros(n)                   # injected detune faults [Hz]
+        self.ff_frac = np.ones(n)                    # feedforward scale 0..1
         self.q0_fac = np.ones(n)                     # 1 normal, >>1 quenched
         self.quenched = np.zeros(n, dtype=bool)
         self.t = 0.0
@@ -241,7 +242,10 @@ class CavityModel:
             err = v_ref - self.Vc
             err_hist.append(err)
             e_d = err_hist.pop(0)
-            vff = vfor_beam if beam_gate else vfor_nobeam
+            if beam_gate:
+                vff = vfor_nobeam + self.ff_frac * (vfor_beam - vfor_nobeam)
+            else:
+                vff = vfor_nobeam
             vfor = vff + 0.5 * (self.gp * e_d + self.ki * self.int_err)
             # SSA saturation (with integrator anti-windup) + trips = RF off
             mag = np.abs(vfor)

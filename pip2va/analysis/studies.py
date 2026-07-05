@@ -32,7 +32,7 @@ from . import knowledge as _kb
 from . import llm
 
 VALID_FIELDS = {
-    "rf": {"phase", "amp"},
+    "rf": {"phase", "amp", "ff"},
     "magnet": {"current", "current_x", "current_y"},
     "source": {"current_ma"},
     "chopper": {"duty"},
@@ -147,7 +147,9 @@ def validate_plan(plan: dict) -> tuple[dict, str]:
         lo, hi = -1e9, 1e9
         if cls == "rf":
             el = lat.by_name(dev)   # raises if unknown
-            if fld == "amp":
+            if fld == "ff":
+                lo, hi = 0.0, 1.0
+            elif fld == "amp":
                 lo, hi = 0.0, el.params.get(
                     "quench_mv",
                     1.3 * el.params.get("v_mv",

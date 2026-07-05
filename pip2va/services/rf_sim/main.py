@@ -83,6 +83,8 @@ class RfSimService(Service):
                 continue
             st = self.read_hash(skey)
             self.v_set[j] = max(0.0, float(st.get("amp", self.v_set[j])))
+            self.model.ff_frac[j] = float(np.clip(
+                float(st.get("ff", self.model.ff_frac[j])), 0.0, 1.0))
             ph = float(st.get("phase", self.phi_set[j]))
             self.phi_set[j] = (ph + 180.0) % 360.0 - 180.0
             if st.get("reset") and self.tripped[j]:

@@ -283,6 +283,10 @@ class AutotuneService(Service):
                         * 100.0, 4)
                     cap["wf_amp_ripple_pct"] = round(
                         float(np.ptp(a[30:180])) / max(flat, 1e-9) * 100.0, 4)
+                ph = wd.get(f"{wf_dev}:phase")
+                if ph is not None and len(ph) > 20:
+                    cap["wf_phase_dip_deg"] = round(
+                        float(np.max(np.abs(ph[:80] - np.median(ph[100:180])))), 4)
                 if fw is not None and len(fw) > 20:
                     cap["wf_fwd_step_x"] = round(
                         float(np.max(fw)) / max(float(np.min(fw[:5])), 1e-9), 3)
