@@ -410,8 +410,8 @@ class DiagSimService(Service):
                 "stations": cy["results"]}))
             self.r.hset(keys.settings("profilers", "main"), "cycle", 0)
             self.r.hset("state:profilers", mapping={
-                "status": f"cycle complete: {len(cy['results'])} laser "
-                          f"stations + {len(self.wss)} wires", "cycle": 0})
+                "status": f"cycle complete: {len(self.lws)} lasers + "
+                          f"{len(self.wss)} wires", "cycle": 0})
             self._cycle = None
 
     def _deep_profile(self, name: str):
