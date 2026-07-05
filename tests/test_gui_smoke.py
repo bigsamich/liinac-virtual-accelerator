@@ -48,11 +48,11 @@ def test_main_window_constructs_and_navigates(qtbot, r):
     win = MainWindow(hub)
     qtbot.addWidget(win)
     # 9 registered pages; section views open from the dashboard strip
-    assert win.nav.count() == 15
+    assert len(win._nav_items) == 15
     win.goto_section("SSR2")
     assert win.stack.currentWidget() is win._section_pages["SSR2"]
-    for i in range(win.nav.count()):
-        win.nav.setCurrentRow(i)
+    for it in win._nav_items.values():
+        win.nav.setCurrentItem(it)
         assert win.stack.currentWidget() is not None
 
 
@@ -62,8 +62,8 @@ def test_pages_consume_synthetic_signals(qtbot, r):
     win = MainWindow(hub)
     qtbot.addWidget(win)
     lat = load_lattice()
-    for i in range(win.nav.count()):        # build all pages
-        win.nav.setCurrentRow(i)
+    for it in win._nav_items.values():      # build all pages
+        win.nav.setCurrentItem(it)
 
     nbpm = len(lat.instruments("bpm"))
     nblm = len(lat.instruments("blm"))

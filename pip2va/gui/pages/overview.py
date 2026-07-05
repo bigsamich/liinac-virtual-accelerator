@@ -103,6 +103,7 @@ class OverviewPage(Page):
         self._gate = 0
         self.pulse_ms = lat.meta.get("beam_ms", 0.54)
         self.hub.beamState.connect(self._on_state)
+        self.hub.deep.connect(self._on_deep3d)
         self.hub.losses.connect(self._on_losses)
         self.hub.toroids.connect(self._on_toroids)
         self.hub.orbit.connect(self._on_orbit)
@@ -135,6 +136,22 @@ class OverviewPage(Page):
         self.p_orbit.update_y(x_mm, y_mm)
         self.view3d.update_orbit(x_mm, y_mm)
 
+    def _on_deep3d(self, _pid, data):
+        cloud = data.get("cloud")
+        if cloud is not None and self.isVisible():
+            st = self.hub.r.hget("settings:wf3d:main", "station")
+            if st:
+                self.view3d.update_cloud(cloud, st.decode())
+
+    def _envelope3d(self):
+        blob = self.hub.r.hget("truth:beam", "d")
+        if blob is None:
+            return
+        from pip2va.common import codec
+        _, tr = codec.unpack(blob)
+        self.view3d.update_envelope(tr["cx"], tr["cy"],
+                                    tr["sig_x"], tr["sig_y"])
+
     def _on_losses(self, _pid, data):
         if not self.isVisible():
             return
@@ -145,6 +162,8 @@ class OverviewPage(Page):
             self.loss_bars.setOpts(width=np.maximum(w, 0.0))
             self.p_loss.pw.setXRange(0, max(10.0, float(mx) * 1.15))
             self.view3d.update_losses(w)
+        if self._gate % 24 == 0:
+            self._envelope3d()
 
     def _on_toroids(self, _pid, data):
         if not self.isVisible():

@@ -6,8 +6,9 @@ import sys
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (QApplication, QCheckBox, QFrame, QHBoxLayout,
-                             QLabel, QListWidget, QMainWindow, QPushButton,
-                             QStackedWidget, QStatusBar, QVBoxLayout, QWidget)
+                             QLabel, QMainWindow, QPushButton,
+                             QStackedWidget, QStatusBar, QTreeWidget,
+                             QTreeWidgetItem, QVBoxLayout, QWidget)
 
 from pip2va.common.config import Settings
 from pip2va.common.lattice import load_lattice
@@ -37,8 +38,10 @@ class MainWindow(QMainWindow):
         lay = QHBoxLayout()
         lay.setContentsMargins(0, 0, 0, 0)
         lay.setSpacing(0)
-        self.nav = QListWidget()
+        self.nav = QTreeWidget()
         self.nav.setFixedWidth(190)
+        self.nav.setHeaderHidden(True)
+        self.nav.setIndentation(12)
         self.stack = QStackedWidget()
         lay.addWidget(self.nav)
         right = QVBoxLayout()
@@ -56,12 +59,39 @@ class MainWindow(QMainWindow):
         self._section_cls = SectionPage
         self._section_pages: dict[str, QWidget] = {}
         self._built: dict[int, QWidget] = {}
-        for label, _ in self._page_classes:
-            self.nav.addItem(label)
+        GROUPS = [
+            ("Overview", ["Dashboard"]),
+            ("Instrumentation", ["Orbit", "Losses", "Profiles",
+                                 "Waveforms", "Strip Tool"]),
+            ("RF & Magnets", ["RF", "Magnets", "Source & LEBT"]),
+            ("Operations", ["Studies", "Training", "Snapshots", "MPS"]),
+            ("Machine", ["Physics", "Utilities"]),
+        ]
+        row_of = {lbl: i for i, (lbl, _) in enumerate(self._page_classes)}
+        self._nav_items: dict[str, QTreeWidgetItem] = {}
+        placed = set()
+        from PyQt6.QtCore import Qt as _Qt
+        def add_leaf(parent, label):
+            it = QTreeWidgetItem(parent, [label])
+            it.setData(0, _Qt.ItemDataRole.UserRole, row_of[label])
+            self._nav_items[label] = it
+            placed.add(label)
+        for gname, members in GROUPS:
+            present = [m for m in members if m in row_of]
+            if not present:
+                continue
+            g = QTreeWidgetItem(self.nav, [gname])
+            g.setFlags(g.flags() & ~_Qt.ItemFlag.ItemIsSelectable)
+            f = g.font(0); f.setBold(True); g.setFont(0, f)
+            for m in present:
+                add_leaf(g, m)
+        rest = [lbl for lbl, _ in self._page_classes if lbl not in placed]
+        for m in rest:
+            add_leaf(self.nav, m)
+        self.nav.expandAll()
         if not self._page_classes:
-            self.nav.addItem("Welcome")
             self.stack.addWidget(QLabel("No pages registered"))
-        self.nav.currentRowChanged.connect(self._show_page)
+        self.nav.currentItemChanged.connect(self._nav_changed)
 
         # status bar
         sb = QStatusBar()
@@ -84,7 +114,7 @@ class MainWindow(QMainWindow):
         hub.beamState.connect(self._on_state)
 
         if self._page_classes:
-            self.nav.setCurrentRow(0)
+            self.nav.setCurrentItem(self._nav_items["Dashboard"])
 
     def _build_banner(self) -> QWidget:
         """Always-visible permit strip: state, reset, rescue, autotune."""
@@ -113,6 +143,14 @@ class MainWindow(QMainWindow):
         lay.addWidget(self.btn_permit)
         return bar
 
+    def _nav_changed(self, item, _prev):
+        if item is None:
+            return
+        from PyQt6.QtCore import Qt as _Qt
+        row = item.data(0, _Qt.ItemDataRole.UserRole)
+        if row is not None:
+            self._show_page(int(row))
+
     def _show_page(self, row: int):
         if row < 0 or not self._page_classes:
             return
@@ -124,10 +162,9 @@ class MainWindow(QMainWindow):
         self.stack.setCurrentWidget(self._built[row])
 
     def goto(self, label: str):
-        for i, (lbl, _) in enumerate(self._page_classes):
-            if lbl == label:
-                self.nav.setCurrentRow(i)
-                return
+        it = self._nav_items.get(label)
+        if it is not None:
+            self.nav.setCurrentItem(it)
 
     def goto_section(self, name: str):
         """Open a section view in place (not in the nav list)."""
@@ -138,7 +175,7 @@ class MainWindow(QMainWindow):
             self._section_pages[name] = w
             self.stack.addWidget(w)
         self.nav.clearSelection()
-        self.nav.setCurrentRow(-1)
+        self.nav.setCurrentItem(None)
         self.stack.setCurrentWidget(self._section_pages[name])
 
     def _on_state(self, st: dict):

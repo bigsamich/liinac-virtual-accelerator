@@ -187,6 +187,30 @@ class Linac3D(QWidget):
             mode="lines", antialias=True)
         self.view.addItem(self.loss_spikes)
 
+        # live 3D beam: 2-sigma envelope tube + macroparticle cloud
+        self._env_rings = [k for k, e in enumerate(lat.elements)
+                           if sel(e) and e.length > 0][::3]
+        nr, nv = len(self._env_rings), 10
+        self._env_phi = np.linspace(0, 2 * np.pi, nv, endpoint=False)
+        F = []
+        for i in range(nr - 1):
+            for j in range(nv):
+                a, b = i * nv + j, i * nv + (j + 1) % nv
+                c, d = a + nv, (i + 1) * nv + (j + 1) % nv
+                F += [[a, c, d], [a, d, b]]
+        self._env_faces = np.array(F)
+        self.env_mesh = gl.GLMeshItem(
+            meshdata=gl.MeshData(
+                vertexes=np.zeros((nr * nv, 3)), faces=self._env_faces),
+            color=(0.15, 0.9, 0.55, 0.22), shader="shaded", smooth=True,
+            glOptions="additive", computeNormals=True)
+        self.view.addItem(self.env_mesh)
+        self.cloud = gl.GLScatterPlotItem(
+            pos=np.zeros((1, 3)), color=(0.4, 0.9, 1.0, 0.35), size=2.0,
+            pxMode=True)
+        self.view.addItem(self.cloud)
+        self._el_index = {e.name: k for k, e in enumerate(lat.elements)}
+
         # floating live-value labels over elements (section views)
         self.labels = {}
         if values:
@@ -264,6 +288,52 @@ class Linac3D(QWidget):
                 if lb is not None:
                     lb.setData(text=f"{self.blms[k].name.split(':')[1]} "
                                     f"{w[k]:.1f}W/m")
+
+    def update_envelope(self, cx, cy, sx, sy):
+        """Full-machine per-element centroid+sigma arrays [m] -> 2-sigma
+        tube, exaggerated by ORBIT_EXAG (m display per mm real)."""
+        if self.view is None or not self.isVisible():
+            return
+        ex = ORBIT_EXAG * 1e3          # m -> display m
+        ph = self._env_phi
+        V = np.empty((len(self._env_rings) * len(ph), 3))
+        for i, k in enumerate(self._env_rings):
+            c = self.centers[k]
+            n = np.array([-math.sin(self.headings[k]),
+                          math.cos(self.headings[k])])
+            r_t = (cx[k] + 2 * sx[k] * np.cos(ph)) * ex
+            r_v = (cy[k] + 2 * sy[k] * np.sin(ph)) * ex
+            V[i * len(ph):(i + 1) * len(ph), 0] = c[0] + n[0] * r_t
+            V[i * len(ph):(i + 1) * len(ph), 1] = c[1] + n[1] * r_t
+            V[i * len(ph):(i + 1) * len(ph), 2] = r_v
+        self.env_mesh.setMeshData(meshdata=self.gl.MeshData(
+            vertexes=V, faces=self._env_faces))
+
+    def update_cloud(self, cloud, station_name, max_pts=8000):
+        """Macroparticle cloud (3,N) in metres at a station: drawn at the
+        station's floor position, transverse exaggerated like the orbit."""
+        if self.view is None or not self.isVisible() or cloud is None:
+            return
+        k = self._el_index.get(station_name)
+        if k is None:
+            return
+        c = np.asarray(cloud)
+        if c.shape[0] != 3:
+            c = c.T
+        n = c.shape[1]
+        if n > max_pts:
+            c = c[:, :: max(1, n // max_pts)]
+        ex = ORBIT_EXAG * 1e3
+        th = self.headings[k]
+        d = np.array([math.cos(th), math.sin(th)])
+        nn = np.array([-math.sin(th), math.cos(th)])
+        base = self.centers[k]
+        along = c[2] * 4.0                 # z: metres, x4 to show the bunch
+        P = np.empty((c.shape[1], 3))
+        P[:, 0] = base[0] + d[0] * along + nn[0] * c[0] * ex
+        P[:, 1] = base[1] + d[1] * along + nn[1] * c[0] * ex
+        P[:, 2] = c[1] * ex
+        self.cloud.setData(pos=P)
 
     def update_values(self, mapping):
         """Set floating label text for named elements: {name: text}."""
