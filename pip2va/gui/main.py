@@ -42,10 +42,10 @@ class MainWindow(QMainWindow):
         self.stack = QStackedWidget()
         lay.addWidget(self.nav)
         lay.addWidget(self.stack, 1)
+        outer.addLayout(lay, 1)
         from .askpanel import AskPanel
         self.ask_panel = AskPanel(self.hub)
-        lay.addWidget(self.ask_panel)
-        outer.addLayout(lay, 1)
+        outer.addWidget(self.ask_panel)
         self.setCentralWidget(central)
 
         self._page_classes = list(pages.items())
