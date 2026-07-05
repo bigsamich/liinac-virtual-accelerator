@@ -45,8 +45,15 @@ def _base_bits(st: dict, n: int, offset: int) -> np.ndarray:
     return (idx % 10) < keep10
 
 
+def programmed_bits(st: dict, n: int, offset: int = 0) -> np.ndarray:
+    """The OPERATOR-PROGRAMMED pattern (no hardware faults) — the
+    verification reference."""
+    return _base_bits(st, n, offset)
+
+
 def pattern_bits(st: dict, n: int, offset: int = 0) -> np.ndarray:
-    """Programmed keep/chop bits for n buckets starting at `offset`."""
+    """The pattern the chopper ACTUALLY delivers (programmed + any
+    hardware fault such as a stuck bucket)."""
     bits = _base_bits(st, n, offset)
     stuck = int(float(st.get("stuck_bucket", -1)))
     if stuck >= 0:

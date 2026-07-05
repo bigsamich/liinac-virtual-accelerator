@@ -181,7 +181,8 @@ class DiagSimService(Service):
         # the ACTUAL programmed pattern from the bunch pattern generator
         from pip2va.common import bpg
         bucket0 = pulse_id * self.WCM_N % 65536
-        pat = bpg.pattern_bits(st, n, bucket0)
+        pat = bpg.pattern_bits(st, n, bucket0)          # delivered
+        pat_prog = bpg.programmed_bits(st, n, bucket0)   # reference
         extinction = 10 ** self.rng.normal(-4.0, 0.15)   # chopped leakage
         jitter = self.rng.normal(1.0, 0.01, n)           # bunch-charge noise
         q_mebt = np.where(pat, q_full, q_full * extinction) * jitter
@@ -198,11 +199,11 @@ class DiagSimService(Service):
         sig_btl = float(sz[1]) if sz is not None and len(sz) > 1 else 28.0
         # pattern verification: measured (WCM) vs programmed bits
         meas = q_mebt > 0.5 * max(q_full, 1e-9)
-        mismatch = int(np.sum(meas != pat)) if beam_on else 0
+        mismatch = int(np.sum(meas != pat_prog)) if beam_on else 0
         self._bpg_bad = getattr(self, "_bpg_bad", 0)
         self._bpg_bad = self._bpg_bad + 1 if mismatch else 0
         self.r.hset("state:bpg", mapping={
-            "programmed_duty": round(float(np.mean(pat)), 4),
+            "programmed_duty": round(float(np.mean(pat_prog)), 4),
             "measured_duty": round(float(np.mean(meas)), 4),
             "mismatch_buckets": mismatch, "mode": st.get("mode", "duty")})
         if self._bpg_bad == 60:      # ~3 s persistent: warn, don't trip
@@ -214,7 +215,7 @@ class DiagSimService(Service):
                         maxlen=500, approximate=True)
         self.publish_stream("wf.wcm", pulse_id, {
             "bucket0": np.array([bucket0]),
-            "pat": pat.astype(np.float32),
+            "pat": pat_prog.astype(np.float32),
             "MEBT:WCM1:q_nc": q_mebt.astype(np.float32),
             "MEBT:WCM1:sig_ps": np.array([sig_mebt], dtype=np.float32),
             "BTL:WCM1:q_nc": q_btl.astype(np.float32),
