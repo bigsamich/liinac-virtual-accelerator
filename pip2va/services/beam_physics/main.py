@@ -13,6 +13,8 @@ import logging
 import threading
 import time
 
+import numpy as np
+
 from pip2va.common import codec, keys
 from pip2va.common.lattice import load_errors
 from pip2va.physics.envelope import EnvelopeEngine
@@ -119,6 +121,11 @@ class BeamPhysicsService(Service):
                             maxlen=500, approximate=True)
         res = self.engine.run(ds, beam_on=beam_on, errant_kick_mrad=kick)
         self._latest = {"ds": ds, "beam_on": beam_on, "pulse_id": pulse_id}
+        if not hasattr(self, "_wcm_js"):
+            # RWCM locations: MEBT exit (post-chopper) and BTL entrance
+            s_arr = res.s
+            self._wcm_js = [int(np.argmin(np.abs(s_arr - 14.0))),
+                            int(np.argmin(np.abs(s_arr - 156.0)))]
 
         blob = codec.pack(pulse_id, {
             "s": res.s, "w": res.w, "cx": res.cx, "cy": res.cy,
@@ -129,6 +136,8 @@ class BeamPhysicsService(Service):
             "bpm_phase": res.bpm_phase, "bpm_sum": res.bpm_sum,
             "blm_wpm": res.blm_wpm, "toroid_i": res.toroid_i,
             "bpm_w": res.bpm_w,
+            "beam_on": np.array([1.0 if beam_on else 0.0]),
+            "wcm_sig_ps": self._wcm_sig_ps(res),
         })
         lag_ms = (time.perf_counter() - t0) * 1e3
         pipe = self.r.pipeline(transaction=False)
@@ -147,6 +156,14 @@ class BeamPhysicsService(Service):
             log.warning("envelope pass lag %.1f ms", lag_ms)
 
     # ------------------------------------------------------------ deep pass
+
+    def _wcm_sig_ps(self, res):
+        out = []
+        for j in self._wcm_js:
+            gam = 1.0 + res.w[j] / 939.294
+            bet = float(np.sqrt(max(1 - 1 / gam ** 2, 1e-9)))
+            out.append(res.sig_z[j] / (bet * 3e8) * 1e12)
+        return np.array(out, dtype=np.float32)
 
     def _macro_loop(self):
         tracker = MacroTracker(self.lat, n=self.settings.macro_particles,

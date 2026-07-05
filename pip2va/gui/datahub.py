@@ -21,6 +21,7 @@ STREAM_SIGNALS = {
     "toroid.current": "toroids",
     "rf.cavity": "rf",
     "magnet.readback": "magnets",
+    "wf.wcm": "wcm",
     "beam.deep": "deep",
     "profile.scan": "scan",
     "wf.toroid": "wfToroid",
@@ -35,6 +36,7 @@ class DataHub(QThread):
     toroids = pyqtSignal(int, object)
     rf = pyqtSignal(int, object)
     magnets = pyqtSignal(int, object)
+    wcm = pyqtSignal(int, object)
     deep = pyqtSignal(int, object)
     scan = pyqtSignal(int, object)
     wfToroid = pyqtSignal(int, object)

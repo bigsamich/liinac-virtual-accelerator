@@ -20,6 +20,9 @@ class TimingService(Service):
         super().__init__(redis_client=redis_client, settings=settings)
         self.tick_hz = tick_hz or self.settings.tick_hz
         self.pulse_id = 0
+        from .utilities import UtilityModel
+        self.util = UtilityModel()
+        self._util_next = 0.0
 
     def run(self):
         self._running = True
@@ -40,6 +43,15 @@ class TimingService(Service):
             self.r.xadd(keys.stream("timing.tick"),
                         {"d": json.dumps(payload)},
                         maxlen=self.settings.stream_maxlen, approximate=True)
+            if now >= self._util_next:
+                self._util_next = now + 1.0
+                st = self.read_hash(keys.settings("util", "main"))
+                p, lcw = self.util.step(
+                    1.0,
+                    lcw_offset=float(st.get("lcw_offset_c", 0.0)),
+                    cryo_offset=float(st.get("cryo_offset_mbar", 0.0)),
+                    cryo_cm=str(st.get("cryo_cm", "")))
+                self.r.set("state:util", self.util.pack(p, lcw))
             self.heartbeat()
 
 

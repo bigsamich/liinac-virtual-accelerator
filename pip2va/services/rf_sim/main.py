@@ -98,6 +98,27 @@ class RfSimService(Service):
 
     def _apply_faults(self):
         self.model.ext_det[:] = 0.0
+        # cryo 2 K bath pressure -> detuning via family df/dp [Hz/mbar
+        # class values; FAMILY table stores Hz/Torr, 1 Torr = 1.333 mbar]
+        util = self.r.get("state:util")
+        if util:
+            try:
+                u = json.loads(util)
+                pm = u.get("p_mbar", {})
+                self._lcw_c = float(u.get("lcw_c", 35.0))
+                from pip2va.services.timing.utilities import (CRYOMODULES,
+                                                              P_NOM_MBAR)
+                for nm, sec, (a, b) in CRYOMODULES:
+                    dp = pm.get(nm, P_NOM_MBAR) - P_NOM_MBAR
+                    if abs(dp) < 1e-6:
+                        continue
+                    js = [j for j, c in enumerate(self.cavs)
+                          if c.section == sec][a:b]
+                    for j in js:
+                        self.model.ext_det[j] += \
+                            -(self.model.dfdp[j] / 1.333) * dp
+            except (ValueError, KeyError):
+                pass
         for k in self.r.scan_iter("fault:rf:*"):
             name = (k.decode() if isinstance(k, bytes) else k).split(":", 2)[-1]
             j = self._pos.get(name)
@@ -157,7 +178,9 @@ class RfSimService(Service):
         for j, el in enumerate(self.cavs):
             pipe.hset(keys.readback("rf", el.name), mapping={
                 "amp": float(amp[j]), "phase": float(phase[j]),
-                "detuning_hz": float(det[j]), "forward_pw": float(fwd[j]),
+                "detuning_hz": float(det[j]),
+                "forward_pw": float(fwd[j])
+                * (1.0 - 0.004 * (getattr(self, "_lcw_c", 35.0) - 35.0)),
                 "status": "tripped" if self.tripped[j] else "ok"})
         pipe.execute()
         # FN-like radiation signal: exponential in gradient above onset

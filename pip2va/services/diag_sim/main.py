@@ -72,6 +72,19 @@ class DiagSimService(Service):
         _, tr = codec.unpack(blob)
         rng = self.rng
         nb = len(self.bpms)
+        # LCW temperature -> rack electronics drift (research: ~2 deg phase
+        # per 6 C uncalibrated; active cal leaves 0.2 deg/6 C class). We
+        # model the calibrated residual + a small position-offset drift.
+        if pulse_id % 20 == 0 or not hasattr(self, "_lcw_dT"):
+            import json as _json
+            u = self.r.get("state:util")
+            try:
+                self._lcw_dT = float(
+                    _json.loads(u).get("lcw_c", 35.0)) - 35.0 if u else 0.0
+            except ValueError:
+                self._lcw_dT = 0.0
+        lcw_phase_deg = 0.033 * self._lcw_dT      # residual after cal
+        lcw_pos_m = 2.0e-6 * self._lcw_dT          # 2 um/C common-mode
 
         # BPMs: position noise grows as charge drops toward the noise floor
         q = np.maximum(tr["bpm_sum"], 1e-4)
@@ -83,11 +96,11 @@ class DiagSimService(Service):
         # electrical offset + scale systematics; a BPM cannot report a
         # position beyond its own bore
         ap = np.array([b.aperture_radius for b in self.bpms])
-        x = np.clip((tr["bpm_x"] + self._bpm_off_x) * self._bpm_scale
-                    + rng.normal(0, pos_sig), -ap, ap)
-        y = np.clip((tr["bpm_y"] + self._bpm_off_y) * self._bpm_scale
-                    + rng.normal(0, pos_sig), -ap, ap)
-        ph = tr["bpm_phase"] + rng.normal(0, ph_sig)
+        x = np.clip((tr["bpm_x"] + self._bpm_off_x + lcw_pos_m)
+                    * self._bpm_scale + rng.normal(0, pos_sig), -ap, ap)
+        y = np.clip((tr["bpm_y"] + self._bpm_off_y + lcw_pos_m)
+                    * self._bpm_scale + rng.normal(0, pos_sig), -ap, ap)
+        ph = tr["bpm_phase"] + lcw_phase_deg + rng.normal(0, ph_sig)
         i_noise = np.array([b.params.get("intensity_noise_frac", 0.01)
                             for b in self.bpms])
         ssum = np.maximum(tr["bpm_sum"] * (1 + rng.normal(0, i_noise))
@@ -103,8 +116,11 @@ class DiagSimService(Service):
             dphi = np.radians(ph_sig)
             rel = gam * (gam + 1) * dphi * bet * 3e8 / (
                 2 * np.pi * 162.5e6 * L)
+            sys_rel = gam * (gam + 1) * np.radians(lcw_phase_deg) \
+                * bet * 3e8 / (2 * np.pi * 162.5e6 * L)
             w_tof = np.maximum(
-                w_true * (1 + rng.normal(0, np.minimum(rel, 0.05))), 0.0)
+                w_true * (1 + sys_rel
+                          + rng.normal(0, np.minimum(rel, 0.05))), 0.0)
         else:
             w_tof = np.zeros(nb)
         self.publish_stream("bpm.orbit", pulse_id,
@@ -135,7 +151,53 @@ class DiagSimService(Service):
         self.publish_stream("toroid.current", pulse_id, {"i_ma": i_ma})
 
         self._waveforms(pulse_id, tr, i_ma, wpm)
+        self._wcm(pulse_id, tr)
         self._wire_scans(pulse_id)
+
+    # ------------------------------------------------- wall current monitors
+
+    WCM_N = 160          # bunches per published snapshot window
+
+    def _wcm(self, pulse_id: int, tr: dict):
+        """Resistive WCMs (PIP2IT style, flat to ~4 GHz): bunch-by-bunch
+        charge for a rotating window of 160 consecutive 162.5 MHz buckets.
+        MEBT:WCM1 sits after the chopper (sees the kept/chopped pattern and
+        1e-4-level extinction of removed bunches); LEBT-side structure is
+        unchopped so BTL:WCM1 shows the delivered train."""
+        st = self.read_hash(keys.settings("chopper", "main"))
+        duty = float(st.get("duty", 0.4))
+        src = self.read_hash(keys.settings("source", "main"))
+        i_src = float(src.get("current_ma", 5.0))
+        beam_on = bool(tr.get("beam_on", 1)) if isinstance(
+            tr.get("beam_on", 1), (int, float)) else True
+        # bunch charge at 162.5 MHz from source current [nC/bunch]
+        q_full = i_src * 1e-3 / 162.5e6 * 1e9
+        n = self.WCM_N
+        # chopper pattern: keep floor(duty*P) of every P=10 buckets — the
+        # programmable Booster-injection pattern, simplified to its duty
+        P = 10
+        keep = max(0, min(P, round(duty * P)))
+        pat = (np.arange(n) % P) < keep
+        extinction = 10 ** self.rng.normal(-4.0, 0.15)   # chopped leakage
+        jitter = self.rng.normal(1.0, 0.01, n)           # bunch-charge noise
+        q_mebt = np.where(pat, q_full, q_full * extinction) * jitter
+        # transmission to the BTL applies to the kept bunches
+        t_end = float(tr.get("transmission", [1.0])[-1]) \
+            if hasattr(tr.get("transmission", 1.0), "__len__") else 1.0
+        q_btl = q_mebt * t_end * self.rng.normal(1.0, 0.008, n)
+        if not beam_on:
+            q_mebt = np.abs(self.rng.normal(0, 2e-5, n))
+            q_btl = np.abs(self.rng.normal(0, 2e-5, n))
+        # bunch length from truth sigma_z at each monitor [ps]
+        sz = tr.get("wcm_sig_ps")
+        sig_mebt = float(sz[0]) if sz is not None else 380.0
+        sig_btl = float(sz[1]) if sz is not None and len(sz) > 1 else 28.0
+        self.publish_stream("wf.wcm", pulse_id, {
+            "bucket0": np.array([pulse_id * self.WCM_N % 65536]),
+            "MEBT:WCM1:q_nc": q_mebt.astype(np.float32),
+            "MEBT:WCM1:sig_ps": np.array([sig_mebt], dtype=np.float32),
+            "BTL:WCM1:q_nc": q_btl.astype(np.float32),
+            "BTL:WCM1:sig_ps": np.array([sig_btl], dtype=np.float32)})
 
     # ----------------------------------------------------------- waveforms
 

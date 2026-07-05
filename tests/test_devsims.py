@@ -98,3 +98,19 @@ def test_fault_injection_trips_magnet(r):
     rb = svc.read_hash(keys.readback("magnet", q.name))
     assert rb["status"] == "tripped"
     assert rb["current"] == 0.0
+
+
+def test_utilities_model_and_couplings():
+    import json
+    import numpy as np
+    from pip2va.services.timing.utilities import (CRYOMODULES, P_NOM_MBAR,
+                                                  UtilityModel)
+    um = UtilityModel()
+    p, lcw = um.step(1.0)
+    assert len(p) == len(CRYOMODULES) and abs(lcw - 35.0) < 2.0
+    # injected cryo offset lands only on the chosen CM
+    p2, _ = um.step(1.0, cryo_offset=3.0, cryo_cm="CM-SSR2-3")
+    k = [c[0] for c in CRYOMODULES].index("CM-SSR2-3")
+    assert p2[k] - p[k] > 2.0
+    d = json.loads(UtilityModel.pack(p2, lcw))
+    assert "CM-HB650-3" in d["p_mbar"] and "lcw_c" in d
