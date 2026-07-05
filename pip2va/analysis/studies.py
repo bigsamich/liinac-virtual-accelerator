@@ -35,7 +35,8 @@ VALID_FIELDS = {
     "rf": {"phase", "amp", "ff"},
     "magnet": {"current", "current_x", "current_y"},
     "source": {"current_ma"},
-    "chopper": {"duty"},
+    "chopper": {"duty", "notch", "turn"},
+    "util": {"lcw_offset_c", "cryo_offset_mbar"},
 }
 
 PLAN_SYSTEM = """You are the beam-studies planner for a PIP-II 800 MeV H-
@@ -154,6 +155,12 @@ def validate_plan(plan: dict) -> tuple[dict, str]:
             el = lat.by_name(dev)   # raises if unknown
             if fld == "ff":
                 lo, hi = 0.0, 1.0
+            elif cls == "util":
+                lo, hi = -5.0, 8.0
+            elif fld == "notch":
+                lo, hi = 0.0, 200.0
+            elif fld == "turn":
+                lo, hi = 40.0, 1024.0
             elif fld == "amp":
                 lo, hi = 0.0, el.params.get(
                     "quench_mv",

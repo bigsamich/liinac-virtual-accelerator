@@ -109,6 +109,14 @@ class AutotuneService(Service):
             if plan.get("capture_rf_wf"):
                 self.r.hset(keys.settings("wfsel", "main"), "rf",
                             plan["capture_rf_wf"])
+            pre_orig = []
+            for key, fields in (plan.get("pre") or {}).items():
+                for f, v in fields.items():
+                    old = self.r.hget(key, f)
+                    pre_orig.append((key, f, old))
+                    self.r.hset(key, f, v)
+                    self.r.publish(keys.CH_SETTINGS,
+                                   json.dumps({"key": key}))
             originals = []
             for sw in plan["sweeps"]:
                 skey = keys.settings(sw["cls"], sw["device"])
@@ -117,7 +125,8 @@ class AutotuneService(Service):
             at_on = self.read_hash(
                 keys.settings("autotune", "main")).get("enable") in (1, "1")
             plan.setdefault("autotune", bool(plan.get("autotune", False)))
-            self._study = {"plan": plan, "orig": originals, "k": -1,
+            self._study = {"plan": plan, "orig": originals,
+                           "pre_orig": pre_orig, "k": -1,
                            "dwell_left": 0, "steps": [], "grace": 15,
                            "settle": 4,
                            "at_meta": {"autotune_flag_at_start": at_on,
@@ -306,6 +315,12 @@ class AutotuneService(Service):
                                  for v in np.mean(xs, axis=0)]
             cap["orbit_y_mm"] = [round(float(v) * 1e3, 4)
                                  for v in np.mean(ys, axis=0)]
+        det_rms = 0.0
+        e_rf = self.r.xrevrange(keys.stream("rf.cavity"), count=1)
+        if e_rf:
+            _, rfd = codec.unpack(e_rf[0][1][b"d"])
+            det_rms = float(np.sqrt(np.mean(
+                rfd["detuning_hz"] ** 2)))
         emit_x = emit_y = 0.0
         e = self.r.xrevrange(keys.stream("beam.deep"), count=1)
         if e:
@@ -313,7 +328,7 @@ class AutotuneService(Service):
             if len(dd.get("emit_x_um", [])):
                 emit_x = float(dd["emit_x_um"][-1])
                 emit_y = float(dd["emit_y_um"][-1])
-        return {"step": k + 1, **cap,
+        return {"step": k + 1, **cap, "rf_det_rms_hz": round(det_rms, 2),
                 "emit_x_um": emit_x, "emit_y_um": emit_y,
                 "set_values": [float(v) for v in
                                self._study.get("values",
