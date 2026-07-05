@@ -370,6 +370,18 @@ class Linac3D(QWidget):
                     p = self._unproject(ev.position().x(),
                                         ev.position().y())
                     if p is not None:
+                        # snap to the nearest element so the element itself
+                        # becomes the zoom center
+                        if len(self._hover_pos):
+                            d2 = ((self._hover_pos[:, 0] - p[0]) ** 2
+                                  + (self._hover_pos[:, 1] - p[1]) ** 2)
+                            j = int(np.argmin(d2))
+                            if d2[j] < 100.0:      # within 10 m: snap
+                                e = self._hover_els[j]
+                                p = (*self._hover_pos[j], 0.0)
+                                self.lbl_hover.setText(
+                                    f"centered on {e.name}   |   "
+                                    + self._vals.get(e.name, ""))
                         from PyQt6.QtGui import QVector3D
                         self.view.opts["center"] = QVector3D(
                             float(p[0]), float(p[1]), 0.0)
