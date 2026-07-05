@@ -41,11 +41,15 @@ class MainWindow(QMainWindow):
         self.nav.setFixedWidth(190)
         self.stack = QStackedWidget()
         lay.addWidget(self.nav)
-        lay.addWidget(self.stack, 1)
-        outer.addLayout(lay, 1)
+        right = QVBoxLayout()
+        right.setContentsMargins(0, 0, 0, 0)
+        right.setSpacing(0)
+        right.addWidget(self.stack, 1)
         from .askpanel import AskPanel
         self.ask_panel = AskPanel(self.hub)
-        outer.addWidget(self.ask_panel)
+        right.addWidget(self.ask_panel)
+        lay.addLayout(right, 1)
+        outer.addLayout(lay, 1)
         self.setCentralWidget(central)
 
         self._page_classes = list(pages.items())
