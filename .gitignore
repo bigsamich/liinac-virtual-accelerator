@@ -6,3 +6,9 @@ __pycache__/
 build/
 dist/
 .coverage
+scripts/distill/out/
+scripts/distill/merged/
+scripts/distill/*.gguf
+scripts/distill/dataset.jsonl
+scripts/distill/*.log
+.venv-train/

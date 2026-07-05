@@ -9,12 +9,21 @@ SYS = ("You are the operations expert for the PIP-II 800 MeV H- linac "
        "virtual accelerator. Answer from the machine's measured findings: "
        "be specific about devices, tolerances, trip points and procedures.")
 
+import sys
+sys.path.insert(0, "scripts/distill")
+from pip2_facts import FACTS
+
 rows = []
 def add(q, a):
     rows.append({"messages": [
         {"role": "system", "content": SYS},
         {"role": "user", "content": q},
         {"role": "assistant", "content": a}]})
+
+for q, a in FACTS:
+    add(q, a)
+    add(q.replace("What is", "Tell me about").replace(
+        "What are", "Describe").replace("How does", "Explain how"), a)
 
 kb = [json.loads(l) for l in
       (D / "knowledge.jsonl").read_text().splitlines() if l.strip()]

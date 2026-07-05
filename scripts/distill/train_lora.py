@@ -14,9 +14,12 @@ def fmt(r):
     return {"text": text}
 ds = Dataset.from_list([fmt(r) for r in rows])
 def tok_fn(b):
-    out = tok(b["text"], truncation=True, max_length=1024,
+    out = tok(b["text"], truncation=True, max_length=512,
               padding="max_length")
-    out["labels"] = out["input_ids"].copy()
+    # mask padding out of the loss — otherwise pads dominate 10:1
+    pad = tok.pad_token_id
+    out["labels"] = [[t if t != pad else -100 for t in seq]
+                     for seq in out["input_ids"]]
     return out
 ds = ds.map(tok_fn, batched=True, remove_columns=["text"])
 model = AutoModelForCausalLM.from_pretrained(
@@ -27,7 +30,7 @@ model = get_peft_model(model, LoraConfig(
                     "gate_proj", "up_proj", "down_proj"]))
 model.print_trainable_parameters()
 Trainer(model=model, train_dataset=ds, args=TrainingArguments(
-    output_dir="scripts/distill/out", num_train_epochs=3,
+    output_dir="scripts/distill/out", num_train_epochs=4,
     per_device_train_batch_size=2, gradient_accumulation_steps=8,
     learning_rate=1e-4, bf16=True, logging_steps=10,
     save_strategy="no", report_to=[])).train()
