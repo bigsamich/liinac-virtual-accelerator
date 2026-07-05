@@ -14,7 +14,24 @@ import urllib.request
 from . import root_cause
 
 OLLAMA_URL = os.environ.get("PIP2VA_OLLAMA_URL", "http://localhost:11434")
-MODEL = os.environ.get("PIP2VA_LLM_MODEL", "qwen3.6:latest")
+def _pick_model():
+    forced = os.environ.get("PIP2VA_LLM_MODEL")
+    if forced:
+        return forced
+    try:
+        with urllib.request.urlopen(OLLAMA_URL + "/api/tags",
+                                    timeout=2) as r:
+            names = [m["name"] for m in json.loads(r.read())["models"]]
+        for cand in ("pip2va-expert-ft:latest", "pip2va-expert:latest"):
+            if cand in names:
+                return cand
+    except Exception:
+        pass
+    return "qwen3.6:latest"
+
+
+MODEL = _pick_model()
+BAKED = MODEL.startswith("pip2va")   # KB insights live in the model
 
 SYSTEM = """You are an expert accelerator operator and beam physicist on shift
 at the PIP-II 800 MeV H- superconducting linac (LEBT, RFQ 162.5 MHz to

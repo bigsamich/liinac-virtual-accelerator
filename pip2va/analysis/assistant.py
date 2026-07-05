@@ -82,15 +82,22 @@ def collect_context(r) -> dict:
 def ask(r, question: str, timeout: float = 240.0) -> tuple[str, str]:
     """Returns (answer, engine)."""
     ctx = collect_context(r)
-    findings = knowledge.context(question, n=10)
-    extra = "\n".join("- " + f.get("summary", "")
-                      for f in knowledge.load(400)
-                      if f.get("kind") == "insight")[-3000:]
-    user = (f"LIVE MACHINE SNAPSHOT:\n{json.dumps(ctx, indent=1)}\n\n"
-            f"MEASURED FINDINGS relevant to the question:\n"
-            f"{findings or '(none matched)'}\n\n"
-            f"DISTILLED OPERATIONAL INSIGHTS:\n{extra}\n\n"
-            f"OPERATOR QUESTION: {question}")
+    findings = knowledge.context(question, n=10 if not llm.BAKED else 5)
+    if llm.BAKED:
+        # KB insights are baked into the model: send live data only (RAG)
+        user = (f"LIVE MACHINE SNAPSHOT:\n{json.dumps(ctx, indent=1)}\n\n"
+                f"RECENT FINDINGS relevant to the question:\n"
+                f"{findings or '(none matched)'}\n\n"
+                f"OPERATOR QUESTION: {question}")
+    else:
+        extra = "\n".join("- " + f.get("summary", "")
+                          for f in knowledge.load(400)
+                          if f.get("kind") == "insight")[-3000:]
+        user = (f"LIVE MACHINE SNAPSHOT:\n{json.dumps(ctx, indent=1)}\n\n"
+                f"MEASURED FINDINGS relevant to the question:\n"
+                f"{findings or '(none matched)'}\n\n"
+                f"DISTILLED OPERATIONAL INSIGHTS:\n{extra}\n\n"
+                f"OPERATOR QUESTION: {question}")
     if not llm.available():
         lines = [f"[LLM offline — snapshot] permit {ctx['beam_permit']}"]
         if "beam" in ctx:
