@@ -6,6 +6,7 @@ Xvfb :1 -screen 0 1920x1080x24 &
 sleep 1
 x11vnc -display :1 -forever -shared -nopw -quiet -noxdamage &
 websockify --web /usr/share/novnc 6080 localhost:5900 &
+python -m pip2va.mobile &
 # restart the GUI if it ever exits; the display session persists
 while true; do
     pip2va-gui || true

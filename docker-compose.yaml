@@ -59,6 +59,7 @@ services:
       - "host.docker.internal:host-gateway"
     ports:
       - "6080:6080"
+      - "6081:6081"
     depends_on:
       redis:
         condition: service_healthy

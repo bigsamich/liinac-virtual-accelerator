@@ -13,9 +13,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 COPY pyproject.toml README.md ./
 COPY pip2va ./pip2va
-RUN pip install --no-cache-dir ".[gui]" PyOpenGL
+RUN pip install --no-cache-dir ".[gui]" PyOpenGL flask
 
 COPY docker/web-gui-entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
-EXPOSE 6080
+EXPOSE 6080 6081
 CMD ["/entrypoint.sh"]
