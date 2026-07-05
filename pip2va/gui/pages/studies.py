@@ -253,8 +253,7 @@ class StudiesPage(Page):
         self.btn_abort.clicked.connect(self._abort)
         self.btn_ai.clicked.connect(self._ai_report)
         self.lst.itemDoubleClicked.connect(
-            lambda it: (self._queue.pop(self.lst.row(it)),
-                        self.lst.takeItem(self.lst.row(it))))
+            lambda it: self._q_remove(self.lst.row(it)))
         self._timer = QTimer(self)
         self._timer.timeout.connect(self._poll)
         self._timer.start(1000)
@@ -357,12 +356,37 @@ class StudiesPage(Page):
             self.lbl_note.setText(f"✗ invalid plan: {e}")
             return None
 
+    QUEUE_KEY = "state:study.queue"
+
+    def _q_all(self):
+        return [json.loads(x) for x in self.hub.r.lrange(self.QUEUE_KEY, 0, -1)]
+
+    def _q_sync(self):
+        """Mirror the shared redis queue into the list widget."""
+        q = self._q_all()
+        labels = [f"{pl['name']}  ({pl['steps']}×{pl['dwell_s']:.1f}s)"
+                  for pl in q]
+        if labels != [self.lst.item(i).text() for i in range(self.lst.count())]:
+            self.lst.clear()
+            self.lst.addItems(labels)
+        self._queue = q
+
+    def _q_remove(self, row):
+        q = self._q_all()
+        if 0 <= row < len(q):
+            q.pop(row)
+            pipe = self.hub.r.pipeline()
+            pipe.delete(self.QUEUE_KEY)
+            for pl in q:
+                pipe.rpush(self.QUEUE_KEY, json.dumps(pl))
+            pipe.execute()
+        self._q_sync()
+
     def _enqueue(self):
         plan = self._current_plan()
         if plan:
-            self._queue.append(plan)
-            self.lst.addItem(f"{plan['name']}  ({plan['steps']}×"
-                             f"{plan['dwell_s']:.1f}s)")
+            self.hub.r.rpush(self.QUEUE_KEY, json.dumps(plan))
+            self._q_sync()
 
     def _save(self):
         plan = self._current_plan()
@@ -384,10 +408,13 @@ class StudiesPage(Page):
     # ------------------------------------------------------------- execution
 
     def _run_next(self):
-        if self._running or not self._queue:
+        if self._running:
             return
-        plan = self._queue.pop(0)
-        self.lst.takeItem(0)
+        raw = self.hub.r.lpop(self.QUEUE_KEY)
+        if raw is None:
+            return
+        plan = json.loads(raw)
+        self._q_sync()
         self._running = plan
         self.hub.r.hset("state:study", mapping={
             "plan": json.dumps(plan), "run": 1, "status": "starting",
@@ -408,9 +435,27 @@ class StudiesPage(Page):
               for k, v in self.hub.r.hgetall("state:study").items()}
         if not st:
             return
+        self._q_sync()
         total = int(float(st.get("total", 1) or 1))
         self.prog.setMaximum(total)
         self.prog.setValue(int(float(st.get("step", 0) or 0)))
+        # show whatever is running, even if launched outside this GUI
+        if st.get("run") == "1":
+            try:
+                nm = json.loads(st.get("plan", "{}")).get("name", "?")
+            except ValueError:
+                nm = "?"
+            who = "" if self._running else "  [external]"
+            self.lbl_run.setText(
+                f"running: {nm}{who} — {st.get('status','')}  "
+                f"step {st.get('step','0')}/{total}")
+        elif self._running is None and st.get("result"):
+            try:
+                nm = json.loads(st.get("plan", "{}")).get("name", "?")
+                res = json.loads(st["result"])
+                self.lbl_run.setText(f"last: {nm} — {res.get('status','')}")
+            except ValueError:
+                pass
         if self._running and st.get("run") != "1" and st.get("result"):
             result = json.loads(st["result"])
             plan = self._running
@@ -425,7 +470,7 @@ class StudiesPage(Page):
                 json.dumps({"plan": plan, "result": result}, indent=1))
             knowledge.append(knowledge.summarize_result(plan, result))
             self._hist_refresh()
-            if self.chk_auto.isChecked() and self._queue:
+            if self.chk_auto.isChecked():
                 self._run_next()
 
     def _ai_report(self):
