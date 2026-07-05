@@ -183,6 +183,17 @@ async function trends(){try{
  spark('cw',cut(d.w),'#4fc3f7');spark('ci',cut(d.i),'#ffd54f');
 }catch(e){}}
 setInterval(trends,2000);trends();
+async function studies(){try{
+ const d=await (await fetch('/api/studies')).json();
+ study_run.innerHTML=d.running?
+  '<span class="ok">&#9654; '+d.running.name+'</span> — '+d.running.status+
+  ' (step '+d.running.step+'/'+d.running.total+')':
+  '<span style="color:#8b96a5">no study running</span>';
+ study_q.textContent=d.queue.length?
+  ('queued:\\n'+d.queue.map((q,i)=>('  '+(i+1)+'. '+q)).join('\\n')):
+  'queue empty';
+}catch(e){study_run.textContent='studies api error';}}
+setInterval(studies,4000);studies();
 function tap(b){b.classList.add('tapped');
  setTimeout(()=>b.classList.remove('tapped'),350);}
 async function ask(){const q=document.getElementById('ask').value;if(!q)return;
