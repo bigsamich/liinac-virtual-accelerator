@@ -361,7 +361,8 @@ class Linac3D(QWidget):
         if obj is self.view:
             if ev.type() == QEvent.Type.MouseMove:
                 self._hover(ev.position().x(), ev.position().y())
-            elif ev.type() == QEvent.Type.MouseButtonPress:
+            elif ev.type() in (QEvent.Type.MouseButtonPress,
+                               QEvent.Type.MouseButtonDblClick):
                 now = time.monotonic()
                 self._clicks = [t for t in self._clicks if now - t < 0.6]
                 self._clicks.append(now)
