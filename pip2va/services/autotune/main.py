@@ -106,6 +106,9 @@ class AutotuneService(Service):
             except (TypeError, ValueError):
                 self.r.hset("state:study", "run", 0)
                 return
+            if plan.get("capture_rf_wf"):
+                self.r.hset(keys.settings("wfsel", "main"), "rf",
+                            plan["capture_rf_wf"])
             originals = []
             for sw in plan["sweeps"]:
                 skey = keys.settings(sw["cls"], sw["device"])
@@ -266,6 +269,23 @@ class AutotuneService(Service):
         orbit = float(np.sqrt(np.mean(np.concatenate(
             [np.mean(xs, axis=0), np.mean(ys, axis=0)]) ** 2)) * 1e3)             if xs else 0.0
         cap = {}
+        wf_dev = plan.get("capture_rf_wf")
+        if wf_dev:
+            e = self.r.xrevrange(keys.stream("wf.rf"), count=1)
+            if e:
+                _, wd = codec.unpack(e[0][1][b"d"])
+                a = wd.get(f"{wf_dev}:amp")
+                fw = wd.get(f"{wf_dev}:fwd_kw")
+                if a is not None and len(a) > 20:
+                    flat = float(np.mean(a[30:180]))
+                    cap["wf_amp_dip_pct"] = round(
+                        (flat - float(np.min(a[:60]))) / max(flat, 1e-9)
+                        * 100.0, 4)
+                    cap["wf_amp_ripple_pct"] = round(
+                        float(np.ptp(a[30:180])) / max(flat, 1e-9) * 100.0, 4)
+                if fw is not None and len(fw) > 20:
+                    cap["wf_fwd_step_x"] = round(
+                        float(np.max(fw)) / max(float(np.min(fw[:5])), 1e-9), 3)
         if plan.get("capture_orbit") and xs:
             cap["orbit_x_mm"] = [round(float(v) * 1e3, 4)
                                  for v in np.mean(xs, axis=0)]
