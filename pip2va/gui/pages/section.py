@@ -175,6 +175,9 @@ class SectionPage(Page):
             return
         self.loss_bars.setOpts(height=data["wpm"][self.blm_idx])
         self.view3d.update_losses(data["wpm"])
+        self._env_gate = getattr(self, "_env_gate", 0) + 1
+        if self._env_gate % 20 == 0:
+            self.view3d.pull_envelope(self.hub.r)
 
     def _on_rf(self, _pid, data):
         if not self.isVisible():

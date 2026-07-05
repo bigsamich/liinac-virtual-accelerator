@@ -72,32 +72,10 @@ class UtilitiesPage(Page):
         row.addWidget(self.p_cryo, 2)
         self.body.addLayout(row, 2)
 
-        # RWCM bunch-by-bunch
-        row2 = QHBoxLayout()
-        row2.addWidget(QLabel("<b>RWCM bunch-by-bunch</b> (162.5 MHz "
-                              "buckets — chopper pattern & extinction)"))
-        self.sel_wcm = QComboBox()
-        self.sel_wcm.addItems(["MEBT:WCM1", "BTL:WCM1"])
-        row2.addWidget(self.sel_wcm)
-        self.chk_log = QCheckBox("log scale (see 1e-4 extinction)")
-        row2.addWidget(self.chk_log)
-        self.lbl_sig = QLabel("bunch length: — ps")
-        row2.addWidget(self.lbl_sig)
-        row2.addStretch(1)
-        self.body.addLayout(row2)
-        self.p_wcm = CrosshairPlot("bunch charge [nC]",
-                                   xlabel="bucket (6.15 ns spacing)")
-        self.wcm_bars = pg.BarGraphItem(x=np.arange(160),
-                                        height=np.zeros(160), width=0.8,
-                                        brush="#ffd54f")
-        self.p_wcm.addItem(self.wcm_bars)
-        self.body.addWidget(self.p_wcm, 3)
-
         self._lcw_hist = collections.deque(maxlen=600)
         self._gate = 0
         self.btn_apply.clicked.connect(self._apply)
         self.btn_clear.clicked.connect(self._clear)
-        self.hub.wcm.connect(self._on_wcm)
         self.hub.beamState.connect(self._on_state)
 
     # ------------------------------------------------------------- controls
@@ -147,23 +125,3 @@ class UtilitiesPage(Page):
         pm = d.get("p_mbar", {})
         self.cryo_bars.setOpts(
             height=[pm.get(n, self.p_nom) for n in self.cm_names])
-
-    def _on_wcm(self, _pid, data):
-        if not self.isVisible() or self._gate % 4:
-            return
-        name = self.sel_wcm.currentText()
-        q = data.get(f"{name}:q_nc")
-        if q is None:
-            return
-        q = np.asarray(q, dtype=float)
-        if self.chk_log.isChecked():
-            h = np.log10(np.maximum(q, 1e-7)) + 7.0   # floor at 1e-7 nC
-            self.p_wcm.pw.setLabel("left", "log10(q/nC) + 7")
-        else:
-            h = q
-            self.p_wcm.pw.setLabel("left", "bunch charge [nC]")
-        self.wcm_bars.setOpts(height=h)
-        self.p_wcm.update_y(h)
-        sig = data.get(f"{name}:sig_ps")
-        if sig is not None and len(sig):
-            self.lbl_sig.setText(f"bunch length: {float(sig[0]):.0f} ps rms")

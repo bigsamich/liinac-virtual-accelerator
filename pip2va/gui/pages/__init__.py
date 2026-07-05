@@ -16,7 +16,7 @@ def load_all():
     """Import all page modules so they self-register."""
     import importlib
     for mod in ("overview", "orbit", "losses", "magnets", "rf", "profiles",
-                "waveforms", "striptool", "snapshots_page", "physics",
+                "waveforms", "bunch_monitor", "striptool", "snapshots_page", "physics",
                 "training", "studies", "source", "utilities", "mps"):
         try:
             importlib.import_module(f"{__name__}.{mod}")

@@ -1,16 +1,24 @@
-"""Live 3D synoptic of the full linac + BTL.
+"""Live 3D synoptic of the linac + BTL (full machine or one section).
 
-Floor plan from the lattice (BTL dipole bends included), every element as a
-colored marker, BPMs displaced by the live orbit (exaggerated), red loss
-spikes at each BLM scaled to W/m, and the beamline colored by the live
-current profile from the BCMs.
+- True floor plan (BTL dipole bends), solid geometry per element family.
+- Live beam: BPM markers on the orbit, 2-sigma envelope tube, macro cloud,
+  red loss spikes, current-glow beamline.
+- Ghost: the last 100 pulses of BPM orbit positions in grey.
+- Camera: Top/Side/End/Iso buttons + XYZ gizmo; wheel zooms to the center
+  point; TRIPLE-CLICK anywhere moves the center (and so the zoom target).
+- Hover: a readout panel names the nearest elements (BPM / BLM / BCM plus
+  the nearest powered element) and their live values - no overlapping
+  floating text.
 """
 from __future__ import annotations
 
+import collections
 import math
+import time
 
 import numpy as np
-from PyQt6.QtWidgets import QLabel, QVBoxLayout, QWidget
+from PyQt6.QtWidgets import (QCheckBox, QHBoxLayout, QLabel, QPushButton,
+                             QVBoxLayout, QWidget)
 
 TYPE_COLORS = {
     "rfgap":    (1.00, 0.55, 0.10, 1.0),
@@ -50,7 +58,6 @@ def _box(lx, ly, lz):
     return V, F
 
 
-# shape per type: (kind, args) — sizes exaggerated for 200 m viewing scale
 TYPE_SHAPES = {
     "rfgap":    ("cyl", dict(radius=0.55)),
     "rfq":      ("box", dict(ly=1.1, lz=1.1)),
@@ -62,20 +69,20 @@ TYPE_SHAPES = {
     "toroid":   ("cyl", dict(radius=0.85)),
     "bpm":      ("cyl", dict(radius=0.42)),
 }
-ORBIT_EXAG = 0.25       # metres of display per mm of orbit
+ORBIT_EXAG = 0.25       # display metres per mm of beam coordinate
 LOSS_SCALE = 2.0        # spike height = LOSS_SCALE * log10(1 + W/m)
+GHOST_PULSES = 100
 
 
 def floor_map(lat):
-    """Walk the lattice: each element centre -> (x, y) floor position and
-    heading angle. Dipoles bend the heading by angle_deg."""
+    """Walk the lattice: element centre -> (x, y) floor position + heading.
+    Dipoles bend the heading by angle_deg."""
     x = y = th = 0.0
     centers, headings = [], []
     poly = [(0.0, 0.0)]
     for e in lat.elements:
         ang = math.radians(e.params.get("angle_deg", 0.0)) \
             if e.type == "dipole" else 0.0
-        # advance half the length, record centre (with half the bend)
         th_c = th - ang / 2.0
         cx = x + math.cos(th_c) * e.length / 2.0
         cy = y + math.sin(th_c) * e.length / 2.0
@@ -94,9 +101,9 @@ class Linac3D(QWidget):
         super().__init__(parent)
         self.lat = lat
         self.section = section
-        self.show_values = values
         lay = QVBoxLayout(self)
         lay.setContentsMargins(0, 0, 0, 0)
+        lay.setSpacing(2)
         try:
             import pyqtgraph.opengl as gl
             self.gl = gl
@@ -104,8 +111,27 @@ class Linac3D(QWidget):
             lay.addWidget(QLabel(f"3D view unavailable: {e}"))
             self.view = None
             return
+
+        # ---- control bar: ghost toggle + camera presets + hover readout
+        bar = QHBoxLayout()
+        self.chk_ghost = QCheckBox(f"ghost ({GHOST_PULSES} pulses)")
+        bar.addWidget(self.chk_ghost)
+        for nm in ("Top", "Side", "End", "Iso"):
+            b = QPushButton(nm)
+            b.setFixedWidth(44)
+            b.clicked.connect(lambda _, n=nm: self._preset(n))
+            bar.addWidget(b)
+        self.lbl_hover = QLabel("hover for nearby BPM/BLM/BCM; "
+                                "triple-click moves the zoom center")
+        self.lbl_hover.setStyleSheet(
+            "color:#cfd8e3; background:#161b22; padding:2px 6px;")
+        bar.addWidget(self.lbl_hover, 1)
+        lay.addLayout(bar)
+
         self.view = gl.GLViewWidget()
-        lay.addWidget(self.view)
+        self.view.installEventFilter(self)
+        self.view.setMouseTracking(True)
+        lay.addWidget(self.view, 1)
 
         centers, headings, poly = floor_map(lat)
         self.centers, self.headings = centers, headings
@@ -118,9 +144,20 @@ class Linac3D(QWidget):
         grid.translate(90, 0, -0.6)
         self.view.addItem(grid)
 
-        # centreline + live-current overlay
-        pts = np.column_stack([poly[:, 0], poly[:, 1],
-                               np.zeros(len(poly))])
+        # XYZ gizmo
+        ax = gl.GLAxisItem()
+        ax.setSize(6, 6, 6)
+        self.view.addItem(ax)
+        try:
+            for txt, pos, col in (("X", (6.6, 0, 0), (90, 140, 255, 255)),
+                                  ("Y", (0, 6.6, 0), (255, 220, 90, 255)),
+                                  ("Z", (0, 0, 6.6), (110, 255, 130, 255))):
+                self.view.addItem(gl.GLTextItem(pos=pos, text=txt,
+                                                color=col))
+        except Exception:
+            pass
+
+        pts = np.column_stack([poly[:, 0], poly[:, 1], np.zeros(len(poly))])
         self.view.addItem(gl.GLLinePlotItem(
             pos=pts, color=(0.45, 0.5, 0.55, 0.8), width=1.2,
             antialias=True))
@@ -142,26 +179,34 @@ class Linac3D(QWidget):
             for e in els:
                 kind, kw = TYPE_SHAPES[typ]
                 L = max(e.length, 0.35)
-                if kind == "cyl":
-                    v, f = _cyl(kw["radius"], L)
-                else:
-                    v, f = _box(L, kw["ly"], kw["lz"])
+                v, f = (_cyl(kw["radius"], L) if kind == "cyl"
+                        else _box(L, kw["ly"], kw["lz"]))
                 th = headings[idx[id(e)]]
                 R = np.array([[math.cos(th), -math.sin(th), 0],
-                              [math.sin(th), math.cos(th), 0],
-                              [0, 0, 1]])
+                              [math.sin(th), math.cos(th), 0], [0, 0, 1]])
                 v = v @ R.T
                 v[:, 0] += centers[idx[id(e)]][0]
                 v[:, 1] += centers[idx[id(e)]][1]
                 VV.append(v)
                 FF.append(f + off)
                 off += len(v)
-            md = gl.MeshData(vertexes=np.vstack(VV), faces=np.vstack(FF))
-            mesh = gl.GLMeshItem(meshdata=md, color=col, shader="shaded",
-                                 smooth=False, computeNormals=True)
-            self.view.addItem(mesh)
+            self.view.addItem(gl.GLMeshItem(
+                meshdata=gl.MeshData(vertexes=np.vstack(VV),
+                                     faces=np.vstack(FF)),
+                color=col, shader="shaded", smooth=False,
+                computeNormals=True))
 
-        # BPMs: live markers displaced by the orbit (global-index slices)
+        # hover targets: instruments + powered elements
+        self._hover_els = [
+            e for e in lat.elements if sel(e) and e.type in
+            ("bpm", "blm", "toroid", "rfgap", "rfq", "quad", "solenoid",
+             "corrector", "dipole", "wire_scanner")]
+        self._hover_pos = np.array(
+            [centers[idx[id(e)]] for e in self._hover_els]) \
+            if self._hover_els else np.zeros((0, 2))
+        self._vals: dict[str, str] = {}
+
+        # BPM live markers + ghost trail
         bpm_all = lat.instruments("bpm")
         self._bpm_g = np.array([j for j, e in enumerate(bpm_all) if sel(e)])
         self.bpms = [bpm_all[j] for j in self._bpm_g]
@@ -174,8 +219,13 @@ class Linac3D(QWidget):
             pos=self._bpm_base, color=(0.2, 1.0, 0.5, 1.0), size=8,
             pxMode=True)
         self.view.addItem(self.bpm_dots)
+        self._ghost = collections.deque(maxlen=GHOST_PULSES)
+        self.ghost_dots = gl.GLScatterPlotItem(
+            pos=np.zeros((1, 3)), color=(0.6, 0.6, 0.65, 0.18), size=4,
+            pxMode=True)
+        self.view.addItem(self.ghost_dots)
 
-        # loss spikes at BLMs (global-index slices)
+        # loss spikes
         blm_all = lat.instruments("blm")
         self._blm_g = np.array([j for j, e in enumerate(blm_all) if sel(e)])
         self.blms = [blm_all[j] for j in self._blm_g]
@@ -183,11 +233,11 @@ class Linac3D(QWidget):
             [[*centers[idx[id(e)]], 0.0] for e in self.blms])
         seg = np.repeat(self._blm_base, 2, axis=0)
         self.loss_spikes = gl.GLLinePlotItem(
-            pos=seg, color=(1.0, 0.25, 0.2, 0.95), width=2.5,
-            mode="lines", antialias=True)
+            pos=seg, color=(1.0, 0.25, 0.2, 0.95), width=2.5, mode="lines",
+            antialias=True)
         self.view.addItem(self.loss_spikes)
 
-        # live 3D beam: 2-sigma envelope tube + macroparticle cloud
+        # envelope tube + macro cloud
         self._env_rings = [k for k, e in enumerate(lat.elements)
                            if sel(e) and e.length > 0][::3]
         nr, nv = len(self._env_rings), 10
@@ -200,8 +250,8 @@ class Linac3D(QWidget):
                 F += [[a, c, d], [a, d, b]]
         self._env_faces = np.array(F)
         self.env_mesh = gl.GLMeshItem(
-            meshdata=gl.MeshData(
-                vertexes=np.zeros((nr * nv, 3)), faces=self._env_faces),
+            meshdata=gl.MeshData(vertexes=np.zeros((nr * nv, 3)),
+                                 faces=self._env_faces),
             color=(0.15, 0.9, 0.55, 0.22), shader="shaded", smooth=True,
             glOptions="additive", computeNormals=True)
         self.view.addItem(self.env_mesh)
@@ -211,52 +261,121 @@ class Linac3D(QWidget):
         self.view.addItem(self.cloud)
         self._el_index = {e.name: k for k, e in enumerate(lat.elements)}
 
-        # floating live-value labels over elements (section views)
-        self.labels = {}
-        if values:
-            try:
-                for e in lat.elements:
-                    if not sel(e) or e.type == "drift" or \
-                            e.type in ("aperture", "chopper", "source"):
-                        continue
-                    c = centers[idx[id(e)]]
-                    t = gl.GLTextItem(
-                        pos=(float(c[0]), float(c[1]), 2.0),
-                        text=e.name.split(":")[1],
-                        color=(190, 200, 215, 220))
-                    self.view.addItem(t)
-                    self.labels[e.name] = t
-            except Exception:
-                self.labels = {}
-
-        # section markers along the line
+        # section markers (full-machine view only)
         try:
             for s in (lat.sections if section is None else []):
-                k = np.searchsorted(self._beam_s, s.s_start)
-                k = min(k, len(pts) - 1)
-                t = gl.GLTextItem(pos=pts[k] + [0, 2.5, 3.0], text=s.name,
-                                  color=(200, 210, 225, 255))
-                self.view.addItem(t)
+                k = min(np.searchsorted(self._beam_s, s.s_start),
+                        len(pts) - 1)
+                self.view.addItem(gl.GLTextItem(
+                    pos=pts[k] + [0, 2.5, 3.0], text=s.name,
+                    color=(200, 210, 225, 255)))
         except Exception:
             pass
 
         if section is None:
-            cs = centers
-            dist = 95
+            cs, dist = centers, 95.0
         else:
             cs = np.array([centers[idx[id(e)]]
                            for e in lat.elements if sel(e)])
-            span = float(np.ptp(cs[:, 0])) + float(np.ptp(cs[:, 1]))
-            dist = max(12.0, span * 0.62)
-        cx, cy = cs[:, 0].mean(), cs[:, 1].mean()
+            dist = max(12.0, (float(np.ptp(cs[:, 0]))
+                              + float(np.ptp(cs[:, 1]))) * 0.62)
         from PyQt6.QtGui import QVector3D
-        self.view.opts["center"] = QVector3D(float(cx), float(cy), 0.0)
-        self.view.setCameraPosition(distance=dist, elevation=32, azimuth=-88)
+        self._home = (QVector3D(float(cs[:, 0].mean()),
+                                float(cs[:, 1].mean()), 0.0), dist)
+        self.view.opts["center"] = self._home[0]
+        self.view.setCameraPosition(distance=dist, elevation=32,
+                                    azimuth=-88)
+        self._clicks: list[float] = []
 
-    # ---------------------------------------------------------- live updates
+    # -------------------------------------------------------------- camera
+
+    def _preset(self, nm):
+        d = self.view.opts["distance"]
+        if nm == "Top":
+            self.view.setCameraPosition(elevation=90, azimuth=-90,
+                                        distance=d)
+        elif nm == "Side":
+            self.view.setCameraPosition(elevation=2, azimuth=-90,
+                                        distance=d)
+        elif nm == "End":
+            self.view.setCameraPosition(elevation=2, azimuth=0, distance=d)
+        else:
+            self.view.opts["center"] = self._home[0]
+            self.view.setCameraPosition(elevation=32, azimuth=-88,
+                                        distance=self._home[1])
+
+    def _unproject(self, px, py):
+        """Pixel -> point on the z=0 floor plane."""
+        o = self.view.opts
+        az = math.radians(o["azimuth"])
+        el = math.radians(o["elevation"])
+        c = o["center"]
+        cam = np.array([c.x() + o["distance"] * math.cos(el) * math.cos(az),
+                        c.y() + o["distance"] * math.cos(el) * math.sin(az),
+                        c.z() + o["distance"] * math.sin(el)])
+        fwd = np.array([c.x(), c.y(), c.z()]) - cam
+        fwd /= np.linalg.norm(fwd)
+        right = np.cross(fwd, [0, 0, 1.0])
+        n = np.linalg.norm(right)
+        right = right / n if n > 1e-6 else np.array([1.0, 0, 0])
+        up = np.cross(right, fwd)
+        w, h = max(self.view.width(), 1), max(self.view.height(), 1)
+        t = math.tan(math.radians(o.get("fov", 60)) / 2)
+        dx = (2.0 * px / w - 1.0) * t * (w / h)
+        dy = (1.0 - 2.0 * py / h) * t
+        d = fwd + dx * right + dy * up
+        d /= np.linalg.norm(d)
+        if abs(d[2]) < 1e-6:
+            return None
+        tt = -cam[2] / d[2]
+        return cam + tt * d if tt > 0 else None
+
+    def eventFilter(self, obj, ev):
+        from PyQt6.QtCore import QEvent
+        if obj is self.view:
+            if ev.type() == QEvent.Type.MouseMove:
+                self._hover(ev.position().x(), ev.position().y())
+            elif ev.type() == QEvent.Type.MouseButtonPress:
+                now = time.monotonic()
+                self._clicks = [t for t in self._clicks if now - t < 0.6]
+                self._clicks.append(now)
+                if len(self._clicks) >= 3:
+                    self._clicks.clear()
+                    p = self._unproject(ev.position().x(),
+                                        ev.position().y())
+                    if p is not None:
+                        from PyQt6.QtGui import QVector3D
+                        self.view.opts["center"] = QVector3D(
+                            float(p[0]), float(p[1]), 0.0)
+                        self.view.update()
+        return False
+
+    def _hover(self, px, py):
+        p = self._unproject(px, py)
+        if p is None or not len(self._hover_pos):
+            return
+        d2 = ((self._hover_pos[:, 0] - p[0]) ** 2
+              + (self._hover_pos[:, 1] - p[1]) ** 2)
+        near = np.argsort(d2)[:10]
+        if d2[near[0]] > 36.0:          # nothing within 6 m
+            return
+        shown, kinds = [], set()
+        for j in near:
+            e = self._hover_els[j]
+            kind = ("bpm" if e.type == "bpm" else
+                    "blm" if e.type == "blm" else
+                    "bcm" if e.type == "toroid" else "dev")
+            if kind in kinds:
+                continue
+            kinds.add(kind)
+            shown.append(self._vals.get(e.name, e.name))
+            if len(kinds) >= 4:
+                break
+        self.lbl_hover.setText("   |   ".join(shown))
+
+    # ---------------------------------------------------------- live data
 
     def update_orbit(self, x_mm, y_mm):
-        """Full-machine arrays; slices to this view's BPMs."""
         if self.view is None or not self.isVisible():
             return
         g = self._bpm_g[self._bpm_g < len(x_mm)]
@@ -265,15 +384,17 @@ class Linac3D(QWidget):
              * (x * ORBIT_EXAG))
         d[:, 2] = np.asarray(y_mm)[g] * ORBIT_EXAG
         self.bpm_dots.setData(pos=d)
-        if self.labels:
-            for k, j in enumerate(g):
-                lb = self.labels.get(self.bpms[k].name)
-                if lb is not None:
-                    lb.setData(text=f"{self.bpms[k].name.split(':')[1]} "
-                                    f"{x_mm[j]:+.2f}/{y_mm[j]:+.2f}mm")
+        for k, j in enumerate(g):
+            self._vals[self.bpms[k].name] = (
+                f"{self.bpms[k].name} {x_mm[j]:+.2f}/{y_mm[j]:+.2f} mm")
+        if self.chk_ghost.isChecked():
+            self._ghost.append(d.copy())
+            self.ghost_dots.setData(pos=np.vstack(self._ghost))
+        elif self._ghost:
+            self._ghost.clear()
+            self.ghost_dots.setData(pos=np.zeros((1, 3)))
 
     def update_losses(self, wpm):
-        """Full-machine array; slices to this view's BLMs."""
         if self.view is None or not self.isVisible():
             return
         g = self._blm_g[self._blm_g < len(wpm)]
@@ -282,19 +403,44 @@ class Linac3D(QWidget):
         seg = np.repeat(self._blm_base[:len(g)], 2, axis=0)
         seg[1::2, 2] = h
         self.loss_spikes.setData(pos=seg)
-        if self.labels:
-            for k in range(len(g)):
-                lb = self.labels.get(self.blms[k].name)
-                if lb is not None:
-                    lb.setData(text=f"{self.blms[k].name.split(':')[1]} "
-                                    f"{w[k]:.1f}W/m")
+        for k in range(len(g)):
+            self._vals[self.blms[k].name] = (
+                f"{self.blms[k].name} {w[k]:.2f} W/m")
 
-    def update_envelope(self, cx, cy, sx, sy):
-        """Full-machine per-element centroid+sigma arrays [m] -> 2-sigma
-        tube, exaggerated by ORBIT_EXAG (m display per mm real)."""
+    def update_current(self, i_ma, tor_s):
         if self.view is None or not self.isVisible():
             return
-        ex = ORBIT_EXAG * 1e3          # m -> display m
+        idxs = np.clip(np.searchsorted(tor_s, self._beam_s) - 1, 0,
+                       len(i_ma) - 1)
+        frac = np.clip(np.asarray(i_ma)[idxs] / 5.0, 0.0, 1.0)
+        col = np.zeros((len(self._beam_pts), 4))
+        col[:, 0] = 0.1
+        col[:, 1] = 0.25 + 0.75 * frac
+        col[:, 2] = 0.2
+        col[:, 3] = 0.25 + 0.75 * frac
+        self.beam_line.setData(color=col)
+        for j, t in enumerate(self.lat.instruments("toroid")[:len(i_ma)]):
+            self._vals[t.name] = f"{t.name} {i_ma[j]:.3f} mA"
+
+    def update_values(self, mapping):
+        """Live values for the hover readout: {element name: text}."""
+        self._vals.update(mapping)
+
+    def pull_envelope(self, r):
+        """Read truth:beam and refresh the 2-sigma tube."""
+        if self.view is None or not self.isVisible():
+            return
+        blob = r.hget("truth:beam", "d")
+        if blob is None:
+            return
+        from pip2va.common import codec
+        _, tr = codec.unpack(blob)
+        self.update_envelope(tr["cx"], tr["cy"], tr["sig_x"], tr["sig_y"])
+
+    def update_envelope(self, cx, cy, sx, sy):
+        if self.view is None or not self.isVisible():
+            return
+        ex = ORBIT_EXAG * 1e3
         ph = self._env_phi
         V = np.empty((len(self._env_rings) * len(ph), 3))
         for i, k in enumerate(self._env_rings):
@@ -310,9 +456,7 @@ class Linac3D(QWidget):
             vertexes=V, faces=self._env_faces))
 
     def update_cloud(self, cloud, station_name, max_pts=8000):
-        """Macroparticle cloud (3,N) in MILLIMETRES (alive particles) at a
-        station. Transverse uses the same ORBIT_EXAG scale as the orbit
-        markers and envelope tube; longitudinal is shown at 20:1."""
+        """Macro cloud (3,N) in mm (alive particles) at a station."""
         if self.view is None or not self.isVisible() or cloud is None:
             return
         k = self._el_index.get(station_name)
@@ -331,37 +475,14 @@ class Linac3D(QWidget):
         x_mm = c[0] - np.median(c[0])
         y_mm = c[1] - np.median(c[1])
         z_mm = c[2] - np.median(c[2])
-        along = z_mm * 0.02                # 20:1 longitudinal exaggeration
+        along = z_mm * 0.02
         P = np.empty((c.shape[1], 3))
         P[:, 0] = base[0] + d[0] * along + nn[0] * x_mm * ORBIT_EXAG
         P[:, 1] = base[1] + d[1] * along + nn[1] * x_mm * ORBIT_EXAG
         P[:, 2] = y_mm * ORBIT_EXAG
-        # two-tone: cyan core, faint orange halo (r > 3 sigma)
         sx = np.std(x_mm) + 1e-9
         sy = np.std(y_mm) + 1e-9
         r = np.sqrt((x_mm / sx) ** 2 + (y_mm / sy) ** 2)
         col = np.tile((0.35, 0.9, 1.0, 0.35), (len(r), 1))
         col[r > 3.0] = (1.0, 0.6, 0.15, 0.5)
         self.cloud.setData(pos=P, color=col)
-
-    def update_values(self, mapping):
-        """Set floating label text for named elements: {name: text}."""
-        if not self.labels:
-            return
-        for name, txt in mapping.items():
-            lb = self.labels.get(name)
-            if lb is not None:
-                lb.setData(text=txt)
-
-    def update_current(self, i_ma, tor_s):
-        if self.view is None or not self.isVisible():
-            return
-        idxs = np.searchsorted(tor_s, self._beam_s) - 1
-        idxs = np.clip(idxs, 0, len(i_ma) - 1)
-        frac = np.clip(np.asarray(i_ma)[idxs] / 5.0, 0.0, 1.0)
-        col = np.zeros((len(self._beam_pts), 4))
-        col[:, 0] = 0.1
-        col[:, 1] = 0.25 + 0.75 * frac
-        col[:, 2] = 0.2
-        col[:, 3] = 0.25 + 0.75 * frac
-        self.beam_line.setData(color=col)

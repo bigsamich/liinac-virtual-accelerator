@@ -143,15 +143,6 @@ class OverviewPage(Page):
             if st:
                 self.view3d.update_cloud(cloud, st.decode())
 
-    def _envelope3d(self):
-        blob = self.hub.r.hget("truth:beam", "d")
-        if blob is None:
-            return
-        from pip2va.common import codec
-        _, tr = codec.unpack(blob)
-        self.view3d.update_envelope(tr["cx"], tr["cy"],
-                                    tr["sig_x"], tr["sig_y"])
-
     def _on_losses(self, _pid, data):
         if not self.isVisible():
             return
@@ -163,7 +154,7 @@ class OverviewPage(Page):
             self.p_loss.pw.setXRange(0, max(10.0, float(mx) * 1.15))
             self.view3d.update_losses(w)
         if self._gate % 24 == 0:
-            self._envelope3d()
+            self.view3d.pull_envelope(self.hub.r)
 
     def _on_toroids(self, _pid, data):
         if not self.isVisible():

@@ -48,7 +48,7 @@ def test_main_window_constructs_and_navigates(qtbot, r):
     win = MainWindow(hub)
     qtbot.addWidget(win)
     # 9 registered pages; section views open from the dashboard strip
-    assert len(win._nav_items) == 15
+    assert len(win._nav_items) == 16
     win.goto_section("SSR2")
     assert win.stack.currentWidget() is win._section_pages["SSR2"]
     for it in win._nav_items.values():
