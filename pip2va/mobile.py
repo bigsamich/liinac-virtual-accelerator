@@ -25,7 +25,7 @@ import collections
 import threading
 import time as _time
 
-TREND_N = 600
+TREND_N = 1800
 _trends = {k: collections.deque(maxlen=TREND_N)
            for k in ("t", "w", "i", "loss")}
 
@@ -48,7 +48,7 @@ def _sampler():
             _trends["loss"].append(round(worst, 2))
         except Exception:
             pass
-        _time.sleep(3.0)
+        _time.sleep(1.0)
 
 
 threading.Thread(target=_sampler, daemon=True).start()
@@ -58,11 +58,11 @@ PAGE = """<!doctype html><html><head>
 <title>PIP-II VA</title><style>
 body{background:#0d1117;color:#e6edf3;font-family:-apple-system,Segoe UI,
 Roboto,sans-serif;margin:0;padding:12px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid{display:grid;grid-template-columns:1fr;gap:10px}
 .card{background:#161b22;border-radius:12px;padding:12px;text-align:center}
 .card .v{font-size:26px;font-weight:700}.card .l{font-size:12px;color:#8b96a5}
 .ok{color:#2ecc71}.bad{color:#e74c3c}
-#permit{grid-column:1/3;font-size:20px;font-weight:800;padding:14px}
+#permit{font-size:20px;font-weight:800;padding:14px}
 #events{background:#161b22;border-radius:12px;padding:10px;margin-top:10px;
 font-size:12px;color:#9fb0c3;white-space:pre-wrap}
 #ask{width:100%;box-sizing:border-box;padding:12px;border-radius:10px;
@@ -70,6 +70,9 @@ border:1px solid #30363d;background:#0d1117;color:#e6edf3;font-size:16px;
 margin-top:12px}
 #ans{background:#161b22;border-radius:12px;padding:12px;margin-top:8px;
 font-size:14px;display:none;line-height:1.45}
+.rng{flex:1;padding:9px 0;border-radius:8px;border:0;font-size:13px;
+font-weight:600;background:#21262d;color:#8b96a5}
+.rng.on{background:#1f6feb;color:#fff}
 button{width:100%;padding:12px;margin-top:8px;border-radius:10px;border:0;
 background:#1f6feb;color:#fff;font-size:16px;font-weight:600}
 a{color:#4fc3f7}</style></head><body>
@@ -80,15 +83,20 @@ a{color:#4fc3f7}</style></head><body>
 <div class="card"><div class="v" id="i">…</div><div class="l">mA delivered</div></div>
 <div class="card"><div class="v" id="loss">…</div><div class="l" id="lossat">worst BLM</div></div>
 </div>
-<div class="grid" style="margin-top:10px">
-<div class="card"><canvas id="ct" width="300" height="72"></canvas>
-<div class="l">transmission % — 30 min</div></div>
-<div class="card"><canvas id="cl" width="300" height="72"></canvas>
-<div class="l">worst BLM W/m — 30 min</div></div>
-<div class="card"><canvas id="cw" width="300" height="72"></canvas>
-<div class="l">energy MeV — 30 min</div></div>
-<div class="card"><canvas id="ci" width="300" height="72"></canvas>
-<div class="l">delivered mA — 30 min</div></div>
+<div style="display:flex;gap:6px;margin-top:10px">
+<button id="w30m" class="rng on" onclick="setRange(1800,this)">30 min</button>
+<button id="w5m" class="rng" onclick="setRange(300,this)">5 min</button>
+<button id="w30s" class="rng" onclick="setRange(30,this)">30 s</button>
+</div>
+<div class="grid" style="margin-top:8px">
+<div class="card"><canvas id="ct" width="360" height="84"></canvas>
+<div class="l" id="lt">transmission %</div></div>
+<div class="card"><canvas id="cl" width="360" height="84"></canvas>
+<div class="l">worst BLM W/m</div></div>
+<div class="card"><canvas id="cw" width="360" height="84"></canvas>
+<div class="l">energy MeV</div></div>
+<div class="card"><canvas id="ci" width="360" height="84"></canvas>
+<div class="l">delivered mA</div></div>
 </div>
 <div id="events">…</div>
 <input id="ask" placeholder="Ask the machine…" autocomplete="off">
@@ -122,12 +130,17 @@ function spark(id,data,color){const c=document.getElementById(id),
  x.fillStyle=color;x.font='bold 13px sans-serif';
  const last=data[data.length-1];
  x.fillText(last.toPrecision(4),c.width-56,12);}
+let rangeN=1800;
+function setRange(n,btn){rangeN=n;
+ document.querySelectorAll('.rng').forEach(b=>b.className='rng');
+ btn.className='rng on';trends();}
 async function trends(){try{
  const d=await (await fetch('/api/trends')).json();
- spark('ct',d.t,'#2ecc71');spark('cl',d.loss,'#ff7043');
- spark('cw',d.w,'#4fc3f7');spark('ci',d.i,'#ffd54f');
+ const cut=a=>a.slice(-rangeN);
+ spark('ct',cut(d.t),'#2ecc71');spark('cl',cut(d.loss),'#ff7043');
+ spark('cw',cut(d.w),'#4fc3f7');spark('ci',cut(d.i),'#ffd54f');
 }catch(e){}}
-setInterval(trends,5000);trends();
+setInterval(trends,2000);trends();
 async function ask(){const q=document.getElementById('ask').value;if(!q)return;
  ans.style.display='block';ans.textContent='thinking…';
  const r=await fetch('/api/ask',{method:'POST',
