@@ -48,7 +48,40 @@ def _sampler():
             _trends["loss"].append(round(worst, 2))
         except Exception:
             pass
+        try:
+            _persist_finished()
+        except Exception:
+            pass
         _time.sleep(1.0)
+
+
+def _persist_finished():
+    """Save any finished study that nobody else persisted (mobile- or
+    script-started runs): result file + knowledge-base entry, deduped
+    machine-wide via a redis marker."""
+    st = {k.decode(): v.decode() for k, v in R.hgetall("state:study").items()}
+    if st.get("run") == "1" or not st.get("result"):
+        return
+    import hashlib
+    mark = hashlib.md5(st["result"].encode()).hexdigest()
+    if R.get("state:study.persisted") == mark.encode():
+        return
+    from pathlib import Path
+    d = Path.home() / ".pip2va" / "studies"
+    if not d.exists():
+        return
+    plan = json.loads(st.get("plan", "{}"))
+    result = json.loads(st["result"])
+    ts = _time.strftime("%Y%m%d-%H%M%S")
+    name = plan.get("name", "study")
+    # skip if a GUI/script already wrote a file for this run just now
+    recent = sorted(d.glob(f"result-{name}-*.json"))
+    if not (recent and _time.time() - recent[-1].stat().st_mtime < 90):
+        (d / f"result-{name}-{ts}.json").write_text(
+            json.dumps({"plan": plan, "result": result}, indent=1))
+        from pip2va.analysis import knowledge
+        knowledge.append(knowledge.summarize_result(plan, result))
+    R.set("state:study.persisted", mark)
 
 
 threading.Thread(target=_sampler, daemon=True).start()
@@ -102,7 +135,8 @@ a{color:#4fc3f7}</style></head><body>
 <input id="ask" placeholder="Ask the machine…" autocomplete="off">
 <button onclick="ask()">Ask</button>
 <div id="ans"></div>
-<p style="text-align:center"><a href="/room">open full control room →</a></p>
+<p style="text-align:center"><a href="/studies">beam studies →</a>
+&nbsp;&nbsp;<a href="/room">full control room →</a></p>
 <script>
 async function tick(){try{
  const s=await (await fetch('/api/status')).json();
@@ -222,6 +256,82 @@ window.addEventListener('resize',fit);setTimeout(fit,300);
 </script></body></html>"""
 
 
+STUDIES = """<!doctype html><html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Beam studies</title><style>
+body{background:#0d1117;color:#e6edf3;font-family:-apple-system,Segoe UI,
+Roboto,sans-serif;margin:0;padding:12px}
+.card{background:#161b22;border-radius:12px;padding:12px;margin-top:10px}
+.l{font-size:12px;color:#8b96a5}.ok{color:#2ecc71}.bad{color:#e74c3c}
+input,textarea{width:100%;box-sizing:border-box;padding:11px;
+border-radius:10px;border:1px solid #30363d;background:#0d1117;
+color:#e6edf3;font-size:15px}
+button{padding:10px 14px;border-radius:10px;border:0;background:#1f6feb;
+color:#fff;font-size:14px;font-weight:600;margin-top:6px}
+button.gray{background:#21262d;color:#9fb0c3}
+button.red{background:#8b1e1e}
+.chip{display:inline-block;background:#21262d;color:#c8d2de;border-radius:14px;
+padding:7px 11px;margin:3px 3px 0 0;font-size:12px}
+.item{padding:8px 4px;border-bottom:1px solid #21262d;font-size:14px}
+pre{white-space:pre-wrap;font-size:12px;color:#c8d2de}
+a{color:#4fc3f7}</style></head><body>
+<a href="/">← status</a>
+<div class="card"><b>Now running</b><div id="run" class="l">—</div>
+<button class="red" onclick="post('/api/abort').then(load)">Abort + restore</button></div>
+<div class="card"><b>Plan with AI</b>
+<textarea id="nl" rows="2" placeholder="e.g. sweep SSR1:CAV11 phase ±5°, 9 steps, restore after"></textarea>
+<button onclick="plan()">Plan</button>
+<div id="plansum" class="l"></div>
+<button id="qbtn" style="display:none" onclick="queuePlan()">Queue this study</button></div>
+<div class="card"><b>Presets</b> <span class="l">(tap to queue)</span>
+<div id="presets"></div></div>
+<div class="card"><b>Queue</b><div id="queue" class="l">—</div>
+<button onclick="post('/api/run_next').then(r=>{msg(r);load()})">Run next</button></div>
+<div class="card"><b>Recent results</b><div id="results"></div>
+<pre id="report"></pre>
+<button id="aibtn" style="display:none" class="gray" onclick="analyze()">AI analysis</button></div>
+<div id="msg" class="l" style="margin-top:8px"></div>
+<script>
+let planObj=null,curStem=null;
+const post=(u,b)=>fetch(u,{method:'POST',headers:{'Content-Type':
+ 'application/json'},body:JSON.stringify(b||{})}).then(r=>r.json());
+function msg(r){document.getElementById('msg').textContent=
+ r.error?('✗ '+r.error):('✓ '+(r.queued||r.started||'ok'));}
+async function load(){
+ const d=await (await fetch('/api/studies')).json();
+ run.innerHTML=d.running?`<b>${d.running.name}</b> — ${d.running.status}
+  (step ${d.running.step}/${d.running.total})`:'idle';
+ queue.textContent=d.queue.length?d.queue.join('\n'):'(empty)';
+ presets.innerHTML=d.presets.map(p=>
+  `<span class="chip" title="${p.teaches}"
+    onclick="post('/api/queue',{preset:'${p.name}'}).then(r=>{msg(r);load()})">${p.name}</span>`).join('');
+ results.innerHTML=d.results.map(r=>
+  `<div class="item" onclick="show('${r}')">${r}</div>`).join('');
+}
+async function plan(){
+ plansum.textContent='planning…';
+ const r=await post('/api/plan',{text:document.getElementById('nl').value});
+ if(r.error){plansum.textContent='✗ '+r.error;return;}
+ planObj=r.plan;plansum.textContent=r.summary+'  ['+r.note+']';
+ qbtn.style.display='inline-block';}
+async function queuePlan(){msg(await post('/api/queue',{plan:planObj}));
+ qbtn.style.display='none';load();}
+async function show(stem){curStem=stem;report.textContent='loading…';
+ aibtn.style.display='inline-block';
+ const r=await (await fetch('/api/result/'+stem)).json();
+ report.textContent=r.report||r.error;}
+async function analyze(){report.textContent='AI analyzing… (30-60 s)';
+ const r=await post('/api/analyze/'+curStem);
+ report.textContent=r.report||r.error;}
+setInterval(load,4000);load();
+</script></body></html>"""
+
+
+@app.get("/studies")
+def studies_page():
+    return STUDIES
+
+
 @app.get("/room")
 def room():
     return ROOM
@@ -267,6 +377,126 @@ def ask():
         return jsonify({"answer": f"[{engine}] {text}"})
     except Exception as e:
         return jsonify({"answer": f"assistant error: {e}"})
+
+
+# ---------------------------------------------------------------- studies
+
+import glob as _glob
+from pathlib import Path as _Path
+
+STUDY_DIR = _Path.home() / ".pip2va" / "studies"
+QUEUE_KEY = "state:study.queue"
+
+
+@app.get("/api/studies")
+def api_studies():
+    st = {k.decode(): v.decode() for k, v in R.hgetall("state:study").items()}
+    running = None
+    if st.get("run") == "1":
+        try:
+            nm = json.loads(st.get("plan", "{}")).get("name", "?")
+        except ValueError:
+            nm = "?"
+        running = {"name": nm, "status": st.get("status", ""),
+                   "step": st.get("step", "0"), "total": st.get("total", "?")}
+    queue = []
+    for raw in R.lrange(QUEUE_KEY, 0, -1):
+        try:
+            pl = json.loads(raw)
+            queue.append(f"{pl['name']} ({pl['steps']}x{pl['dwell_s']}s)")
+        except ValueError:
+            queue.append("?")
+    results = sorted((f.stem.replace("result-", "") for f in
+                      STUDY_DIR.glob("result-*.json")), reverse=True)[:15]
+    from pip2va.analysis.study_presets import PRESETS
+    return jsonify({"running": running, "queue": queue, "results": results,
+                    "presets": [{"name": k, "teaches": v["teaches"]}
+                                for k, v in PRESETS.items()]})
+
+
+@app.post("/api/plan")
+def api_plan():
+    text = (request.get_json(silent=True) or {}).get("text", "").strip()
+    from pip2va.analysis import studies as _st
+    try:
+        plan, note = _st.plan_from_text(text)
+    except Exception as e:
+        return jsonify({"error": str(e)})
+    sw = plan["sweeps"][0]
+    summary = (f"{plan['name']}: {plan['kind']} "
+               f"{sw['device']}:{sw['field']} {sw['from']}..{sw['to']} "
+               f"in {plan['steps']} steps x {plan['dwell_s']}s"
+               + (f" (+{len(plan['sweeps'])-1} more knobs)"
+                  if len(plan["sweeps"]) > 1 else ""))
+    return jsonify({"plan": plan, "summary": summary, "note": note})
+
+
+@app.post("/api/queue")
+def api_queue():
+    body = request.get_json(silent=True) or {}
+    plan = body.get("plan")
+    preset = body.get("preset")
+    from pip2va.analysis import studies as _st
+    if preset:
+        from pip2va.analysis import study_presets
+        plan = study_presets.get_plan(preset)
+    if not plan:
+        return jsonify({"error": "no plan"})
+    try:
+        plan, _ = _st.validate_plan(plan)
+    except Exception as e:
+        return jsonify({"error": str(e)})
+    R.rpush(QUEUE_KEY, json.dumps(plan))
+    return jsonify({"ok": True, "queued": plan["name"]})
+
+
+@app.post("/api/run_next")
+def api_run_next():
+    if R.hget("state:study", "run") == b"1":
+        return jsonify({"error": "a study is already running"})
+    raw = R.lpop(QUEUE_KEY)
+    if raw is None:
+        return jsonify({"error": "queue empty"})
+    plan = json.loads(raw)
+    R.hset("state:study", mapping={
+        "plan": json.dumps(plan), "run": 1, "status": "starting",
+        "step": 0, "total": plan["steps"], "result": ""})
+    return jsonify({"ok": True, "started": plan["name"]})
+
+
+@app.post("/api/abort")
+def api_abort():
+    R.hset("state:study", "run", 0)
+    R.hset(keys.settings("autotune", "main"), "restore", 1)
+    return jsonify({"ok": True})
+
+
+@app.get("/api/result/<stem>")
+def api_result(stem):
+    f = STUDY_DIR / f"result-{stem}.json"
+    if not f.exists():
+        return jsonify({"error": "not found"})
+    d = json.loads(f.read_text())
+    from pip2va.analysis import studies as _st
+    try:
+        rep = _st.rule_report(d["plan"], d["result"])
+    except Exception as e:
+        rep = f"report error: {e}"
+    return jsonify({"report": rep})
+
+
+@app.post("/api/analyze/<stem>")
+def api_analyze(stem):
+    f = STUDY_DIR / f"result-{stem}.json"
+    if not f.exists():
+        return jsonify({"error": "not found"})
+    d = json.loads(f.read_text())
+    from pip2va.analysis import studies as _st
+    try:
+        text, engine = _st.llm_report(d["plan"], d["result"])
+        return jsonify({"report": f"[{engine}]\n{text}"})
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 
 def main():

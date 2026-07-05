@@ -57,6 +57,8 @@ services:
       PIP2VA_OLLAMA_URL: http://host.docker.internal:11434
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    volumes:
+      - ${HOME}/.pip2va/studies:/root/.pip2va/studies
     ports:
       - "6080:6080"
       - "6081:6081"
