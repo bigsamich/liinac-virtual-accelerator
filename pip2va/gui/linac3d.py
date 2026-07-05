@@ -76,23 +76,25 @@ def floor_map(lat):
         ang = math.radians(e.params.get("angle_deg", 0.0)) \
             if e.type == "dipole" else 0.0
         # advance half the length, record centre (with half the bend)
-        th_c = th + ang / 2.0
+        th_c = th - ang / 2.0
         cx = x + math.cos(th_c) * e.length / 2.0
         cy = y + math.sin(th_c) * e.length / 2.0
         centers.append((cx, cy))
         headings.append(th_c)
         x += math.cos(th_c) * e.length
         y += math.sin(th_c) * e.length
-        th += ang
+        th -= ang
         if e.length > 0:
             poly.append((x, y))
     return np.array(centers), np.array(headings), np.array(poly)
 
 
 class Linac3D(QWidget):
-    def __init__(self, lat, parent=None):
+    def __init__(self, lat, parent=None, section=None, values=False):
         super().__init__(parent)
         self.lat = lat
+        self.section = section
+        self.show_values = values
         lay = QVBoxLayout(self)
         lay.setContentsMargins(0, 0, 0, 0)
         try:
@@ -108,6 +110,7 @@ class Linac3D(QWidget):
         centers, headings, poly = floor_map(lat)
         self.centers, self.headings = centers, headings
         idx = {id(e): k for k, e in enumerate(lat.elements)}
+        sel = (lambda e: section is None or e.section == section)
 
         grid = gl.GLGridItem()
         grid.setSize(240, 120)
@@ -132,7 +135,7 @@ class Linac3D(QWidget):
 
         # solid geometry: one merged mesh per element family
         for typ, col in TYPE_COLORS.items():
-            els = [e for e in lat.elements if e.type == typ]
+            els = [e for e in lat.elements if e.type == typ and sel(e)]
             if not els:
                 continue
             VV, FF, off = [], [], 0
@@ -158,8 +161,10 @@ class Linac3D(QWidget):
                                  smooth=False, computeNormals=True)
             self.view.addItem(mesh)
 
-        # BPMs: live markers displaced by the orbit
-        self.bpms = lat.instruments("bpm")
+        # BPMs: live markers displaced by the orbit (global-index slices)
+        bpm_all = lat.instruments("bpm")
+        self._bpm_g = np.array([j for j, e in enumerate(bpm_all) if sel(e)])
+        self.bpms = [bpm_all[j] for j in self._bpm_g]
         self._bpm_base = np.array(
             [[*centers[idx[id(e)]], 0.0] for e in self.bpms])
         self._bpm_norm = np.array(
@@ -170,8 +175,10 @@ class Linac3D(QWidget):
             pxMode=True)
         self.view.addItem(self.bpm_dots)
 
-        # loss spikes at BLMs
-        self.blms = lat.instruments("blm")
+        # loss spikes at BLMs (global-index slices)
+        blm_all = lat.instruments("blm")
+        self._blm_g = np.array([j for j, e in enumerate(blm_all) if sel(e)])
+        self.blms = [blm_all[j] for j in self._blm_g]
         self._blm_base = np.array(
             [[*centers[idx[id(e)]], 0.0] for e in self.blms])
         seg = np.repeat(self._blm_base, 2, axis=0)
@@ -180,9 +187,27 @@ class Linac3D(QWidget):
             mode="lines", antialias=True)
         self.view.addItem(self.loss_spikes)
 
+        # floating live-value labels over elements (section views)
+        self.labels = {}
+        if values:
+            try:
+                for e in lat.elements:
+                    if not sel(e) or e.type == "drift" or \
+                            e.type in ("aperture", "chopper", "source"):
+                        continue
+                    c = centers[idx[id(e)]]
+                    t = gl.GLTextItem(
+                        pos=(float(c[0]), float(c[1]), 2.0),
+                        text=e.name.split(":")[1],
+                        color=(190, 200, 215, 220))
+                    self.view.addItem(t)
+                    self.labels[e.name] = t
+            except Exception:
+                self.labels = {}
+
         # section markers along the line
         try:
-            for s in lat.sections:
+            for s in (lat.sections if section is None else []):
                 k = np.searchsorted(self._beam_s, s.s_start)
                 k = min(k, len(pts) - 1)
                 t = gl.GLTextItem(pos=pts[k] + [0, 2.5, 3.0], text=s.name,
@@ -191,30 +216,63 @@ class Linac3D(QWidget):
         except Exception:
             pass
 
-        cx, cy = centers[:, 0].mean(), centers[:, 1].mean()
+        if section is None:
+            cs = centers
+            dist = 95
+        else:
+            cs = np.array([centers[idx[id(e)]]
+                           for e in lat.elements if sel(e)])
+            span = float(np.ptp(cs[:, 0])) + float(np.ptp(cs[:, 1]))
+            dist = max(12.0, span * 0.62)
+        cx, cy = cs[:, 0].mean(), cs[:, 1].mean()
         from PyQt6.QtGui import QVector3D
         self.view.opts["center"] = QVector3D(float(cx), float(cy), 0.0)
-        self.view.setCameraPosition(distance=95, elevation=32, azimuth=-88)
+        self.view.setCameraPosition(distance=dist, elevation=32, azimuth=-88)
 
     # ---------------------------------------------------------- live updates
 
     def update_orbit(self, x_mm, y_mm):
+        """Full-machine arrays; slices to this view's BPMs."""
         if self.view is None or not self.isVisible():
             return
-        n = min(len(x_mm), len(self._bpm_base))
-        d = (self._bpm_base[:n]
-             + self._bpm_norm[:n] * (x_mm[:n, None] * ORBIT_EXAG))
-        d[:, 2] = y_mm[:n] * ORBIT_EXAG
+        g = self._bpm_g[self._bpm_g < len(x_mm)]
+        x = np.asarray(x_mm)[g][:, None]
+        d = (self._bpm_base[:len(g)] + self._bpm_norm[:len(g)]
+             * (x * ORBIT_EXAG))
+        d[:, 2] = np.asarray(y_mm)[g] * ORBIT_EXAG
         self.bpm_dots.setData(pos=d)
+        if self.labels:
+            for k, j in enumerate(g):
+                lb = self.labels.get(self.bpms[k].name)
+                if lb is not None:
+                    lb.setData(text=f"{self.bpms[k].name.split(':')[1]} "
+                                    f"{x_mm[j]:+.2f}/{y_mm[j]:+.2f}mm")
 
     def update_losses(self, wpm):
+        """Full-machine array; slices to this view's BLMs."""
         if self.view is None or not self.isVisible():
             return
-        n = min(len(wpm), len(self._blm_base))
-        h = LOSS_SCALE * np.log10(1.0 + np.maximum(wpm[:n], 0.0))
-        seg = np.repeat(self._blm_base[:n], 2, axis=0)
+        g = self._blm_g[self._blm_g < len(wpm)]
+        w = np.maximum(np.asarray(wpm)[g], 0.0)
+        h = LOSS_SCALE * np.log10(1.0 + w)
+        seg = np.repeat(self._blm_base[:len(g)], 2, axis=0)
         seg[1::2, 2] = h
         self.loss_spikes.setData(pos=seg)
+        if self.labels:
+            for k in range(len(g)):
+                lb = self.labels.get(self.blms[k].name)
+                if lb is not None:
+                    lb.setData(text=f"{self.blms[k].name.split(':')[1]} "
+                                    f"{w[k]:.1f}W/m")
+
+    def update_values(self, mapping):
+        """Set floating label text for named elements: {name: text}."""
+        if not self.labels:
+            return
+        for name, txt in mapping.items():
+            lb = self.labels.get(name)
+            if lb is not None:
+                lb.setData(text=txt)
 
     def update_current(self, i_ma, tor_s):
         if self.view is None or not self.isVisible():

@@ -138,6 +138,11 @@ class SectionPage(Page):
             self._st[i] = stat
         self.body.addWidget(self.table, 3)
 
+        from ..linac3d import Linac3D
+        self.view3d = Linac3D(self.lat, section=self.section, values=True)
+        self.body.addWidget(self.view3d, 2)
+        self.hub.toroids.connect(self._on_tor3d)
+
         self._rf_pos = None
         self._mag_pos = None
         self.hub.orbit.connect(self._on_orbit)
@@ -163,11 +168,13 @@ class SectionPage(Page):
         self.c_x.setData(self.bpm_s, x)
         self.c_y.setData(self.bpm_s, y)
         self.p_orbit.update_y(x, y)
+        self.view3d.update_orbit(data["x"] * 1e3, data["y"] * 1e3)
 
     def _on_losses(self, _pid, data):
         if not self.isVisible() or not len(self.blm_idx):
             return
         self.loss_bars.setOpts(height=data["wpm"][self.blm_idx])
+        self.view3d.update_losses(data["wpm"])
 
     def _on_rf(self, _pid, data):
         if not self.isVisible():
@@ -184,6 +191,9 @@ class SectionPage(Page):
             self._rb[i].setText(f'{data["amp"][j]:.3f} MV / '
                                 f'{data["phase"][j]:.1f}°')
             self._set_status(i, data["status"][j] > 0.5)
+            self.view3d.update_values({el.name:
+                f'{el.name.split(":")[1]} {data["amp"][j]:.2f}MV '
+                f'{data["phase"][j]:+.0f}°'})
 
     def _on_magnets(self, _pid, data):
         if not self.isVisible():
@@ -200,11 +210,27 @@ class SectionPage(Page):
                     self._rb[i].setText(f'{data["values"][jx]:+.2f} / '
                                         f'{data["values"][jy]:+.2f} A')
                     self._set_status(i, data["status"][jx] > 0.5)
+                    self.view3d.update_values({el.name:
+                        f'{el.name.split(":")[1]} '
+                        f'{data["values"][jx]:+.2f}/'
+                        f'{data["values"][jy]:+.2f}A'})
             elif el.type in ("solenoid", "quad"):
                 j = self._mag_pos.get(f"{el.name}:current")
                 if j is not None and j < len(data["values"]):
                     self._rb[i].setText(f'{data["values"][j]:.2f} A')
                     self._set_status(i, data["status"][j] > 0.5)
+                    self.view3d.update_values({el.name:
+                        f'{el.name.split(":")[1]} '
+                        f'{data["values"][j]:.1f}A'})
+
+    def _on_tor3d(self, _pid, data):
+        if not self.isVisible():
+            return
+        tors = self.lat.instruments("toroid")
+        vals = {t.name: f'{t.name.split(":")[1]} {data["i_ma"][j]:.2f}mA'
+                for j, t in enumerate(tors)
+                if t.section == self.section and j < len(data["i_ma"])}
+        self.view3d.update_values(vals)
 
     def _set_status(self, i, tripped: bool):
         from PyQt6.QtGui import QBrush, QColor
