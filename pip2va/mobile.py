@@ -20,6 +20,39 @@ app = Flask(__name__)
 R = redis.Redis.from_url(
     os.environ.get("PIP2VA_REDIS_URL", "redis://localhost:6379/0"))
 
+# ---- 30-minute trend history (sampled every 3 s in-process)
+import collections
+import threading
+import time as _time
+
+TREND_N = 600
+_trends = {k: collections.deque(maxlen=TREND_N)
+           for k in ("t", "w", "i", "loss")}
+
+
+def _sampler():
+    while True:
+        try:
+            st = {k.decode(): v.decode()
+                  for k, v in R.hgetall("state:beam").items()}
+            e = R.xrevrange(keys.stream("blm.losses"), count=3)
+            worst = 0.0
+            if e:
+                worst = float(np.max(np.mean(
+                    [codec.unpack(f[b"d"])[1]["wpm"] for _, f in e],
+                    axis=0)))
+            _trends["t"].append(round(100 * float(
+                st.get("transmission", 0)), 3))
+            _trends["w"].append(round(float(st.get("w_out", 0)), 2))
+            _trends["i"].append(round(float(st.get("i_out_ma", 0)), 4))
+            _trends["loss"].append(round(worst, 2))
+        except Exception:
+            pass
+        _time.sleep(3.0)
+
+
+threading.Thread(target=_sampler, daemon=True).start()
+
 PAGE = """<!doctype html><html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PIP-II VA</title><style>
@@ -47,6 +80,16 @@ a{color:#4fc3f7}</style></head><body>
 <div class="card"><div class="v" id="i">…</div><div class="l">mA delivered</div></div>
 <div class="card"><div class="v" id="loss">…</div><div class="l" id="lossat">worst BLM</div></div>
 </div>
+<div class="grid" style="margin-top:10px">
+<div class="card"><canvas id="ct" width="300" height="72"></canvas>
+<div class="l">transmission % — 30 min</div></div>
+<div class="card"><canvas id="cl" width="300" height="72"></canvas>
+<div class="l">worst BLM W/m — 30 min</div></div>
+<div class="card"><canvas id="cw" width="300" height="72"></canvas>
+<div class="l">energy MeV — 30 min</div></div>
+<div class="card"><canvas id="ci" width="300" height="72"></canvas>
+<div class="l">delivered mA — 30 min</div></div>
+</div>
 <div id="events">…</div>
 <input id="ask" placeholder="Ask the machine…" autocomplete="off">
 <button onclick="ask()">Ask</button>
@@ -64,6 +107,27 @@ async function tick(){try{
  events.textContent=s.events.join('\\n');
 }catch(e){permit.textContent='link lost';permit.className='card bad'}}
 setInterval(tick,2000);tick();
+function spark(id,data,color){const c=document.getElementById(id),
+ x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);
+ if(!data||data.length<2)return;
+ const lo=Math.min(...data),hi=Math.max(...data),span=(hi-lo)||1e-9;
+ x.strokeStyle=color;x.lineWidth=1.6;x.beginPath();
+ data.forEach((v,k)=>{const px=k/(data.length-1)*(c.width-4)+2,
+  py=c.height-6-(v-lo)/span*(c.height-24);
+  k?x.lineTo(px,py):x.moveTo(px,py)});
+ x.stroke();
+ x.fillStyle='#8b96a5';x.font='10px sans-serif';
+ x.fillText(hi.toPrecision(4),4,10);
+ x.fillText(lo.toPrecision(4),4,c.height-1);
+ x.fillStyle=color;x.font='bold 13px sans-serif';
+ const last=data[data.length-1];
+ x.fillText(last.toPrecision(4),c.width-56,12);}
+async function trends(){try{
+ const d=await (await fetch('/api/trends')).json();
+ spark('ct',d.t,'#2ecc71');spark('cl',d.loss,'#ff7043');
+ spark('cw',d.w,'#4fc3f7');spark('ci',d.i,'#ffd54f');
+}catch(e){}}
+setInterval(trends,5000);trends();
 async function ask(){const q=document.getElementById('ask').value;if(!q)return;
  ans.style.display='block';ans.textContent='thinking…';
  const r=await fetch('/api/ask',{method:'POST',
@@ -172,6 +236,11 @@ def status():
         f.get(b"detail", b"").decode()[:70]
         for _, f in R.xrevrange(keys.stream("mps.events"), count=5)]
     return jsonify(out)
+
+
+@app.get("/api/trends")
+def trends():
+    return jsonify({k: list(v) for k, v in _trends.items()})
 
 
 @app.post("/api/ask")
