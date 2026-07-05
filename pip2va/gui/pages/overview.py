@@ -48,19 +48,34 @@ class OverviewPage(Page):
                                       name="y")
         self.p_orbit.addLegend(offset=(6, 6), labelTextSize="8pt")
         row2.addWidget(self.p_orbit, 1)
-        self.p_loss = CrosshairPlot("loss [W/m]", device_names=self.blm_names,
-                                    log_y=True)
-        self.loss_bars = pg.BarGraphItem(x=np.arange(len(blms)),
-                                         height=np.zeros(len(blms)),
-                                         width=0.7, brush=theme.WARN)
+        self.p_loss = CrosshairPlot("", xlabel="loss [W/m]")
+        self.loss_bars = pg.BarGraphItem(
+            x0=0, y=np.arange(len(blms)), height=0.75,
+            width=np.zeros(len(blms)), brush=theme.WARN)
         self.p_loss.addItem(self.loss_bars)
-        self.p_loss.pw.setYRange(-3.2, 1.0)
+        secs = []
+        seen = set()
+        for j, b in enumerate(blms):
+            if b.section not in seen:
+                seen.add(b.section)
+                secs.append((j, b.section))
+        self.p_loss.pw.getAxis("left").setTicks([secs])
+        self.p_loss.pw.invertY(True)         # LEBT top, BTL bottom
+        self.p_loss.pw.setYRange(-1, len(blms))
+        self.p_loss.pw.setXRange(0, 30)
         row2.addWidget(self.p_loss, 1)
         self.body.addLayout(row2, 3)
 
         # vertical BCM histogram (LEBT top -> BTL bottom) + numeric T
         self.tors = lat.instruments("toroid")
-        row3 = QHBoxLayout()
+        from PyQt6.QtWidgets import QVBoxLayout
+        col = QVBoxLayout()
+        self.lbl_teff = QLabel("boundary transmission: —")
+        from PyQt6.QtCore import Qt
+        self.lbl_teff.setTextFormat(Qt.TextFormat.RichText)
+        self.lbl_teff.setStyleSheet("font-size: 13px; padding: 2px;")
+        col.addWidget(self.lbl_teff)
+        row3 = col
         self.p_bcm = CrosshairPlot("", xlabel="beam current [mA]")
         self.bcm_bars = pg.BarGraphItem(
             x0=0, y=np.arange(len(self.tors)), height=0.6,
@@ -72,12 +87,7 @@ class OverviewPage(Page):
         self.p_bcm.pw.invertY(True)          # LEBT on top, BTL on bottom
         self.p_bcm.pw.setXRange(0, 6.0)
         self.p_bcm.pw.setYRange(-0.7, len(self.tors) - 0.3)
-        row3.addWidget(self.p_bcm, 2)
-        self.lbl_teff = QLabel("boundary transmission: —")
-        from PyQt6.QtCore import Qt
-        self.lbl_teff.setTextFormat(Qt.TextFormat.RichText)
-        self.lbl_teff.setStyleSheet("font-size: 13px;")
-        row3.addWidget(self.lbl_teff, 2)
+        row3.addWidget(self.p_bcm, 1)
         self.body.addLayout(row3, 2)
 
         self.lbl_health = QLabel("device health: —")
@@ -128,7 +138,8 @@ class OverviewPage(Page):
         mx = float(np.max(w)) if len(w) else 0.0
         self.v_loss.set(mx, theme.OK if mx < 1.0 else theme.ALARM)
         if self._gate % 4 == 0:
-            self.loss_bars.setOpts(height=np.maximum(w, 1e-4))
+            self.loss_bars.setOpts(width=np.maximum(w, 0.0))
+            self.p_loss.pw.setXRange(0, max(10.0, float(mx) * 1.15))
 
     def _on_toroids(self, _pid, data):
         if not self.isVisible():
@@ -143,21 +154,19 @@ class OverviewPage(Page):
             if self._gate % 4 == 0:
                 r = np.maximum(i[:-1], 1e-6)
                 tt = np.clip(100.0 * i[1:] / r, 0, 110)
-                cells = []
+                parts = []
                 for k in range(n - 1):
                     # chopper boundary legitimately removes beam
                     chop = "MEBT" in self.tors[k + 1].section
                     good = tt[k] > 95 or chop
                     c = theme.OK if good else theme.ALARM
-                    cells.append(
-                        f"<td style='padding:1px 10px'>"
-                        f"{self.tors[k].section}→{self.tors[k+1].section}"
-                        f"</td><td style='color:{c};font-weight:bold'>"
-                        f"{tt[k]:.2f}%</td>")
-                rows = "".join(f"<tr>{c}</tr>" for c in cells)
+                    parts.append(
+                        f"{self.tors[k].section}→{self.tors[k+1].section} "
+                        f"<span style='color:{c};font-weight:bold'>"
+                        f"{tt[k]:.2f}%</span>")
                 self.lbl_teff.setText(
-                    f"<b>boundary transmission</b>"
-                    f"<table>{rows}</table>")
+                    "<b>boundary T:</b> &nbsp;" +
+                    " &nbsp;|&nbsp; ".join(parts))
 
     def _on_rf(self, _pid, data):
         self._rf_trips = int(np.sum(data["status"] > 0.5))
