@@ -108,6 +108,9 @@ font-weight:600;background:#21262d;color:#8b96a5}
 .rng.on{background:#1f6feb;color:#fff}
 button{width:100%;padding:12px;margin-top:8px;border-radius:10px;border:0;
 background:#1f6feb;color:#fff;font-size:16px;font-weight:600}
+button:active,.rng:active{transform:scale(.96);filter:brightness(1.35)}
+.tapped{background:#2ea043!important}
+button:disabled{opacity:.55}
 a{color:#4fc3f7}</style></head><body>
 <div class="grid">
 <div class="card" id="permit">…</div>
@@ -117,9 +120,9 @@ a{color:#4fc3f7}</style></head><body>
 <div class="card"><div class="v" id="loss">…</div><div class="l" id="lossat">worst BLM</div></div>
 </div>
 <div style="display:flex;gap:6px;margin-top:10px">
-<button id="w30m" class="rng on" onclick="setRange(1800,this)">30 min</button>
-<button id="w5m" class="rng" onclick="setRange(300,this)">5 min</button>
-<button id="w30s" class="rng" onclick="setRange(30,this)">30 s</button>
+<button id="w30m" class="rng on" onclick="tap(this);setRange(1800,this)">30 min</button>
+<button id="w5m" class="rng" onclick="tap(this);setRange(300,this)">5 min</button>
+<button id="w30s" class="rng" onclick="tap(this);setRange(30,this)">30 s</button>
 </div>
 <div class="grid" style="margin-top:8px">
 <div class="card"><canvas id="ct" width="360" height="84"></canvas>
@@ -133,7 +136,7 @@ a{color:#4fc3f7}</style></head><body>
 </div>
 <div id="events">…</div>
 <input id="ask" placeholder="Ask the machine…" autocomplete="off">
-<button onclick="ask()">Ask</button>
+<button id="askbtn" onclick="tap(this);ask()">Ask</button>
 <div id="ans"></div>
 <p style="text-align:center"><a href="/studies">beam studies →</a>
 &nbsp;&nbsp;<a href="/room">full control room →</a></p>
@@ -175,11 +178,15 @@ async function trends(){try{
  spark('cw',cut(d.w),'#4fc3f7');spark('ci',cut(d.i),'#ffd54f');
 }catch(e){}}
 setInterval(trends,2000);trends();
+function tap(b){b.classList.add('tapped');
+ setTimeout(()=>b.classList.remove('tapped'),350);}
 async function ask(){const q=document.getElementById('ask').value;if(!q)return;
+ askbtn.disabled=true;askbtn.textContent='Asking…';
  ans.style.display='block';ans.textContent='thinking…';
  const r=await fetch('/api/ask',{method:'POST',
   headers:{'Content-Type':'application/json'},body:JSON.stringify({q})});
- ans.textContent=(await r.json()).answer;}
+ ans.textContent=(await r.json()).answer;
+ askbtn.disabled=false;askbtn.textContent='Ask';}
 </script></body></html>"""
 
 
@@ -198,6 +205,7 @@ font-family:-apple-system,Segoe UI,Roboto,sans-serif}
 padding:6px;background:#0d1117cc;backdrop-filter:blur(6px)}
 #bar button,#bar a{flex:1;padding:10px 0;border-radius:8px;border:0;
 font-size:14px;font-weight:600;text-align:center;text-decoration:none}
+#bar button:active{transform:scale(.94);filter:brightness(1.5)}
 .on{background:#1f6feb;color:#fff}.off{background:#21262d;color:#8b96a5}
 #wrap{position:absolute;top:46px;left:0;right:0;bottom:0;overflow:hidden}
 #frame{width:1920px;height:1080px;border:0;transform-origin:0 0;
@@ -268,6 +276,10 @@ border-radius:10px;border:1px solid #30363d;background:#0d1117;
 color:#e6edf3;font-size:15px}
 button{padding:10px 14px;border-radius:10px;border:0;background:#1f6feb;
 color:#fff;font-size:14px;font-weight:600;margin-top:6px}
+button:active,.chip:active{transform:scale(.96);filter:brightness(1.4)}
+.tapped{background:#2ea043!important}
+button:disabled{opacity:.55}
+.item:active{background:#21262d}
 button.gray{background:#21262d;color:#9fb0c3}
 button.red{background:#8b1e1e}
 .chip{display:inline-block;background:#21262d;color:#c8d2de;border-radius:14px;
@@ -277,22 +289,24 @@ pre{white-space:pre-wrap;font-size:12px;color:#c8d2de}
 a{color:#4fc3f7}</style></head><body>
 <a href="/">← status</a>
 <div class="card"><b>Now running</b><div id="run" class="l">—</div>
-<button class="red" onclick="post('/api/abort').then(load)">Abort + restore</button></div>
+<button class="red" onclick="tap(this);this.textContent='Aborting…';post('/api/abort').then(r=>{this.textContent='Abort + restore';msg(r);load()})">Abort + restore</button></div>
 <div class="card"><b>Plan with AI</b>
 <textarea id="nl" rows="2" placeholder="e.g. sweep SSR1:CAV11 phase ±5°, 9 steps, restore after"></textarea>
-<button onclick="plan()">Plan</button>
+<button id="planbtn" onclick="tap(this);plan()">Plan</button>
 <div id="plansum" class="l"></div>
-<button id="qbtn" style="display:none" onclick="queuePlan()">Queue this study</button></div>
+<button id="qbtn" style="display:none" onclick="tap(this);queuePlan()">Queue this study</button></div>
 <div class="card"><b>Presets</b> <span class="l">(tap to queue)</span>
 <div id="presets"></div></div>
 <div class="card"><b>Queue</b><div id="queue" class="l">—</div>
-<button onclick="post('/api/run_next').then(r=>{msg(r);load()})">Run next</button></div>
+<button onclick="tap(this);post('/api/run_next').then(r=>{msg(r);load()})">Run next</button></div>
 <div class="card"><b>Recent results</b><div id="results"></div>
 <pre id="report"></pre>
-<button id="aibtn" style="display:none" class="gray" onclick="analyze()">AI analysis</button></div>
+<button id="aibtn" style="display:none" class="gray" onclick="tap(this);this.textContent='Analyzing…';analyze().then(()=>this.textContent='AI analysis')">AI analysis</button></div>
 <div id="msg" class="l" style="margin-top:8px"></div>
 <script>
 let planObj=null,curStem=null;
+function tap(b){b.classList.add('tapped');
+ setTimeout(()=>b.classList.remove('tapped'),350);}
 const post=(u,b)=>fetch(u,{method:'POST',headers:{'Content-Type':
  'application/json'},body:JSON.stringify(b||{})}).then(r=>r.json());
 function msg(r){document.getElementById('msg').textContent=
@@ -304,13 +318,15 @@ async function load(){
  queue.textContent=d.queue.length?d.queue.join('\n'):'(empty)';
  presets.innerHTML=d.presets.map(p=>
   `<span class="chip" title="${p.teaches}"
-    onclick="post('/api/queue',{preset:'${p.name}'}).then(r=>{msg(r);load()})">${p.name}</span>`).join('');
+    onclick="tap(this);post('/api/queue',{preset:'${p.name}'}).then(r=>{msg(r);load()})">${p.name}</span>`).join('');
  results.innerHTML=d.results.map(r=>
   `<div class="item" onclick="show('${r}')">${r}</div>`).join('');
 }
 async function plan(){
+ planbtn.disabled=true;planbtn.textContent='Planning…';
  plansum.textContent='planning…';
  const r=await post('/api/plan',{text:document.getElementById('nl').value});
+ planbtn.disabled=false;planbtn.textContent='Plan';
  if(r.error){plansum.textContent='✗ '+r.error;return;}
  planObj=r.plan;plansum.textContent=r.summary+'  ['+r.note+']';
  qbtn.style.display='inline-block';}
@@ -323,6 +339,7 @@ async function show(stem){curStem=stem;report.textContent='loading…';
 async function analyze(){report.textContent='AI analyzing… (30-60 s)';
  const r=await post('/api/analyze/'+curStem);
  report.textContent=r.report||r.error;}
+
 setInterval(load,4000);load();
 </script></body></html>"""
 
