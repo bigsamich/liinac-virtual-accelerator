@@ -310,30 +310,39 @@ class Linac3D(QWidget):
             vertexes=V, faces=self._env_faces))
 
     def update_cloud(self, cloud, station_name, max_pts=8000):
-        """Macroparticle cloud (3,N) in metres at a station: drawn at the
-        station's floor position, transverse exaggerated like the orbit."""
+        """Macroparticle cloud (3,N) in MILLIMETRES (alive particles) at a
+        station. Transverse uses the same ORBIT_EXAG scale as the orbit
+        markers and envelope tube; longitudinal is shown at 20:1."""
         if self.view is None or not self.isVisible() or cloud is None:
             return
         k = self._el_index.get(station_name)
         if k is None:
             return
-        c = np.asarray(cloud)
+        c = np.asarray(cloud, dtype=float)
         if c.shape[0] != 3:
             c = c.T
         n = c.shape[1]
         if n > max_pts:
             c = c[:, :: max(1, n // max_pts)]
-        ex = ORBIT_EXAG * 1e3
         th = self.headings[k]
         d = np.array([math.cos(th), math.sin(th)])
         nn = np.array([-math.sin(th), math.cos(th)])
         base = self.centers[k]
-        along = c[2] * 4.0                 # z: metres, x4 to show the bunch
+        x_mm = c[0] - np.median(c[0])
+        y_mm = c[1] - np.median(c[1])
+        z_mm = c[2] - np.median(c[2])
+        along = z_mm * 0.02                # 20:1 longitudinal exaggeration
         P = np.empty((c.shape[1], 3))
-        P[:, 0] = base[0] + d[0] * along + nn[0] * c[0] * ex
-        P[:, 1] = base[1] + d[1] * along + nn[1] * c[0] * ex
-        P[:, 2] = c[1] * ex
-        self.cloud.setData(pos=P)
+        P[:, 0] = base[0] + d[0] * along + nn[0] * x_mm * ORBIT_EXAG
+        P[:, 1] = base[1] + d[1] * along + nn[1] * x_mm * ORBIT_EXAG
+        P[:, 2] = y_mm * ORBIT_EXAG
+        # two-tone: cyan core, faint orange halo (r > 3 sigma)
+        sx = np.std(x_mm) + 1e-9
+        sy = np.std(y_mm) + 1e-9
+        r = np.sqrt((x_mm / sx) ** 2 + (y_mm / sy) ** 2)
+        col = np.tile((0.35, 0.9, 1.0, 0.35), (len(r), 1))
+        col[r > 3.0] = (1.0, 0.6, 0.15, 0.5)
+        self.cloud.setData(pos=P, color=col)
 
     def update_values(self, mapping):
         """Set floating label text for named elements: {name: text}."""
