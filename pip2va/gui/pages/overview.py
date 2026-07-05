@@ -47,7 +47,7 @@ class OverviewPage(Page):
         self.c_oy = self.p_orbit.plot(pen=pg.mkPen("#ffb74d", width=1),
                                       name="y")
         self.p_orbit.addLegend(offset=(6, 6), labelTextSize="8pt")
-        row2.addWidget(self.p_orbit, 1)
+        row2.addWidget(self.p_orbit, 2)
         self.p_loss = CrosshairPlot("", xlabel="loss [W/m]")
         self.loss_bars = pg.BarGraphItem(
             x0=0, y=np.arange(len(blms)), height=0.75,
@@ -64,18 +64,9 @@ class OverviewPage(Page):
         self.p_loss.pw.setYRange(-1, len(blms))
         self.p_loss.pw.setXRange(0, 30)
         row2.addWidget(self.p_loss, 1)
-        self.body.addLayout(row2, 3)
 
-        # vertical BCM histogram (LEBT top -> BTL bottom) + numeric T
+        # vertical BCM histogram (LEBT top -> BTL bottom), next to BLM
         self.tors = lat.instruments("toroid")
-        from PyQt6.QtWidgets import QVBoxLayout
-        col = QVBoxLayout()
-        self.lbl_teff = QLabel("boundary transmission: —")
-        from PyQt6.QtCore import Qt
-        self.lbl_teff.setTextFormat(Qt.TextFormat.RichText)
-        self.lbl_teff.setStyleSheet("font-size: 13px; padding: 2px;")
-        col.addWidget(self.lbl_teff)
-        row3 = col
         self.p_bcm = CrosshairPlot("", xlabel="beam current [mA]")
         self.bcm_bars = pg.BarGraphItem(
             x0=0, y=np.arange(len(self.tors)), height=0.6,
@@ -87,8 +78,20 @@ class OverviewPage(Page):
         self.p_bcm.pw.invertY(True)          # LEBT on top, BTL on bottom
         self.p_bcm.pw.setXRange(0, 6.0)
         self.p_bcm.pw.setYRange(-0.7, len(self.tors) - 0.3)
-        row3.addWidget(self.p_bcm, 1)
-        self.body.addLayout(row3, 2)
+        row2.addWidget(self.p_bcm, 1)
+
+        from PyQt6.QtCore import Qt
+        self.lbl_teff = QLabel("boundary transmission: —")
+        self.lbl_teff.setTextFormat(Qt.TextFormat.RichText)
+        self.lbl_teff.setStyleSheet("font-size: 13px; padding: 2px;")
+        self.body.addLayout(row2, 3)
+        self.body.addWidget(self.lbl_teff)
+
+        # 3D synoptic: full linac + BTL with live orbit/losses/current
+        from ..linac3d import Linac3D
+        self.view3d = Linac3D(lat)
+        self._tor_s = np.array([t.s for t in self.tors])
+        self.body.addWidget(self.view3d, 4)
 
         self.lbl_health = QLabel("device health: —")
         self.body.addWidget(self.lbl_health)
@@ -130,6 +133,7 @@ class OverviewPage(Page):
         self.c_ox.setData(xs, x_mm)
         self.c_oy.setData(xs, y_mm)
         self.p_orbit.update_y(x_mm, y_mm)
+        self.view3d.update_orbit(x_mm, y_mm)
 
     def _on_losses(self, _pid, data):
         if not self.isVisible():
@@ -140,6 +144,7 @@ class OverviewPage(Page):
         if self._gate % 4 == 0:
             self.loss_bars.setOpts(width=np.maximum(w, 0.0))
             self.p_loss.pw.setXRange(0, max(10.0, float(mx) * 1.15))
+            self.view3d.update_losses(w)
 
     def _on_toroids(self, _pid, data):
         if not self.isVisible():
@@ -148,6 +153,7 @@ class OverviewPage(Page):
         n = min(len(i), len(self.tors))
         if self._gate % 4 == 0:
             self.bcm_bars.setOpts(width=np.maximum(i[:n], 0.0))
+            self.view3d.update_current(i[:n], self._tor_s[:n])
         if n >= 3:
             self.v_i.set(float(i[-1]))
             self.v_charge.set(float(i[-1]) * 1e-3 * self.pulse_ms * 1e3)
