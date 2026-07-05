@@ -63,6 +63,11 @@ Rules:
   the loss monitors within ~10%). Choose a SAFE rate: current changes <= 0.25 mA per
   step with dwell >= 2 s unless the operator insists; explain in rationale.
 - steps*dwell_s should honor any requested total duration. dwell_s >= 0.5.
+- Optional flags: "rebaseline": true for intensity/current changes (MPS
+  re-baselines at each plateau); "capture_orbit": true to record the full
+  BPM orbit per step (dispersion/steering studies); "capture_rf_wf":
+  "<cavity>" to record intra-pulse beam-loading observables. rf field "ff"
+  (0..1) fades a cavity's beam-loading feedforward.
 - If the request names a device loosely, pick the closest from the catalog.
 Return ONLY the JSON object."""
 

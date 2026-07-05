@@ -57,6 +57,70 @@ class StudiesPage(Page):
 
         # ---- natural-language request
         from PyQt6.QtWidgets import QComboBox, QTabWidget
+        # quick-click chips: the program's most common asks, one press
+        QUICK = [
+            ("Beam loading (FF fade)", "plan", {
+                "name": "ff-fade", "kind": "sweep",
+                "description": "fade feedforward, watch beam loading emerge",
+                "capture_rf_wf": "HB650:CAV12",
+                "sweeps": [{"cls": "rf", "device": "HB650:CAV12",
+                            "field": "ff", "from": 1.0, "to": 0.0}],
+                "steps": 9, "dwell_s": 2.5, "restore": True}),
+            ("Dead-cavity recovery drill", "plan", {
+                "name": "cavity-out-drill", "kind": "sweep",
+                "description": "CAV17 to zero, neighbors +15% (validated recipe)",
+                "sweeps": [
+                    {"cls": "rf", "device": "SSR2:CAV17", "field": "amp",
+                     "from": 4.66, "to": 0.0},
+                    {"cls": "rf", "device": "SSR2:CAV16", "field": "amp",
+                     "from": 4.66, "to": 5.36},
+                    {"cls": "rf", "device": "SSR2:CAV18", "field": "amp",
+                     "from": 4.66, "to": 5.36}],
+                "steps": 9, "dwell_s": 2.0, "restore": True}),
+            ("Measure dispersion", "plan", {
+                "name": "dispersion", "kind": "sweep",
+                "description": "energy trim vs full orbit (D at the arcs)",
+                "capture_orbit": True,
+                "sweeps": [{"cls": "rf", "device": "HB650:CAV24",
+                            "field": "amp", "from": 11.94, "to": 12.94}],
+                "steps": 9, "dwell_s": 2.0, "restore": True}),
+            ("Drift soak (5 min)", "plan", {
+                "name": "drift-soak", "kind": "sweep",
+                "description": "null soak: drift statistics",
+                "sweeps": [{"cls": "source", "device": "main",
+                            "field": "current_ma", "from": 5.0, "to": 5.0}],
+                "steps": 30, "dwell_s": 10.0, "restore": True}),
+            ("Phase acceptance…", "text",
+             "map the phase acceptance of SSR2:CAV17, stay inside known "
+             "tolerances from prior findings"),
+            ("Safe intensity ramp…", "text",
+             "ramp the source current to 6 mA safely with re-baselining"),
+            ("Steering survey…", "text",
+             "survey opposing corrector pair SSR2:C4 and SSR2:C8 in x from "
+             "-0.8 to 0.8 A to hunt loss reduction"),
+            ("Aperture probe…", "text",
+             "ramp SSR2:C10 x-trim from 0 until losses grow to probe the "
+             "local acceptance, restore after"),
+        ]
+        chips = QHBoxLayout()
+        chips2 = QHBoxLayout()
+        for i, (label, kind, payload) in enumerate(QUICK):
+            b = QPushButton(label)
+            b.setStyleSheet("font-size: 11px; padding: 3px 8px;")
+            if kind == "plan":
+                b.setToolTip("loads a validated ready-to-run plan")
+                b.clicked.connect(
+                    lambda _, pl=payload: self._quick_plan(pl))
+            else:
+                b.setToolTip("fills the request box and asks the AI planner")
+                b.clicked.connect(
+                    lambda _, t=payload: (self.ed.setText(t), self._plan()))
+            (chips if i < 4 else chips2).addWidget(b)
+        chips.addStretch(1)
+        chips2.addStretch(1)
+        self.body.addLayout(chips)
+        self.body.addLayout(chips2)
+
         bar = QHBoxLayout()
         self.sel_preset = QComboBox()
         self.sel_preset.addItem("— presets —")
@@ -194,6 +258,15 @@ class StudiesPage(Page):
         self._timer = QTimer(self)
         self._timer.timeout.connect(self._poll)
         self._timer.start(1000)
+
+    def _quick_plan(self, payload):
+        import copy
+        try:
+            plan, note = studies.validate_plan(copy.deepcopy(payload))
+            self.txt_plan.setPlainText(json.dumps(plan, indent=1))
+            self.lbl_note.setText(f"quick plan ready — Queue then RUN  [{note}]")
+        except Exception as e:
+            self.lbl_note.setText(f"✗ {e}")
 
     def _load_preset(self):
         nm = self.sel_preset.currentText()
