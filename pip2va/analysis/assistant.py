@@ -120,7 +120,20 @@ def ask(r, question: str, timeout: float = 240.0) -> tuple[str, str]:
         f"{llm.OLLAMA_URL}/api/chat",
         data=json.dumps(payload).encode(),
         headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        msg = json.loads(resp.read()).get("message", {})
-    text = (msg.get("content") or msg.get("thinking") or "").strip()
-    return text, f"llm:{llm.MODEL}"
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            msg = json.loads(resp.read()).get("message", {})
+        text = (msg.get("content") or msg.get("thinking") or "").strip()
+        return text, f"llm:{llm.MODEL}"
+    except Exception as e:
+        lines = [f"[LLM error: {e} — model '{llm.MODEL}' missing? "
+                 f"try: ollama pull qwen3.6 && ollama pull "
+                 f"qwen3-embedding:8b, then bake_expert.py]",
+                 f"snapshot: permit {ctx['beam_permit']}"]
+        if "beam" in ctx:
+            b = ctx["beam"]
+            lines.append(f"W={b['energy_mev']} MeV T={b['transmission']} "
+                         f"I={b['delivered_ma']} mA")
+        if "losses" in ctx:
+            lines.append("worst loss: " + ctx["losses"]["worst"])
+        return "\n".join(lines), "rules"
