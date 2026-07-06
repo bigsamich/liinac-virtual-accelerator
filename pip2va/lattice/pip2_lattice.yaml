@@ -8922,16 +8922,6 @@ elements:
   aperture_radius: 0.0225
   params: {}
   knobs: {}
-- name: BTL:B3
-  type: dipole
-  s: 197.78
-  length: 2.45
-  section: BTL
-  aperture_radius: 0.0225
-  params:
-    angle_deg: 7.0
-    b_t: 0.24
-  knobs: {}
 - name: BTL:BLMX406
   type: blm
   s: 197.78
@@ -8941,6 +8931,16 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
+  knobs: {}
+- name: BTL:B3
+  type: dipole
+  s: 197.78
+  length: 2.45
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    angle_deg: 7.0
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX308
   type: blm
@@ -9077,16 +9077,6 @@ elements:
   aperture_radius: 0.0225
   params: {}
   knobs: {}
-- name: BTL:B5
-  type: dipole
-  s: 206.48
-  length: 2.45
-  section: BTL
-  aperture_radius: 0.0225
-  params:
-    angle_deg: 7.0
-    b_t: 0.24
-  knobs: {}
 - name: BTL:BLMX402
   type: blm
   s: 206.48
@@ -9096,6 +9086,16 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
+  knobs: {}
+- name: BTL:B5
+  type: dipole
+  s: 206.48
+  length: 2.45
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    angle_deg: 7.0
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX304
   type: blm
@@ -9232,16 +9232,6 @@ elements:
   aperture_radius: 0.0225
   params: {}
   knobs: {}
-- name: BTL:B7
-  type: dipole
-  s: 215.18
-  length: 2.45
-  section: BTL
-  aperture_radius: 0.0225
-  params:
-    angle_deg: 7.0
-    b_t: 0.24
-  knobs: {}
 - name: BTL:BLMX407
   type: blm
   s: 215.18
@@ -9251,6 +9241,16 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
+  knobs: {}
+- name: BTL:B7
+  type: dipole
+  s: 215.18
+  length: 2.45
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    angle_deg: 7.0
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX309
   type: blm
@@ -9397,16 +9397,6 @@ elements:
   aperture_radius: 0.0225
   params: {}
   knobs: {}
-- name: BTL:B9
-  type: dipole
-  s: 223.93
-  length: 2.45
-  section: BTL
-  aperture_radius: 0.0225
-  params:
-    angle_deg: 7.0
-    b_t: 0.24
-  knobs: {}
 - name: BTL:BLMX408
   type: blm
   s: 223.93
@@ -9416,6 +9406,16 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
+  knobs: {}
+- name: BTL:B9
+  type: dipole
+  s: 223.93
+  length: 2.45
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    angle_deg: 7.0
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX310
   type: blm
@@ -9552,16 +9552,6 @@ elements:
   aperture_radius: 0.0225
   params: {}
   knobs: {}
-- name: BTL:B11
-  type: dipole
-  s: 232.63
-  length: 2.45
-  section: BTL
-  aperture_radius: 0.0225
-  params:
-    angle_deg: 7.0
-    b_t: 0.24
-  knobs: {}
 - name: BTL:BLMX403
   type: blm
   s: 232.63
@@ -9571,6 +9561,16 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
+  knobs: {}
+- name: BTL:B11
+  type: dipole
+  s: 232.63
+  length: 2.45
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    angle_deg: 7.0
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX305
   type: blm
@@ -9763,16 +9763,6 @@ elements:
   aperture_radius: 0.0225
   params: {}
   knobs: {}
-- name: BTL:B14
-  type: dipole
-  s: 244.23
-  length: 2.45
-  section: BTL
-  aperture_radius: 0.0225
-  params:
-    angle_deg: 7.5
-    b_t: 0.24
-  knobs: {}
 - name: BTL:BLMX404
   type: blm
   s: 244.23
@@ -9782,6 +9772,16 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
+  knobs: {}
+- name: BTL:B14
+  type: dipole
+  s: 244.23
+  length: 2.45
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    angle_deg: 7.5
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX306
   type: blm
@@ -9928,16 +9928,6 @@ elements:
   aperture_radius: 0.0225
   params: {}
   knobs: {}
-- name: BTL:B16
-  type: dipole
-  s: 252.98
-  length: 2.45
-  section: BTL
-  aperture_radius: 0.0225
-  params:
-    angle_deg: 7.5
-    b_t: 0.24
-  knobs: {}
 - name: BTL:BLMX405
   type: blm
   s: 252.98
@@ -9947,6 +9937,16 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
+  knobs: {}
+- name: BTL:B16
+  type: dipole
+  s: 252.98
+  length: 2.45
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    angle_deg: 7.5
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX307
   type: blm
@@ -10083,16 +10083,6 @@ elements:
   aperture_radius: 0.0225
   params: {}
   knobs: {}
-- name: BTL:B18
-  type: dipole
-  s: 261.68
-  length: 2.45
-  section: BTL
-  aperture_radius: 0.0225
-  params:
-    angle_deg: 7.5
-    b_t: 0.24
-  knobs: {}
 - name: BTL:BLMX409
   type: blm
   s: 261.68
@@ -10102,6 +10092,16 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
+  knobs: {}
+- name: BTL:B18
+  type: dipole
+  s: 261.68
+  length: 2.45
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    angle_deg: 7.5
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX311
   type: blm
@@ -10238,16 +10238,6 @@ elements:
   aperture_radius: 0.0225
   params: {}
   knobs: {}
-- name: BTL:B20
-  type: dipole
-  s: 270.38
-  length: 2.45
-  section: BTL
-  aperture_radius: 0.0225
-  params:
-    angle_deg: 7.5
-    b_t: 0.24
-  knobs: {}
 - name: BTL:BLMX410
   type: blm
   s: 270.38
@@ -10257,6 +10247,16 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
+  knobs: {}
+- name: BTL:B20
+  type: dipole
+  s: 270.38
+  length: 2.45
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    angle_deg: 7.5
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX312
   type: blm
@@ -10393,16 +10393,6 @@ elements:
   aperture_radius: 0.0225
   params: {}
   knobs: {}
-- name: BTL:B22
-  type: dipole
-  s: 279.08
-  length: 2.45
-  section: BTL
-  aperture_radius: 0.0225
-  params:
-    angle_deg: 7.5
-    b_t: 0.24
-  knobs: {}
 - name: BTL:BLMX411
   type: blm
   s: 279.08
@@ -10412,6 +10402,16 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
+  knobs: {}
+- name: BTL:B22
+  type: dipole
+  s: 279.08
+  length: 2.45
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    angle_deg: 7.5
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX313
   type: blm
@@ -10558,16 +10558,6 @@ elements:
   aperture_radius: 0.0225
   params: {}
   knobs: {}
-- name: BTL:B24
-  type: dipole
-  s: 287.83
-  length: 2.45
-  section: BTL
-  aperture_radius: 0.0225
-  params:
-    angle_deg: 7.5
-    b_t: 0.24
-  knobs: {}
 - name: BTL:BLMX412
   type: blm
   s: 287.83
@@ -10577,6 +10567,16 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
+  knobs: {}
+- name: BTL:B24
+  type: dipole
+  s: 287.83
+  length: 2.45
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    angle_deg: 7.5
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX314
   type: blm
@@ -10713,16 +10713,6 @@ elements:
   aperture_radius: 0.0225
   params: {}
   knobs: {}
-- name: BTL:B26
-  type: dipole
-  s: 296.53
-  length: 2.45
-  section: BTL
-  aperture_radius: 0.0225
-  params:
-    angle_deg: 7.5
-    b_t: 0.24
-  knobs: {}
 - name: BTL:BLMX401
   type: blm
   s: 296.53
@@ -10732,6 +10722,16 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
+  knobs: {}
+- name: BTL:B26
+  type: dipole
+  s: 296.53
+  length: 2.45
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    angle_deg: 7.5
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX303
   type: blm
@@ -10868,16 +10868,6 @@ elements:
   aperture_radius: 0.0225
   params: {}
   knobs: {}
-- name: BTL:B28
-  type: dipole
-  s: 305.23
-  length: 2.45
-  section: BTL
-  aperture_radius: 0.0225
-  params:
-    angle_deg: 7.5
-    b_t: 0.24
-  knobs: {}
 - name: BTL:BLMX413
   type: blm
   s: 305.23
@@ -10887,6 +10877,16 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
+  knobs: {}
+- name: BTL:B28
+  type: dipole
+  s: 305.23
+  length: 2.45
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    angle_deg: 7.5
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX315
   type: blm
@@ -11023,16 +11023,6 @@ elements:
   aperture_radius: 0.0225
   params: {}
   knobs: {}
-- name: BTL:B30
-  type: dipole
-  s: 313.93
-  length: 2.45
-  section: BTL
-  aperture_radius: 0.0225
-  params:
-    angle_deg: 7.5
-    b_t: 0.24
-  knobs: {}
 - name: BTL:BLMX414
   type: blm
   s: 313.93
@@ -11042,6 +11032,16 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
+  knobs: {}
+- name: BTL:B30
+  type: dipole
+  s: 313.93
+  length: 2.45
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    angle_deg: 7.5
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX316
   type: blm
@@ -11188,16 +11188,6 @@ elements:
   aperture_radius: 0.0225
   params: {}
   knobs: {}
-- name: BTL:B32
-  type: dipole
-  s: 322.68
-  length: 2.45
-  section: BTL
-  aperture_radius: 0.0225
-  params:
-    angle_deg: 7.5
-    b_t: 0.24
-  knobs: {}
 - name: BTL:BLMX415
   type: blm
   s: 322.68
@@ -11207,6 +11197,16 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
+  knobs: {}
+- name: BTL:B32
+  type: dipole
+  s: 322.68
+  length: 2.45
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    angle_deg: 7.5
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX317
   type: blm
