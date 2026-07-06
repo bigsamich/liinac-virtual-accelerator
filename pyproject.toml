@@ -17,7 +17,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-gui = ["PyQt6>=6.6", "pyqtgraph>=0.13"]
+gui = ["PyQt6>=6.6", "pyqtgraph>=0.13"
+    "PyOpenGL",
+]
 gpu = ["cupy-cuda13x>=13.0"]
 dev = ["pytest>=8.0", "fakeredis>=2.21", "pytest-qt>=4.4"]
 
