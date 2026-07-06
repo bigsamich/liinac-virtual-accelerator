@@ -454,10 +454,12 @@ def build(mebt_gq: float = 2.8, mebt_ratio: float = 1.1,
         if debuncher:
             b.cavity(0.60, 1.3, -90.0, 650.0, ap, "debuncher")
             b.drift(0.40, ap)
-        for _ in range(bends):
+        for bi in range(bends):
             b.add("dipole", f"BTL:B{b._n('B')}", 2.45, ap,
                   params={"angle_deg": angle, "b_t": 0.24})
             b.drift(0.35, ap)
+            if bi == 0:
+                b.blm()          # full-line loss coverage through the arcs
         b.quad(0.20, -g_btl, ap)
         b.corrector(ap); b.bpm(ap)
         b.blm()

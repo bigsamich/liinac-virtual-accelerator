@@ -199,6 +199,16 @@ elements:
   knobs:
     amp: settings:rf:RFQ:RFQ
     phase: settings:rf:RFQ:RFQ
+- name: RFQ:BLMX67
+  type: blm
+  s: 5.145
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
 - name: MEBT:TOR1
   type: toroid
   s: 6.31
@@ -8597,6 +8607,16 @@ elements:
     angle_deg: 7.0
     b_t: 0.24
   knobs: {}
+- name: BTL:BLMX68
+  type: blm
+  s: 189.955
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
 - name: BTL:D12
   type: drift
   s: 191.48
@@ -8742,6 +8762,16 @@ elements:
     angle_deg: 7.0
     b_t: 0.24
   knobs: {}
+- name: BTL:BLMX69
+  type: blm
+  s: 199.255
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
 - name: BTL:D16
   type: drift
   s: 200.23
@@ -8877,6 +8907,16 @@ elements:
     angle_deg: 7.0
     b_t: 0.24
   knobs: {}
+- name: BTL:BLMX70
+  type: blm
+  s: 207.98
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
 - name: BTL:D20
   type: drift
   s: 208.93
@@ -9011,6 +9051,16 @@ elements:
   params:
     angle_deg: 7.0
     b_t: 0.24
+  knobs: {}
+- name: BTL:BLMX71
+  type: blm
+  s: 216.68
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
   knobs: {}
 - name: BTL:D24
   type: drift
@@ -9156,6 +9206,16 @@ elements:
   params:
     angle_deg: 7.0
     b_t: 0.24
+  knobs: {}
+- name: BTL:BLMX72
+  type: blm
+  s: 225.405
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
   knobs: {}
 - name: BTL:D28
   type: drift
@@ -9310,6 +9370,16 @@ elements:
     angle_deg: 7.0
     b_t: 0.24
   knobs: {}
+- name: BTL:BLMX73
+  type: blm
+  s: 235.53
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
 - name: BTL:D33
   type: drift
   s: 237.88
@@ -9463,6 +9533,16 @@ elements:
     angle_deg: 7.5
     b_t: 0.24
   knobs: {}
+- name: BTL:BLMX74
+  type: blm
+  s: 245.68
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
 - name: BTL:D37
   type: drift
   s: 246.68
@@ -9608,6 +9688,16 @@ elements:
     angle_deg: 7.5
     b_t: 0.24
   knobs: {}
+- name: BTL:BLMX75
+  type: blm
+  s: 254.455
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
 - name: BTL:D41
   type: drift
   s: 255.43
@@ -9742,6 +9832,16 @@ elements:
   params:
     angle_deg: 7.5
     b_t: 0.24
+  knobs: {}
+- name: BTL:BLMX76
+  type: blm
+  s: 263.18
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
   knobs: {}
 - name: BTL:D45
   type: drift
@@ -9878,6 +9978,16 @@ elements:
     angle_deg: 7.5
     b_t: 0.24
   knobs: {}
+- name: BTL:BLMX77
+  type: blm
+  s: 271.88
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
 - name: BTL:D49
   type: drift
   s: 272.83
@@ -10012,6 +10122,16 @@ elements:
   params:
     angle_deg: 7.5
     b_t: 0.24
+  knobs: {}
+- name: BTL:BLMX78
+  type: blm
+  s: 280.58
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
   knobs: {}
 - name: BTL:D53
   type: drift
@@ -10158,6 +10278,16 @@ elements:
     angle_deg: 7.5
     b_t: 0.24
   knobs: {}
+- name: BTL:BLMX79
+  type: blm
+  s: 289.305
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
 - name: BTL:D57
   type: drift
   s: 290.28
@@ -10292,6 +10422,16 @@ elements:
   params:
     angle_deg: 7.5
     b_t: 0.24
+  knobs: {}
+- name: BTL:BLMX80
+  type: blm
+  s: 298.03
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
   knobs: {}
 - name: BTL:D61
   type: drift
@@ -10428,6 +10568,16 @@ elements:
     angle_deg: 7.5
     b_t: 0.24
   knobs: {}
+- name: BTL:BLMX81
+  type: blm
+  s: 306.73
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
 - name: BTL:D65
   type: drift
   s: 307.68
@@ -10562,6 +10712,16 @@ elements:
   params:
     angle_deg: 7.5
     b_t: 0.24
+  knobs: {}
+- name: BTL:BLMX82
+  type: blm
+  s: 315.43
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
   knobs: {}
 - name: BTL:D69
   type: drift
@@ -10708,6 +10868,16 @@ elements:
     angle_deg: 7.5
     b_t: 0.24
   knobs: {}
+- name: BTL:BLMX83
+  type: blm
+  s: 324.155
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
 - name: BTL:D73
   type: drift
   s: 325.13
@@ -10843,6 +11013,16 @@ elements:
     angle_deg: 7.5
     b_t: 0.24
   knobs: {}
+- name: BTL:BLMX84
+  type: blm
+  s: 332.88
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
 - name: BTL:D77
   type: drift
   s: 333.83
@@ -10977,6 +11157,16 @@ elements:
   params:
     angle_deg: 7.5
     b_t: 0.24
+  knobs: {}
+- name: BTL:BLMX85
+  type: blm
+  s: 341.58
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
   knobs: {}
 - name: BTL:D81
   type: drift
