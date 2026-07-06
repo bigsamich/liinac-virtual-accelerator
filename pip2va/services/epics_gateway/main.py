@@ -25,7 +25,7 @@ import time
 import numpy as np
 import redis as redis_lib
 
-from pip2va.common import audit, codec, keys, schema
+from pip2va.common import audit, codec, keys, naming, schema
 from pip2va.common.config import Settings
 
 log = logging.getLogger("epics-gateway")
@@ -70,13 +70,19 @@ def build_pv_plan(streams: dict, settings: dict) -> dict:
                 "fields": {f: mm.get("scale", 1.0)
                            for f, mm in m["fields"].items()}}
     for cls, m in settings.items():
+        grp = {"rf": "LLRF", "magnet": "MAG"}.get(cls, "INST")
         for dev in m["devices"]:
             for fld, lim in m["fields"].items():
-                plan[_dev_pv(m["pv"], dev if dev != "main" else "",
-                             fld, "SP")] = {
-                    "kind": "write", "target": (cls, dev, fld),
-                    "lo": lim.get("lo"), "hi": lim.get("hi")}
+                nm = _dev_pv(m["pv"], dev if dev != "main" else "",
+                             fld, "SP")
+                if NAMER is not None and dev in NAMER.map:
+                    nm = NAMER.pv(dev, grp, fld, setting=True)
+                plan[nm] = {"kind": "write", "target": (cls, dev, fld),
+                            "lo": lim.get("lo"), "hi": lim.get("hi")}
     return plan
+
+
+NAMER = None
 
 
 class Gateway:
@@ -84,6 +90,10 @@ class Gateway:
         self.settings = settings or Settings()
         self.r = r or redis_lib.Redis.from_url(self.settings.redis_url)
         self.hz = float(os.environ.get("PIP2VA_EPICS_HZ", "10"))
+        from pip2va.common.lattice import load_lattice
+        global NAMER
+        self.namer = naming.store_map(self.r, load_lattice())
+        NAMER = self.namer
         streams, setts = schema.load_registry(self.r)
         if not streams:
             log.warning("registry empty — services not started yet? "
@@ -105,10 +115,15 @@ class Gateway:
                         dev_name, fld_name = devfld.rsplit(":", 1)
                         if fld_name != fld and fld == "values":
                             fld_name = fld_name  # magnet: value slot
-                        pv = _dev_pv(d["pv"], dev_name, fld_name, "RB")
+                        pv = (self.namer.pv(dev_name, "MAG", fld_name)
+                              if dev_name in self.namer.map else
+                              _dev_pv(d["pv"], dev_name, fld_name, "RB"))
                         self.dev_rb[pv] = (d["product"], fld, j, scale)
                         break
-                    pv = _dev_pv(d["pv"], devfld, fld, "RB")
+                    grp = {"PIP2:RF": "LLRF"}.get(d["pv"], "INST")
+                    pv = (self.namer.pv(devfld, grp, fld)
+                          if devfld in self.namer.map else
+                          _dev_pv(d["pv"], devfld, fld, "RB"))
                     self.dev_rb[pv] = (d["product"], fld, j, scale)
         self.pvs: dict[str, SharedPV] = {}
         for name, d in self.plan.items():

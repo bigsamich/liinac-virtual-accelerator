@@ -17,6 +17,8 @@ from pydantic import BaseModel, Field
 ELEMENT_TYPES = {
     "drift", "solenoid", "quad", "corrector", "rfgap", "rfq", "chopper",
     "aperture", "dipole", "bpm", "blm", "toroid", "wire_scanner", "source",
+    # passive/diagnostic species from the LINAC2 diagram (drift transport)
+    "valve", "skew_quad", "halo", "bsm", "septum", "orbump", "foil", "sweep",
 }
 
 

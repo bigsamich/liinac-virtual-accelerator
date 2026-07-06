@@ -30,6 +30,14 @@ TYPE_COLORS = {
     "wire_scanner": (0.75, 0.75, 0.78, 1.0),
     "toroid":   (0.10, 0.95, 0.40, 1.0),
     "bpm":      (0.55, 1.00, 0.65, 1.0),
+    "valve":    (0.55, 0.58, 0.62, 1.0),
+    "skew_quad": (0.55, 0.35, 0.95, 1.0),
+    "halo":     (0.95, 0.75, 0.30, 1.0),
+    "bsm":      (0.80, 0.55, 0.95, 1.0),
+    "septum":   (1.00, 0.25, 0.35, 1.0),
+    "orbump":   (1.00, 0.45, 0.15, 1.0),
+    "foil":     (0.95, 0.95, 0.95, 1.0),
+    "sweep":    (0.90, 0.20, 0.60, 1.0),
 }
 
 
@@ -68,6 +76,14 @@ TYPE_SHAPES = {
     "wire_scanner": ("box", dict(ly=0.35, lz=1.4)),
     "toroid":   ("cyl", dict(radius=0.85)),
     "bpm":      ("cyl", dict(radius=0.42)),
+    "valve":    ("box", dict(ly=1.0, lz=1.0)),
+    "skew_quad": ("box", dict(ly=0.9, lz=0.9)),
+    "halo":     ("cyl", dict(radius=0.5)),
+    "bsm":      ("box", dict(ly=0.5, lz=1.2)),
+    "septum":   ("box", dict(ly=1.8, lz=0.8)),
+    "orbump":   ("box", dict(ly=1.4, lz=0.6)),
+    "foil":     ("box", dict(ly=1.2, lz=1.2)),
+    "sweep":    ("box", dict(ly=1.5, lz=0.7)),
 }
 ORBIT_EXAG = 0.25       # display metres per mm of beam coordinate
 LOSS_SCALE = 2.0        # spike height = LOSS_SCALE * log10(1 + W/m)
@@ -189,6 +205,10 @@ class Linac3D(QWidget):
                 L = max(e.length, 0.35)
                 v, f = (_cyl(kw["radius"], L) if kind == "cyl"
                         else _box(L, kw["ly"], kw["lz"]))
+                if typ == "skew_quad":     # rotated 45 deg about beam axis
+                    c45 = math.cos(math.pi / 4)
+                    Rx = np.array([[1, 0, 0], [0, c45, -c45], [0, c45, c45]])
+                    v = v @ Rx.T
                 th = headings[idx[id(e)]]
                 R = np.array([[math.cos(th), -math.sin(th), 0],
                               [math.sin(th), math.cos(th), 0], [0, 0, 1]])

@@ -411,12 +411,13 @@ def build(mebt_gq: float = 2.8, mebt_ratio: float = 1.1,
     b.toroid(ap_cav)
     b.end()
 
-    # ---- HB650: 4 CM x 6 cav @650 (5-cell, beta_G 0.92); 516 -> 800 MeV
+    # ---- HB650: 6 CM x 6 cav @650 (5-cell, beta_G 0.92); 516 -> 800 MeV
+    # (LINAC2 diagram: six cryomodules, skew quads, RWCM + ACCT at exit)
     ap_cav, ap_q = 0.059, 0.023
     b.begin("HB650", 650.0)
-    n_cav, phi = 24, -18.0
+    n_cav, phi = 36, -18.0
     v_iter = iter(capture_profile(516.0, 800.0, n_cav, phi, 650.0, 1.45, v_ceil=19.9))
-    for cm in range(4):
+    for cm in range(6):
         b.drift(0.30, ap_cav)
         for j in range(6):
             b.cavity(1.10, next(v_iter), phi, 650.0, ap_cav, "HB650")
@@ -430,41 +431,66 @@ def build(mebt_gq: float = 2.8, mebt_ratio: float = 1.1,
         b.corrector(ap_q); b.bpm(ap_q)
         b.blm()
         b.drift(0.30, ap_cav)
-        if cm in (1, 3):        # laserwire stations at CM2/4
+        b.add("valve", f"HB650:GV{cm+1}", 0.05, ap_cav)
+        if cm in (1, 4):        # laser profile monitors (diagram: 2)
             b.wire(ap_cav, kind="laserwire")
-    b.toroid(ap_cav)
+        if cm in (3, 4, 5):     # skew quads (diagram: 3 in HB650)
+            b.add("skew_quad", f"HB650:SQ{cm-2}", 0.20, ap_q,
+                  params={"design_current": 0.0})
+    b.toroid(ap_cav)                       # ACCT
     b.end()
 
-    # ---- BTL: representative transfer line (real one is 308 m FODO with two
-    # achromatic arcs + debuncher; modeled here as 6 FODO cells with 8 bends
-    # at 0.24 T-class fields, below the Lorentz-stripping limit)
-    ap = 0.0225  # 45 mm BPM bore
+    # ---- BTL v2 (LINAC2 diagram): SCL-exit warm insert, straight with
+    # debunchers, achromatic ARC1 (13 bends) + ARC2 (24 bends, 12 cells),
+    # injection stub (3-way septum, ORBUMP, stripping foil) and swept dump.
+    ap = 0.0225
     b.begin("BTL")
-    g_btl = 6.5  # T/m published class
+    g_btl = 6.5
 
-    def fodo_cell(bends: int, debuncher: bool = False):
+    def warm_cell(bends=0, debuncher=False, ws=False, angle=7.0):
         b.quad(0.20, g_btl, ap)
         b.corrector(ap); b.bpm(ap)
-        b.drift(1.60, ap)
+        b.drift(1.30, ap)
         if debuncher:
             b.cavity(0.60, 1.3, -90.0, 650.0, ap, "debuncher")
             b.drift(0.40, ap)
         for _ in range(bends):
             b.add("dipole", f"BTL:B{b._n('B')}", 2.45, ap,
-                  params={"angle_deg": 6.78, "b_t": 0.24})
-            b.drift(0.40, ap)
+                  params={"angle_deg": angle, "b_t": 0.24})
+            b.drift(0.35, ap)
         b.quad(0.20, -g_btl, ap)
         b.corrector(ap); b.bpm(ap)
         b.blm()
-        b.drift(1.60, ap)
+        if ws:
+            b.wire(ap)
+        b.drift(1.30, ap)
 
-    fodo_cell(0)
-    fodo_cell(0, debuncher=True)
-    fodo_cell(2)
-    fodo_cell(2)
-    b.wire(ap)
-    fodo_cell(2)
-    fodo_cell(2)
+    # SCL exit: doublets, skew quad, halo monitor, DCCT
+    warm_cell()
+    b.add("skew_quad", f"BTL:SQ1", 0.20, ap, params={"design_current": 0.0})
+    b.add("halo", "BTL:HALO1", 0.05, ap)
+    b.toroid(ap)                            # DCCT
+    warm_cell(ws=True)
+    # straight: two debunch cavities + wire scanners + collimation
+    warm_cell(debuncher=True, ws=True)
+    warm_cell(debuncher=True, ws=True)
+    b.add("aperture", "BTL:XCOLL", 0.05, 0.016)
+    b.add("aperture", "BTL:YCOLL", 0.05, 0.016)
+    b.add("septum", "BTL:SEPTUM", 1.0, ap)  # 3-way to dump/Booster
+    # ARC1: 13 bends over 6 cells
+    for k in range(6):
+        warm_cell(bends=2 if k < 5 else 3, ws=(k % 3 == 0), angle=7.0)
+    b.add("bsm", "BTL:BSM1", 0.05, ap)
+    b.toroid(ap)                            # ACCT
+    # ARC2: 24 bends over 12 cells
+    for k in range(12):
+        warm_cell(bends=2, ws=(k % 4 == 0), angle=7.5)
+    # injection stub + swept dump line
+    b.add("orbump", "BTL:ORBUMP", 0.60, ap)
+    b.add("foil", "BTL:FOIL", 0.01, ap)
+    b.toroid(ap)                            # ACCT at dump line
+    b.add("sweep", "BTL:XSWP", 0.50, ap)
+    b.add("sweep", "BTL:YSWP", 0.50, ap)
     b.scraper(0.015)   # transverse collimation ahead of the foil
     b.toroid(ap)
     b.drift(0.5, ap)

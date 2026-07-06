@@ -26,10 +26,10 @@ def test_datahub_emits_orbit(qtbot, r):
     try:
         with qtbot.waitSignal(hub.orbit, timeout=5000) as blocker:
             r.xadd(keys.stream("bpm.orbit"), {"d": codec.pack(7, {
-                "x": np.zeros(74, dtype=np.float32),
-                "y": np.zeros(74, dtype=np.float32),
-                "phase": np.zeros(74, dtype=np.float32),
-                "sum": np.full(74, 2.0, dtype=np.float32)})})
+                "x": np.zeros(108, dtype=np.float32),
+                "y": np.zeros(108, dtype=np.float32),
+                "phase": np.zeros(108, dtype=np.float32),
+                "sum": np.full(108, 2.0, dtype=np.float32)})})
         pulse_id, data = blocker.args
         assert pulse_id == 7
         assert data["sum"][0] == pytest.approx(2.0)
