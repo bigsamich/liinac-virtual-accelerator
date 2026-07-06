@@ -98,9 +98,9 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 15.1152
-    design_b: 0.151152
-    max_current: 22.67
+    design_current: 15.1044
+    design_b: 0.151044
+    max_current: 22.66
   knobs:
     current: settings:magnet:LEBT:SOL1
 - name: LEBT:D2
@@ -119,9 +119,9 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 17.4592
-    design_b: 0.174592
-    max_current: 26.19
+    design_current: 17.4684
+    design_b: 0.174684
+    max_current: 26.2
   knobs:
     current: settings:magnet:LEBT:SOL2
 - name: LEBT:D3
@@ -159,8 +159,8 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 29.224
-    design_b: 0.29224
+    design_current: 29.2297
+    design_b: 0.292297
     max_current: 43.84
   knobs:
     current: settings:magnet:LEBT:SOL3
@@ -225,9 +225,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 45.6903
-    design_grad: 4.56903
-    max_current: 68.54
+    design_current: 64.9623
+    design_grad: 6.49623
+    max_current: 97.44
   knobs:
     current: settings:magnet:MEBT:Q1
 - name: MEBT:D2
@@ -246,9 +246,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: -7.0047
-    design_grad: -0.70047
-    max_current: 10.51
+    design_current: -54.345
+    design_grad: -5.4345
+    max_current: 81.52
   knobs:
     current: settings:magnet:MEBT:Q2
 - name: MEBT:D3
@@ -316,9 +316,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: -53.433
-    design_grad: -5.3433
-    max_current: 80.15
+    design_current: -53.1542
+    design_grad: -5.31542
+    max_current: 79.73
   knobs:
     current: settings:magnet:MEBT:Q3
 - name: MEBT:D5
@@ -337,9 +337,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 49.9757
-    design_grad: 4.99757
-    max_current: 74.96
+    design_current: 76.3614
+    design_grad: 7.63614
+    max_current: 114.54
   knobs:
     current: settings:magnet:MEBT:Q4
 - name: MEBT:D6
@@ -358,9 +358,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: -18.2401
-    design_grad: -1.82401
-    max_current: 27.36
+    design_current: -13.6643
+    design_grad: -1.36643
+    max_current: 20.5
   knobs:
     current: settings:magnet:MEBT:Q5
 - name: MEBT:D7
@@ -432,9 +432,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 47.0916
-    design_grad: 4.70916
-    max_current: 70.64
+    design_current: 5.9269
+    design_grad: 0.59269
+    max_current: 8.89
   knobs:
     current: settings:magnet:MEBT:Q6
 - name: MEBT:D9
@@ -453,9 +453,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: -53.2956
-    design_grad: -5.32956
-    max_current: 79.94
+    design_current: -66.5392
+    design_grad: -6.65392
+    max_current: 99.81
   knobs:
     current: settings:magnet:MEBT:Q7
 - name: MEBT:D10
@@ -474,9 +474,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 19.8588
-    design_grad: 1.98588
-    max_current: 29.79
+    design_current: 60.8167
+    design_grad: 6.08167
+    max_current: 91.23
   knobs:
     current: settings:magnet:MEBT:Q8
 - name: MEBT:D11
@@ -559,7 +559,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 191.4607
+    design_wpm: 4.569
   knobs: {}
 - name: MEBT:D13
   type: drift
@@ -577,9 +577,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: -28.8274
-    design_grad: -2.88274
-    max_current: 43.24
+    design_current: -58.4698
+    design_grad: -5.84698
+    max_current: 87.7
   knobs:
     current: settings:magnet:MEBT:Q9
 - name: MEBT:D14
@@ -598,9 +598,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 24.2845
-    design_grad: 2.42845
-    max_current: 36.43
+    design_current: 94.2272
+    design_grad: 9.42272
+    max_current: 141.34
   knobs:
     current: settings:magnet:MEBT:Q10
 - name: MEBT:D15
@@ -619,9 +619,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: -24.8569
-    design_grad: -2.48569
-    max_current: 37.29
+    design_current: -61.5215
+    design_grad: -6.15215
+    max_current: 92.28
   knobs:
     current: settings:magnet:MEBT:Q11
 - name: MEBT:D16
@@ -698,9 +698,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 71.077
-    design_grad: 7.1077
-    max_current: 106.62
+    design_current: 66.7243
+    design_grad: 6.67243
+    max_current: 100.09
   knobs:
     current: settings:magnet:MEBT:Q12
 - name: MEBT:D18
@@ -719,9 +719,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: -91.9209
-    design_grad: -9.19209
-    max_current: 137.88
+    design_current: -113.5125
+    design_grad: -11.35125
+    max_current: 170.27
   knobs:
     current: settings:magnet:MEBT:Q13
 - name: MEBT:D19
@@ -740,9 +740,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 60.9551
-    design_grad: 6.09551
-    max_current: 91.43
+    design_current: 83.2827
+    design_grad: 8.32827
+    max_current: 124.92
   knobs:
     current: settings:magnet:MEBT:Q14
 - name: MEBT:D20
@@ -794,9 +794,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: -53.1514
-    design_grad: -5.31514
-    max_current: 79.73
+    design_current: -89.3024
+    design_grad: -8.93024
+    max_current: 133.95
   knobs:
     current: settings:magnet:MEBT:Q15
 - name: MEBT:D21
@@ -815,9 +815,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 92.3988
-    design_grad: 9.23988
-    max_current: 138.6
+    design_current: 108.9874
+    design_grad: 10.89874
+    max_current: 163.48
   knobs:
     current: settings:magnet:MEBT:Q16
 - name: MEBT:D22
@@ -836,9 +836,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: -32.4894
-    design_grad: -3.24894
-    max_current: 48.73
+    design_current: -77.0204
+    design_grad: -7.70204
+    max_current: 115.53
   knobs:
     current: settings:magnet:MEBT:Q17
 - name: MEBT:D23
@@ -915,9 +915,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 52.4219
-    design_grad: 5.24219
-    max_current: 78.63
+    design_current: 61.1279
+    design_grad: 6.11279
+    max_current: 91.69
   knobs:
     current: settings:magnet:MEBT:Q18
 - name: MEBT:D25
@@ -936,9 +936,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: -62.8562
-    design_grad: -6.28562
-    max_current: 94.28
+    design_current: -117.0025
+    design_grad: -11.70025
+    max_current: 175.5
   knobs:
     current: settings:magnet:MEBT:Q19
 - name: MEBT:D26
@@ -957,9 +957,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 43.8227
-    design_grad: 4.38227
-    max_current: 65.73
+    design_current: 89.7445
+    design_grad: 8.97445
+    max_current: 134.62
   knobs:
     current: settings:magnet:MEBT:Q20
 - name: MEBT:D27
@@ -1011,9 +1011,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: -78.0641
-    design_grad: -7.80641
-    max_current: 117.1
+    design_current: -55.5682
+    design_grad: -5.55682
+    max_current: 83.35
   knobs:
     current: settings:magnet:MEBT:Q21
 - name: MEBT:D28
@@ -1032,9 +1032,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 78.2371
-    design_grad: 7.82371
-    max_current: 117.36
+    design_current: 78.5452
+    design_grad: 7.85452
+    max_current: 117.82
   knobs:
     current: settings:magnet:MEBT:Q22
 - name: MEBT:D29
@@ -1053,9 +1053,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: -54.9832
-    design_grad: -5.49832
-    max_current: 82.47
+    design_current: -101.1947
+    design_grad: -10.11947
+    max_current: 151.79
   knobs:
     current: settings:magnet:MEBT:Q23
 - name: MEBT:D30
@@ -1106,9 +1106,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: 61.5044
-    design_grad: 6.15044
-    max_current: 92.26
+    design_current: 97.2164
+    design_grad: 9.72164
+    max_current: 145.82
   knobs:
     current: settings:magnet:MEBT:Q24
 - name: MEBT:D31
@@ -1127,9 +1127,9 @@ elements:
   aperture_radius: 0.014
   params:
     grad_per_amp: 0.1
-    design_current: -79.6189
-    design_grad: -7.96189
-    max_current: 119.43
+    design_current: -56.8839
+    design_grad: -5.68839
+    max_current: 85.33
   knobs:
     current: settings:magnet:MEBT:Q25
 - name: MEBT:D32
@@ -1235,9 +1235,9 @@ elements:
   aperture_radius: 0.0165
   params:
     field_per_amp: 0.01
-    design_current: 112.3558
-    design_b: 1.123558
-    max_current: 168.53
+    design_current: 118.8218
+    design_b: 1.188218
+    max_current: 178.23
   knobs:
     current: settings:magnet:HWR:SOL1
 - name: HWR:C1
@@ -1313,9 +1313,9 @@ elements:
   aperture_radius: 0.0165
   params:
     field_per_amp: 0.01
-    design_current: 132.0206
-    design_b: 1.320206
-    max_current: 198.03
+    design_current: 132.27
+    design_b: 1.3227
+    max_current: 198.41
   knobs:
     current: settings:magnet:HWR:SOL2
 - name: HWR:C2
@@ -1350,7 +1350,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0753
+    design_wpm: 0.0177
   knobs: {}
 - name: HWR:D6
   type: drift
@@ -1402,9 +1402,9 @@ elements:
   aperture_radius: 0.0165
   params:
     field_per_amp: 0.01
-    design_current: 167.3601
-    design_b: 1.673601
-    max_current: 251.04
+    design_current: 189.4412
+    design_b: 1.894412
+    max_current: 284.16
   knobs:
     current: settings:magnet:HWR:SOL3
 - name: HWR:C3
@@ -1480,9 +1480,9 @@ elements:
   aperture_radius: 0.0165
   params:
     field_per_amp: 0.01
-    design_current: 183.8061
-    design_b: 1.838061
-    max_current: 275.71
+    design_current: 220.4858
+    design_b: 2.204858
+    max_current: 330.73
   knobs:
     current: settings:magnet:HWR:SOL4
 - name: HWR:C4
@@ -1517,7 +1517,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0009
+    design_wpm: 0.002
   knobs: {}
 - name: HWR:D12
   type: drift
@@ -1569,9 +1569,9 @@ elements:
   aperture_radius: 0.0165
   params:
     field_per_amp: 0.01
-    design_current: 184.5472
-    design_b: 1.845472
-    max_current: 276.82
+    design_current: 196.28
+    design_b: 1.9628
+    max_current: 294.42
   knobs:
     current: settings:magnet:HWR:SOL5
 - name: HWR:C5
@@ -1647,9 +1647,9 @@ elements:
   aperture_radius: 0.0165
   params:
     field_per_amp: 0.01
-    design_current: 209.0181
-    design_b: 2.090181
-    max_current: 313.53
+    design_current: 202.4801
+    design_b: 2.024801
+    max_current: 303.72
   knobs:
     current: settings:magnet:HWR:SOL6
 - name: HWR:C6
@@ -1684,7 +1684,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0008
+    design_wpm: 0.0014
   knobs: {}
 - name: HWR:D18
   type: drift
@@ -1736,9 +1736,9 @@ elements:
   aperture_radius: 0.0165
   params:
     field_per_amp: 0.01
-    design_current: 179.0057
-    design_b: 1.790057
-    max_current: 268.51
+    design_current: 170.9142
+    design_b: 1.709142
+    max_current: 256.37
   knobs:
     current: settings:magnet:HWR:SOL7
 - name: HWR:C7
@@ -1814,9 +1814,9 @@ elements:
   aperture_radius: 0.0165
   params:
     field_per_amp: 0.01
-    design_current: 196.5686
-    design_b: 1.965686
-    max_current: 294.85
+    design_current: 205.5116
+    design_b: 2.055116
+    max_current: 308.27
   knobs:
     current: settings:magnet:HWR:SOL8
 - name: HWR:C8
@@ -1851,7 +1851,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0013
+    design_wpm: 0.003
   knobs: {}
 - name: HWR:D24
   type: drift
@@ -1949,9 +1949,9 @@ elements:
   aperture_radius: 0.015
   params:
     field_per_amp: 0.01
-    design_current: 207.4121
-    design_b: 2.074121
-    max_current: 311.12
+    design_current: 256.5252
+    design_b: 2.565252
+    max_current: 384.79
   knobs:
     current: settings:magnet:SSR1:SOL1
 - name: SSR1:C1
@@ -2045,9 +2045,9 @@ elements:
   aperture_radius: 0.015
   params:
     field_per_amp: 0.01
-    design_current: 240.3787
-    design_b: 2.403787
-    max_current: 360.57
+    design_current: 292.7359
+    design_b: 2.927359
+    max_current: 439.1
   knobs:
     current: settings:magnet:SSR1:SOL2
 - name: SSR1:C2
@@ -2082,7 +2082,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0025
+    design_wpm: 0.0054
   knobs: {}
 - name: SSR1:D7
   type: drift
@@ -2152,9 +2152,9 @@ elements:
   aperture_radius: 0.015
   params:
     field_per_amp: 0.01
-    design_current: 237.3912
-    design_b: 2.373912
-    max_current: 356.09
+    design_current: 249.747
+    design_b: 2.49747
+    max_current: 374.62
   knobs:
     current: settings:magnet:SSR1:SOL3
 - name: SSR1:C3
@@ -2248,9 +2248,9 @@ elements:
   aperture_radius: 0.015
   params:
     field_per_amp: 0.01
-    design_current: 262.552
-    design_b: 2.62552
-    max_current: 393.83
+    design_current: 259.4596
+    design_b: 2.594596
+    max_current: 389.19
   knobs:
     current: settings:magnet:SSR1:SOL4
 - name: SSR1:C4
@@ -2285,7 +2285,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.001
+    design_wpm: 0.0021
   knobs: {}
 - name: SSR1:D13
   type: drift
@@ -2371,9 +2371,9 @@ elements:
   aperture_radius: 0.015
   params:
     field_per_amp: 0.01
-    design_current: 287.7708
-    design_b: 2.877708
-    max_current: 431.66
+    design_current: 281.2396
+    design_b: 2.812396
+    max_current: 421.86
   knobs:
     current: settings:magnet:SSR1:SOL5
 - name: SSR1:C5
@@ -2467,9 +2467,9 @@ elements:
   aperture_radius: 0.015
   params:
     field_per_amp: 0.01
-    design_current: 293.8139
-    design_b: 2.938139
-    max_current: 440.72
+    design_current: 278.5782
+    design_b: 2.785782
+    max_current: 417.87
   knobs:
     current: settings:magnet:SSR1:SOL6
 - name: SSR1:C6
@@ -2504,7 +2504,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0024
+    design_wpm: 0.0057
   knobs: {}
 - name: SSR1:D21
   type: drift
@@ -2574,9 +2574,9 @@ elements:
   aperture_radius: 0.015
   params:
     field_per_amp: 0.01
-    design_current: 325.9562
-    design_b: 3.259562
-    max_current: 488.93
+    design_current: 283.0394
+    design_b: 2.830394
+    max_current: 424.56
   knobs:
     current: settings:magnet:SSR1:SOL7
 - name: SSR1:C7
@@ -2670,9 +2670,9 @@ elements:
   aperture_radius: 0.015
   params:
     field_per_amp: 0.01
-    design_current: 275.5053
-    design_b: 2.755053
-    max_current: 413.26
+    design_current: 260.5583
+    design_b: 2.605583
+    max_current: 390.84
   knobs:
     current: settings:magnet:SSR1:SOL8
 - name: SSR1:C8
@@ -2707,7 +2707,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0009
+    design_wpm: 0.0016
   knobs: {}
 - name: SSR1:D27
   type: drift
@@ -2761,9 +2761,9 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 240.9061
-    design_b: 2.409061
-    max_current: 361.36
+    design_current: 170.1997
+    design_b: 1.701997
+    max_current: 255.3
   knobs:
     current: settings:magnet:SSR2:SOL1
 - name: SSR2:C1
@@ -2849,9 +2849,9 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 305.9501
-    design_b: 3.059501
-    max_current: 458.93
+    design_current: 296.5551
+    design_b: 2.965551
+    max_current: 444.83
   knobs:
     current: settings:magnet:SSR2:SOL2
 - name: SSR2:C2
@@ -2886,7 +2886,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0015
+    design_wpm: 0.0034
   knobs: {}
 - name: SSR2:CAV3
   type: rfgap
@@ -2948,9 +2948,9 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 247.7085
-    design_b: 2.477085
-    max_current: 371.56
+    design_current: 236.9305
+    design_b: 2.369305
+    max_current: 355.4
   knobs:
     current: settings:magnet:SSR2:SOL3
 - name: SSR2:C3
@@ -2985,7 +2985,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0006
+    design_wpm: 0.0012
   knobs: {}
 - name: SSR2:CAV5
   type: rfgap
@@ -3029,9 +3029,9 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 272.2524
-    design_b: 2.722524
-    max_current: 408.38
+    design_current: 283.8036
+    design_b: 2.838036
+    max_current: 425.71
   knobs:
     current: settings:magnet:SSR2:SOL4
 - name: SSR2:C4
@@ -3117,9 +3117,9 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 291.4375
-    design_b: 2.914375
-    max_current: 437.16
+    design_current: 295.2217
+    design_b: 2.952217
+    max_current: 442.83
   knobs:
     current: settings:magnet:SSR2:SOL5
 - name: SSR2:C5
@@ -3154,7 +3154,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0023
+    design_wpm: 0.0055
   knobs: {}
 - name: SSR2:CAV8
   type: rfgap
@@ -3216,9 +3216,9 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 290.4645
-    design_b: 2.904645
-    max_current: 435.7
+    design_current: 283.4395
+    design_b: 2.834395
+    max_current: 425.16
   knobs:
     current: settings:magnet:SSR2:SOL6
 - name: SSR2:C6
@@ -3253,7 +3253,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0023
+    design_wpm: 0.005
   knobs: {}
 - name: SSR2:CAV10
   type: rfgap
@@ -3307,9 +3307,9 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 352.6501
-    design_b: 3.526501
-    max_current: 528.98
+    design_current: 285.1581
+    design_b: 2.851581
+    max_current: 427.74
   knobs:
     current: settings:magnet:SSR2:SOL7
 - name: SSR2:C7
@@ -3395,9 +3395,9 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 392.4774
-    design_b: 3.924774
-    max_current: 588.72
+    design_current: 344.3873
+    design_b: 3.443873
+    max_current: 516.58
   knobs:
     current: settings:magnet:SSR2:SOL8
 - name: SSR2:C8
@@ -3432,7 +3432,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0006
+    design_wpm: 0.0011
   knobs: {}
 - name: SSR2:CAV13
   type: rfgap
@@ -3494,9 +3494,9 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 337.1313
-    design_b: 3.371313
-    max_current: 505.7
+    design_current: 335.2712
+    design_b: 3.352712
+    max_current: 502.91
   knobs:
     current: settings:magnet:SSR2:SOL9
 - name: SSR2:C9
@@ -3531,7 +3531,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0012
+    design_wpm: 0.0029
   knobs: {}
 - name: SSR2:CAV15
   type: rfgap
@@ -3575,9 +3575,9 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 386.1778
-    design_b: 3.861778
-    max_current: 579.27
+    design_current: 349.8836
+    design_b: 3.498836
+    max_current: 524.83
   knobs:
     current: settings:magnet:SSR2:SOL10
 - name: SSR2:C10
@@ -3663,9 +3663,9 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 440.6005
-    design_b: 4.406005
-    max_current: 660.9
+    design_current: 422.2198
+    design_b: 4.222198
+    max_current: 633.33
   knobs:
     current: settings:magnet:SSR2:SOL11
 - name: SSR2:C11
@@ -3700,7 +3700,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0053
+    design_wpm: 0.0106
   knobs: {}
 - name: SSR2:CAV18
   type: rfgap
@@ -3762,9 +3762,9 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 469.4735
-    design_b: 4.694735
-    max_current: 704.21
+    design_current: 366.7493
+    design_b: 3.667493
+    max_current: 550.12
   knobs:
     current: settings:magnet:SSR2:SOL12
 - name: SSR2:C12
@@ -3799,7 +3799,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0014
+    design_wpm: 0.003
   knobs: {}
 - name: SSR2:CAV20
   type: rfgap
@@ -3853,9 +3853,9 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 459.3841
-    design_b: 4.593841
-    max_current: 689.08
+    design_current: 408.9167
+    design_b: 4.089167
+    max_current: 613.37
   knobs:
     current: settings:magnet:SSR2:SOL13
 - name: SSR2:C13
@@ -3941,9 +3941,9 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 455.6432
-    design_b: 4.556432
-    max_current: 683.46
+    design_current: 443.6024
+    design_b: 4.436024
+    max_current: 665.4
   knobs:
     current: settings:magnet:SSR2:SOL14
 - name: SSR2:C14
@@ -3978,7 +3978,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0007
+    design_wpm: 0.0013
   knobs: {}
 - name: SSR2:CAV23
   type: rfgap
@@ -4040,9 +4040,9 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 433.8039
-    design_b: 4.338039
-    max_current: 650.71
+    design_current: 382.3838
+    design_b: 3.823838
+    max_current: 573.58
   knobs:
     current: settings:magnet:SSR2:SOL15
 - name: SSR2:C15
@@ -4077,7 +4077,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0009
+    design_wpm: 0.0019
   knobs: {}
 - name: SSR2:CAV25
   type: rfgap
@@ -4121,9 +4121,9 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 491.755
-    design_b: 4.91755
-    max_current: 737.63
+    design_current: 433.5516
+    design_b: 4.335516
+    max_current: 650.33
   knobs:
     current: settings:magnet:SSR2:SOL16
 - name: SSR2:C16
@@ -4209,9 +4209,9 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 467.1211
-    design_b: 4.671211
-    max_current: 700.68
+    design_current: 380.7619
+    design_b: 3.807619
+    max_current: 571.14
   knobs:
     current: settings:magnet:SSR2:SOL17
 - name: SSR2:C17
@@ -4246,7 +4246,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0023
+    design_wpm: 0.0046
   knobs: {}
 - name: SSR2:CAV28
   type: rfgap
@@ -4308,9 +4308,9 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 519.9014
-    design_b: 5.199014
-    max_current: 779.85
+    design_current: 509.6542
+    design_b: 5.096542
+    max_current: 764.48
   knobs:
     current: settings:magnet:SSR2:SOL18
 - name: SSR2:C18
@@ -4345,7 +4345,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0061
+    design_wpm: 0.0231
   knobs: {}
 - name: SSR2:CAV30
   type: rfgap
@@ -4399,9 +4399,9 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 603.2611
-    design_b: 6.032611
-    max_current: 904.89
+    design_current: 656.7573
+    design_b: 6.567573
+    max_current: 985.14
   knobs:
     current: settings:magnet:SSR2:SOL19
 - name: SSR2:C19
@@ -4487,9 +4487,9 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 190.0262
-    design_b: 1.900262
-    max_current: 285.04
+    design_current: 134.9894
+    design_b: 1.349894
+    max_current: 202.48
   knobs:
     current: settings:magnet:SSR2:SOL20
 - name: SSR2:C20
@@ -4524,7 +4524,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0023
+    design_wpm: 0.0034
   knobs: {}
 - name: SSR2:CAV33
   type: rfgap
@@ -4586,9 +4586,9 @@ elements:
   aperture_radius: 0.02
   params:
     field_per_amp: 0.01
-    design_current: 534.4986
-    design_b: 5.344986
-    max_current: 801.75
+    design_current: 535.3154
+    design_b: 5.353154
+    max_current: 802.97
   knobs:
     current: settings:magnet:SSR2:SOL21
 - name: SSR2:C21
@@ -4623,7 +4623,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0604
+    design_wpm: 0.0019
   knobs: {}
 - name: SSR2:CAV35
   type: rfgap
@@ -4781,9 +4781,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 94.9607
-    design_grad: 9.49607
-    max_current: 142.44
+    design_current: 129.3734
+    design_grad: 12.93734
+    max_current: 194.06
   knobs:
     current: settings:magnet:LB650:Q1
 - name: LB650:D6
@@ -4802,9 +4802,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -113.3975
-    design_grad: -11.33975
-    max_current: 170.1
+    design_current: -119.279
+    design_grad: -11.9279
+    max_current: 178.92
   knobs:
     current: settings:magnet:LB650:Q2
 - name: LB650:C1
@@ -4839,7 +4839,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0058
+    design_wpm: 0.0164
   knobs: {}
 - name: LB650:D7
   type: drift
@@ -4979,9 +4979,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 109.454
-    design_grad: 10.9454
-    max_current: 164.18
+    design_current: 115.27
+    design_grad: 11.527
+    max_current: 172.91
   knobs:
     current: settings:magnet:LB650:Q3
 - name: LB650:D13
@@ -5000,9 +5000,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -108.7334
-    design_grad: -10.87334
-    max_current: 163.1
+    design_current: -114.4735
+    design_grad: -11.44735
+    max_current: 171.71
   knobs:
     current: settings:magnet:LB650:Q4
 - name: LB650:C2
@@ -5037,7 +5037,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0013
+    design_wpm: 0.0023
   knobs: {}
 - name: LB650:D14
   type: drift
@@ -5167,9 +5167,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 113.2229
-    design_grad: 11.32229
-    max_current: 169.83
+    design_current: 108.0783
+    design_grad: 10.80783
+    max_current: 162.12
   knobs:
     current: settings:magnet:LB650:Q5
 - name: LB650:D20
@@ -5188,9 +5188,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -118.5653
-    design_grad: -11.85653
-    max_current: 177.85
+    design_current: -118.7225
+    design_grad: -11.87225
+    max_current: 178.08
   knobs:
     current: settings:magnet:LB650:Q6
 - name: LB650:C3
@@ -5225,7 +5225,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0099
+    design_wpm: 0.0218
   knobs: {}
 - name: LB650:D21
   type: drift
@@ -5365,9 +5365,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 125.3097
-    design_grad: 12.53097
-    max_current: 187.96
+    design_current: 129.506
+    design_grad: 12.9506
+    max_current: 194.26
   knobs:
     current: settings:magnet:LB650:Q7
 - name: LB650:D27
@@ -5386,9 +5386,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -129.8672
-    design_grad: -12.98672
-    max_current: 194.8
+    design_current: -134.1216
+    design_grad: -13.41216
+    max_current: 201.18
   knobs:
     current: settings:magnet:LB650:Q8
 - name: LB650:C4
@@ -5423,7 +5423,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0014
+    design_wpm: 0.0025
   knobs: {}
 - name: LB650:D28
   type: drift
@@ -5553,9 +5553,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 129.1725
-    design_grad: 12.91725
-    max_current: 193.76
+    design_current: 132.2898
+    design_grad: 13.22898
+    max_current: 198.43
   knobs:
     current: settings:magnet:LB650:Q9
 - name: LB650:D34
@@ -5574,9 +5574,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -133.6563
-    design_grad: -13.36563
-    max_current: 200.48
+    design_current: -136.8491
+    design_grad: -13.68491
+    max_current: 205.27
   knobs:
     current: settings:magnet:LB650:Q10
 - name: LB650:C5
@@ -5611,7 +5611,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0027
+    design_wpm: 0.0056
   knobs: {}
 - name: LB650:D35
   type: drift
@@ -5741,9 +5741,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 138.7973
-    design_grad: 13.87973
-    max_current: 208.2
+    design_current: 140.8638
+    design_grad: 14.08638
+    max_current: 211.3
   knobs:
     current: settings:magnet:LB650:Q11
 - name: LB650:D41
@@ -5762,9 +5762,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -142.786
-    design_grad: -14.2786
-    max_current: 214.18
+    design_current: -145.5586
+    design_grad: -14.55586
+    max_current: 218.34
   knobs:
     current: settings:magnet:LB650:Q12
 - name: LB650:C6
@@ -5799,7 +5799,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0095
+    design_wpm: 0.0194
   knobs: {}
 - name: LB650:D42
   type: drift
@@ -5939,9 +5939,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 154.5318
-    design_grad: 15.45318
-    max_current: 231.8
+    design_current: 153.5583
+    design_grad: 15.35583
+    max_current: 230.34
   knobs:
     current: settings:magnet:LB650:Q13
 - name: LB650:D48
@@ -5960,9 +5960,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -153.4043
-    design_grad: -15.34043
-    max_current: 230.11
+    design_current: -150.4876
+    design_grad: -15.04876
+    max_current: 225.73
   knobs:
     current: settings:magnet:LB650:Q14
 - name: LB650:C7
@@ -5997,7 +5997,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0017
+    design_wpm: 0.0029
   knobs: {}
 - name: LB650:D49
   type: drift
@@ -6127,9 +6127,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 138.7776
-    design_grad: 13.87776
-    max_current: 208.17
+    design_current: 137.4324
+    design_grad: 13.74324
+    max_current: 206.15
   knobs:
     current: settings:magnet:LB650:Q15
 - name: LB650:D55
@@ -6148,9 +6148,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -151.1836
-    design_grad: -15.11836
-    max_current: 226.78
+    design_current: -147.2827
+    design_grad: -14.72827
+    max_current: 220.92
   knobs:
     current: settings:magnet:LB650:Q16
 - name: LB650:C8
@@ -6185,7 +6185,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0019
+    design_wpm: 0.0034
   knobs: {}
 - name: LB650:D56
   type: drift
@@ -6315,9 +6315,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 159.239
-    design_grad: 15.9239
-    max_current: 238.86
+    design_current: 156.599
+    design_grad: 15.6599
+    max_current: 234.9
   knobs:
     current: settings:magnet:LB650:Q17
 - name: LB650:D62
@@ -6336,9 +6336,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -166.4215
-    design_grad: -16.64215
-    max_current: 249.63
+    design_current: -159.8991
+    design_grad: -15.98991
+    max_current: 239.85
   knobs:
     current: settings:magnet:LB650:Q18
 - name: LB650:C9
@@ -6373,7 +6373,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0116
+    design_wpm: 0.0226
   knobs: {}
 - name: LB650:D63
   type: drift
@@ -6498,7 +6498,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0019
+    design_wpm: 0.0038
   knobs: {}
 - name: HB650:CAV4
   type: rfgap
@@ -6586,9 +6586,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 139.0775
-    design_grad: 13.90775
-    max_current: 208.62
+    design_current: 139.7191
+    design_grad: 13.97191
+    max_current: 209.58
   knobs:
     current: settings:magnet:HB650:Q1
 - name: HB650:D8
@@ -6607,9 +6607,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -136.6479
-    design_grad: -13.66479
-    max_current: 204.97
+    design_current: -135.8466
+    design_grad: -13.58466
+    max_current: 203.77
   knobs:
     current: settings:magnet:HB650:Q2
 - name: HB650:C1
@@ -6644,7 +6644,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 1.2851
+    design_wpm: 0.3977
   knobs: {}
 - name: HB650:D9
   type: drift
@@ -6757,7 +6757,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0006
+    design_wpm: 0.0009
   knobs: {}
 - name: HB650:CAV10
   type: rfgap
@@ -6845,9 +6845,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 120.3593
-    design_grad: 12.03593
-    max_current: 180.54
+    design_current: 120.4454
+    design_grad: 12.04454
+    max_current: 180.67
   knobs:
     current: settings:magnet:HB650:Q3
 - name: HB650:D17
@@ -6866,9 +6866,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -113.6863
-    design_grad: -11.36863
-    max_current: 170.53
+    design_current: -114.7676
+    design_grad: -11.47676
+    max_current: 172.15
   knobs:
     current: settings:magnet:HB650:Q4
 - name: HB650:C2
@@ -6903,7 +6903,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0015
+    design_wpm: 0.0025
   knobs: {}
 - name: HB650:D18
   type: drift
@@ -7026,7 +7026,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0009
+    design_wpm: 0.0017
   knobs: {}
 - name: HB650:CAV16
   type: rfgap
@@ -7114,9 +7114,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 143.7879
-    design_grad: 14.37879
-    max_current: 215.68
+    design_current: 144.6927
+    design_grad: 14.46927
+    max_current: 217.04
   knobs:
     current: settings:magnet:HB650:Q5
 - name: HB650:D26
@@ -7135,9 +7135,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -147.3618
-    design_grad: -14.73618
-    max_current: 221.04
+    design_current: -148.3485
+    design_grad: -14.83485
+    max_current: 222.52
   knobs:
     current: settings:magnet:HB650:Q6
 - name: HB650:C3
@@ -7172,7 +7172,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0042
+    design_wpm: 0.0089
   knobs: {}
 - name: HB650:D27
   type: drift
@@ -7285,7 +7285,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0048
+    design_wpm: 0.0106
   knobs: {}
 - name: HB650:CAV22
   type: rfgap
@@ -7373,9 +7373,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 151.2182
-    design_grad: 15.12182
-    max_current: 226.83
+    design_current: 150.7096
+    design_grad: 15.07096
+    max_current: 226.06
   knobs:
     current: settings:magnet:HB650:Q7
 - name: HB650:D35
@@ -7394,9 +7394,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -152.511
-    design_grad: -15.2511
-    max_current: 228.77
+    design_current: -153.3037
+    design_grad: -15.33037
+    max_current: 229.96
   knobs:
     current: settings:magnet:HB650:Q8
 - name: HB650:C4
@@ -7431,7 +7431,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0024
+    design_wpm: 0.0044
   knobs: {}
 - name: HB650:D36
   type: drift
@@ -7553,7 +7553,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0008
+    design_wpm: 0.0014
   knobs: {}
 - name: HB650:CAV28
   type: rfgap
@@ -7641,9 +7641,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 157.8939
-    design_grad: 15.78939
-    max_current: 236.84
+    design_current: 157.525
+    design_grad: 15.7525
+    max_current: 236.29
   knobs:
     current: settings:magnet:HB650:Q9
 - name: HB650:D44
@@ -7662,9 +7662,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -161.3982
-    design_grad: -16.13982
-    max_current: 242.1
+    design_current: -161.5438
+    design_grad: -16.15438
+    max_current: 242.32
   knobs:
     current: settings:magnet:HB650:Q10
 - name: HB650:C5
@@ -7699,7 +7699,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0018
+    design_wpm: 0.0028
   knobs: {}
 - name: HB650:D45
   type: drift
@@ -7831,7 +7831,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0008
+    design_wpm: 0.0012
   knobs: {}
 - name: HB650:CAV34
   type: rfgap
@@ -7919,9 +7919,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: 218.4106
-    design_grad: 21.84106
-    max_current: 327.62
+    design_current: 198.0055
+    design_grad: 19.80055
+    max_current: 297.01
   knobs:
     current: settings:magnet:HB650:Q11
 - name: HB650:D53
@@ -7940,9 +7940,9 @@ elements:
   aperture_radius: 0.023
   params:
     grad_per_amp: 0.1
-    design_current: -287.0277
-    design_grad: -28.70277
-    max_current: 430.54
+    design_current: -333.5964
+    design_grad: -33.35964
+    max_current: 500.39
   knobs:
     current: settings:magnet:HB650:Q12
 - name: HB650:C6
@@ -7977,7 +7977,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0023
+    design_wpm: 0.0054
   knobs: {}
 - name: HB650:D54
   type: drift
@@ -8022,9 +8022,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 161.8362
-    design_grad: 16.18362
-    max_current: 242.75
+    design_current: 230.4432
+    design_grad: 23.04432
+    max_current: 345.66
   knobs:
     current: settings:magnet:BTL:Q1
 - name: BTL:C1
@@ -8066,9 +8066,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -75.7669
-    design_grad: -7.57669
-    max_current: 113.65
+    design_current: -196.5897
+    design_grad: -19.65897
+    max_current: 294.88
   knobs:
     current: settings:magnet:BTL:Q2
 - name: BTL:C2
@@ -8103,7 +8103,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0016
+    design_wpm: 0.0048
   knobs: {}
 - name: BTL:D2
   type: drift
@@ -8148,9 +8148,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 169.8963
-    design_grad: 16.98963
-    max_current: 254.84
+    design_current: 183.2708
+    design_grad: 18.32708
+    max_current: 274.91
   knobs:
     current: settings:magnet:BTL:Q3
 - name: BTL:C3
@@ -8192,9 +8192,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -131.8494
-    design_grad: -13.18494
-    max_current: 197.77
+    design_current: -160.9831
+    design_grad: -16.09831
+    max_current: 241.47
   knobs:
     current: settings:magnet:BTL:Q4
 - name: BTL:C4
@@ -8229,7 +8229,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0015
+    design_wpm: 0.2431
   knobs: {}
 - name: BTL:WS1
   type: wire_scanner
@@ -8257,9 +8257,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 87.2855
-    design_grad: 8.72855
-    max_current: 130.93
+    design_current: 86.7609
+    design_grad: 8.67609
+    max_current: 130.14
   knobs:
     current: settings:magnet:BTL:Q5
 - name: BTL:C5
@@ -8327,9 +8327,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -84.5702
-    design_grad: -8.45702
-    max_current: 126.86
+    design_current: -46.0715
+    design_grad: -4.60715
+    max_current: 69.11
   knobs:
     current: settings:magnet:BTL:Q6
 - name: BTL:C6
@@ -8364,7 +8364,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0016
+    design_wpm: 0.0025
   knobs: {}
 - name: BTL:WS2
   type: wire_scanner
@@ -8392,9 +8392,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 72.0092
-    design_grad: 7.20092
-    max_current: 108.01
+    design_current: 45.207
+    design_grad: 4.5207
+    max_current: 67.81
   knobs:
     current: settings:magnet:BTL:Q7
 - name: BTL:C7
@@ -8462,9 +8462,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -66.2133
-    design_grad: -6.62133
-    max_current: 99.32
+    design_current: -48.8148
+    design_grad: -4.88148
+    max_current: 73.22
   knobs:
     current: settings:magnet:BTL:Q8
 - name: BTL:C8
@@ -8499,7 +8499,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0044
+    design_wpm: 0.0088
   knobs: {}
 - name: BTL:WS3
   type: wire_scanner
@@ -8551,9 +8551,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 60.5719
-    design_grad: 6.05719
-    max_current: 90.86
+    design_current: 51.1304
+    design_grad: 5.11304
+    max_current: 76.7
   knobs:
     current: settings:magnet:BTL:Q9
 - name: BTL:C9
@@ -8631,9 +8631,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -82.2137
-    design_grad: -8.22137
-    max_current: 123.32
+    design_current: -88.5628
+    design_grad: -8.85628
+    max_current: 132.84
   knobs:
     current: settings:magnet:BTL:Q10
 - name: BTL:C10
@@ -8668,7 +8668,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0024
+    design_wpm: 0.0046
   knobs: {}
 - name: BTL:WS4
   type: wire_scanner
@@ -8696,9 +8696,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 85.072
-    design_grad: 8.5072
-    max_current: 127.61
+    design_current: 89.6692
+    design_grad: 8.96692
+    max_current: 134.5
   knobs:
     current: settings:magnet:BTL:Q11
 - name: BTL:C11
@@ -8776,9 +8776,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -76.6621
-    design_grad: -7.66621
-    max_current: 114.99
+    design_current: -95.7235
+    design_grad: -9.57235
+    max_current: 143.59
   knobs:
     current: settings:magnet:BTL:Q12
 - name: BTL:C12
@@ -8813,7 +8813,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0015
+    design_wpm: 0.0027
   knobs: {}
 - name: BTL:D18
   type: drift
@@ -8831,9 +8831,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 81.6275
-    design_grad: 8.16275
-    max_current: 122.44
+    design_current: 89.4078
+    design_grad: 8.94078
+    max_current: 134.11
   knobs:
     current: settings:magnet:BTL:Q13
 - name: BTL:C13
@@ -8911,9 +8911,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -85.2863
-    design_grad: -8.52863
-    max_current: 127.93
+    design_current: -102.6093
+    design_grad: -10.26093
+    max_current: 153.91
   knobs:
     current: settings:magnet:BTL:Q14
 - name: BTL:C14
@@ -8948,7 +8948,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0014
+    design_wpm: 0.0022
   knobs: {}
 - name: BTL:D22
   type: drift
@@ -8966,9 +8966,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 84.5699
-    design_grad: 8.45699
-    max_current: 126.85
+    design_current: 91.3452
+    design_grad: 9.13452
+    max_current: 137.02
   knobs:
     current: settings:magnet:BTL:Q15
 - name: BTL:C15
@@ -9046,9 +9046,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -70.628
-    design_grad: -7.0628
-    max_current: 105.94
+    design_current: -80.2298
+    design_grad: -8.02298
+    max_current: 120.34
   knobs:
     current: settings:magnet:BTL:Q16
 - name: BTL:C16
@@ -9083,7 +9083,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0014
+    design_wpm: 0.0023
   knobs: {}
 - name: BTL:WS5
   type: wire_scanner
@@ -9111,9 +9111,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 66.2741
-    design_grad: 6.62741
-    max_current: 99.41
+    design_current: 72.6457
+    design_grad: 7.26457
+    max_current: 108.97
   knobs:
     current: settings:magnet:BTL:Q17
 - name: BTL:C17
@@ -9191,9 +9191,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -76.6556
-    design_grad: -7.66556
-    max_current: 114.98
+    design_current: -85.2032
+    design_grad: -8.52032
+    max_current: 127.8
   knobs:
     current: settings:magnet:BTL:Q18
 - name: BTL:C18
@@ -9228,7 +9228,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0013
+    design_wpm: 0.0019
   knobs: {}
 - name: BTL:D30
   type: drift
@@ -9246,9 +9246,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 78.0505
-    design_grad: 7.80505
-    max_current: 117.08
+    design_current: 82.7704
+    design_grad: 8.27704
+    max_current: 124.16
   knobs:
     current: settings:magnet:BTL:Q19
 - name: BTL:C19
@@ -9344,9 +9344,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -76.8917
-    design_grad: -7.68917
-    max_current: 115.34
+    design_current: -83.4648
+    design_grad: -8.34648
+    max_current: 125.2
   knobs:
     current: settings:magnet:BTL:Q20
 - name: BTL:C20
@@ -9381,7 +9381,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0015
+    design_wpm: 0.0022
   knobs: {}
 - name: BTL:D35
   type: drift
@@ -9417,9 +9417,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 85.04
-    design_grad: 8.504
-    max_current: 127.56
+    design_current: 89.3016
+    design_grad: 8.93016
+    max_current: 133.95
   knobs:
     current: settings:magnet:BTL:Q21
 - name: BTL:C21
@@ -9497,9 +9497,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -82.8371
-    design_grad: -8.28371
-    max_current: 124.26
+    design_current: -91.3274
+    design_grad: -9.13274
+    max_current: 136.99
   knobs:
     current: settings:magnet:BTL:Q22
 - name: BTL:C22
@@ -9534,7 +9534,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0013
+    design_wpm: 0.0021
   knobs: {}
 - name: BTL:WS6
   type: wire_scanner
@@ -9562,9 +9562,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 82.8874
-    design_grad: 8.28874
-    max_current: 124.33
+    design_current: 89.6931
+    design_grad: 8.96931
+    max_current: 134.54
   knobs:
     current: settings:magnet:BTL:Q23
 - name: BTL:C23
@@ -9642,9 +9642,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -88.1006
-    design_grad: -8.81006
-    max_current: 132.15
+    design_current: -97.6219
+    design_grad: -9.76219
+    max_current: 146.43
   knobs:
     current: settings:magnet:BTL:Q24
 - name: BTL:C24
@@ -9679,7 +9679,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0012
+    design_wpm: 0.0018
   knobs: {}
 - name: BTL:D43
   type: drift
@@ -9697,9 +9697,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 85.8013
-    design_grad: 8.58013
-    max_current: 128.7
+    design_current: 93.3207
+    design_grad: 9.33207
+    max_current: 139.98
   knobs:
     current: settings:magnet:BTL:Q25
 - name: BTL:C25
@@ -9777,9 +9777,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -83.673
-    design_grad: -8.3673
-    max_current: 125.51
+    design_current: -96.8705
+    design_grad: -9.68705
+    max_current: 145.31
   knobs:
     current: settings:magnet:BTL:Q26
 - name: BTL:C26
@@ -9814,7 +9814,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0012
+    design_wpm: 0.0018
   knobs: {}
 - name: BTL:D47
   type: drift
@@ -9832,9 +9832,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 82.9823
-    design_grad: 8.29823
-    max_current: 124.47
+    design_current: 94.7137
+    design_grad: 9.47137
+    max_current: 142.07
   knobs:
     current: settings:magnet:BTL:Q27
 - name: BTL:C27
@@ -9912,9 +9912,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -84.9922
-    design_grad: -8.49922
-    max_current: 127.49
+    design_current: -103.1312
+    design_grad: -10.31312
+    max_current: 154.7
   knobs:
     current: settings:magnet:BTL:Q28
 - name: BTL:C28
@@ -9949,7 +9949,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0012
+    design_wpm: 0.0018
   knobs: {}
 - name: BTL:D51
   type: drift
@@ -9967,9 +9967,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 90.4366
-    design_grad: 9.04366
-    max_current: 135.65
+    design_current: 103.3769
+    design_grad: 10.33769
+    max_current: 155.07
   knobs:
     current: settings:magnet:BTL:Q29
 - name: BTL:C29
@@ -10047,9 +10047,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -90.6119
-    design_grad: -9.06119
-    max_current: 135.92
+    design_current: -99.5869
+    design_grad: -9.95869
+    max_current: 149.38
   knobs:
     current: settings:magnet:BTL:Q30
 - name: BTL:C30
@@ -10084,7 +10084,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0013
+    design_wpm: 0.002
   knobs: {}
 - name: BTL:WS7
   type: wire_scanner
@@ -10112,9 +10112,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 94.0726
-    design_grad: 9.40726
-    max_current: 141.11
+    design_current: 98.2229
+    design_grad: 9.82229
+    max_current: 147.33
   knobs:
     current: settings:magnet:BTL:Q31
 - name: BTL:C31
@@ -10192,9 +10192,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -98.2866
-    design_grad: -9.82866
-    max_current: 147.43
+    design_current: -98.0287
+    design_grad: -9.80287
+    max_current: 147.04
   knobs:
     current: settings:magnet:BTL:Q32
 - name: BTL:C32
@@ -10229,7 +10229,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0012
+    design_wpm: 0.0018
   knobs: {}
 - name: BTL:D59
   type: drift
@@ -10247,9 +10247,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 95.1656
-    design_grad: 9.51656
-    max_current: 142.75
+    design_current: 95.6659
+    design_grad: 9.56659
+    max_current: 143.5
   knobs:
     current: settings:magnet:BTL:Q33
 - name: BTL:C33
@@ -10327,9 +10327,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -96.8792
-    design_grad: -9.68792
-    max_current: 145.32
+    design_current: -98.2811
+    design_grad: -9.82811
+    max_current: 147.42
   knobs:
     current: settings:magnet:BTL:Q34
 - name: BTL:C34
@@ -10364,7 +10364,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0012
+    design_wpm: 0.0018
   knobs: {}
 - name: BTL:D63
   type: drift
@@ -10382,9 +10382,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 93.4947
-    design_grad: 9.34947
-    max_current: 140.24
+    design_current: 96.8255
+    design_grad: 9.68255
+    max_current: 145.24
   knobs:
     current: settings:magnet:BTL:Q35
 - name: BTL:C35
@@ -10462,9 +10462,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -93.6991
-    design_grad: -9.36991
-    max_current: 140.55
+    design_current: -98.558
+    design_grad: -9.8558
+    max_current: 147.84
   knobs:
     current: settings:magnet:BTL:Q36
 - name: BTL:C36
@@ -10499,7 +10499,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0012
+    design_wpm: 0.0018
   knobs: {}
 - name: BTL:D67
   type: drift
@@ -10517,9 +10517,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 97.4983
-    design_grad: 9.74983
-    max_current: 146.25
+    design_current: 98.2514
+    design_grad: 9.82514
+    max_current: 147.38
   knobs:
     current: settings:magnet:BTL:Q37
 - name: BTL:C37
@@ -10597,9 +10597,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -100.7992
-    design_grad: -10.07992
-    max_current: 151.2
+    design_current: -98.616
+    design_grad: -9.8616
+    max_current: 147.92
   knobs:
     current: settings:magnet:BTL:Q38
 - name: BTL:C38
@@ -10634,7 +10634,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0013
+    design_wpm: 0.0019
   knobs: {}
 - name: BTL:WS8
   type: wire_scanner
@@ -10662,9 +10662,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 101.9997
-    design_grad: 10.19997
-    max_current: 153.0
+    design_current: 98.218
+    design_grad: 9.8218
+    max_current: 147.33
   knobs:
     current: settings:magnet:BTL:Q39
 - name: BTL:C39
@@ -10742,9 +10742,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -102.2334
-    design_grad: -10.22334
-    max_current: 153.35
+    design_current: -93.727
+    design_grad: -9.3727
+    max_current: 140.59
   knobs:
     current: settings:magnet:BTL:Q40
 - name: BTL:C40
@@ -10779,7 +10779,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0012
+    design_wpm: 0.0017
   knobs: {}
 - name: BTL:D75
   type: drift
@@ -10797,9 +10797,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 99.8221
-    design_grad: 9.98221
-    max_current: 149.73
+    design_current: 95.1486
+    design_grad: 9.51486
+    max_current: 142.72
   knobs:
     current: settings:magnet:BTL:Q41
 - name: BTL:C41
@@ -10877,9 +10877,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -96.7457
-    design_grad: -9.67457
-    max_current: 145.12
+    design_current: -92.2306
+    design_grad: -9.22306
+    max_current: 138.35
   knobs:
     current: settings:magnet:BTL:Q42
 - name: BTL:C42
@@ -10914,7 +10914,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0012
+    design_wpm: 0.0017
   knobs: {}
 - name: BTL:D79
   type: drift
@@ -10932,9 +10932,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: 92.9297
-    design_grad: 9.29297
-    max_current: 139.39
+    design_current: 90.7255
+    design_grad: 9.07255
+    max_current: 136.09
   knobs:
     current: settings:magnet:BTL:Q43
 - name: BTL:C43
@@ -11012,9 +11012,9 @@ elements:
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
-    design_current: -31.0833
-    design_grad: -3.10833
-    max_current: 46.62
+    design_current: -29.893
+    design_grad: -2.9893
+    max_current: 44.84
   knobs:
     current: settings:magnet:BTL:Q44
 - name: BTL:C44
@@ -11049,7 +11049,7 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
-    design_wpm: 0.0916
+    design_wpm: 0.023
   knobs: {}
 - name: BTL:D83
   type: drift
