@@ -215,6 +215,10 @@ def main():
     args = ap.parse_args()
     settings = Settings(**({"redis_url": args.redis} if args.redis else {}))
 
+    import os
+    if os.environ.get("PIP2VA_SOFT_GL"):
+        QApplication.setAttribute(
+            Qt.ApplicationAttribute.AA_UseSoftwareOpenGL)
     app = QApplication(sys.argv)
     app.setStyleSheet(theme.STYLESHEET)
     hub = DataHub(settings=settings)

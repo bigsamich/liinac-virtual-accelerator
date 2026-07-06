@@ -2,6 +2,9 @@
 # Virtual display -> real PyQt GUI -> VNC -> browser (noVNC).
 set -e
 export DISPLAY=:1
+export LIBGL_ALWAYS_SOFTWARE=1
+export GALLIUM_DRIVER=llvmpipe
+export PIP2VA_SOFT_GL=1
 Xvfb :1 -screen 0 1920x1080x24 &
 sleep 1
 x11vnc -display :1 -forever -shared -nopw -quiet -noxdamage &

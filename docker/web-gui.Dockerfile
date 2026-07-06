@@ -4,7 +4,7 @@ FROM python:3.11-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         xvfb x11vnc novnc websockify \
-        libgl1 libegl1 libglx-mesa0 libgl1-mesa-dri libglib2.0-0 \
+        libgl1 libegl1 libglx-mesa0 libgl1-mesa-dri libegl-mesa0 libosmesa6 libglib2.0-0 \
         libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 \
         libxcb-shape0 libxcb-render-util0 libxcb-image0 libxcb-xkb1 \
         libdbus-1-3 libfontconfig1 fonts-dejavu-core && \
