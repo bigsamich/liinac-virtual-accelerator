@@ -76,6 +76,50 @@ for fp in sorted(D.glob("result-*.json")):
     except Exception:
         continue
 
+# --- QA mined from the user guides (docs/guides/*.md sections)
+import re as _re
+for gp in sorted(Path("docs/guides").glob("*.md")):
+    txt = gp.read_text()
+    for m in _re.finditer(r"^##+ (.+?)\n(.*?)(?=\n##|\Z)", txt, _re.S | _re.M):
+        title = m.group(1).strip().lstrip("0123456789.— -")
+        body = m.group(2).strip()
+        body = _re.sub(r"\n{2,}", "\n", body)
+        if 120 < len(body) < 1600 and "|" not in title:
+            add(f"Explain: {title}", body)
+            add(f"How does {title.lower()} work in this machine?", body)
+
+# --- teacher paraphrases (qwen3.6 via ollama): reword questions so the
+#     student generalizes beyond template phrasings
+import os, urllib.request
+if os.environ.get("TEACHER_AUG", "1") == "1":
+    base = rows[:]
+    random.seed(11)
+    random.shuffle(base)
+    n_aug = 0
+    for r0 in base:
+        if n_aug >= 400:
+            break
+        q0 = r0["messages"][1]["content"]
+        a0 = r0["messages"][2]["content"]
+        try:
+            req = urllib.request.Request(
+                "http://localhost:11434/api/chat",
+                data=json.dumps({"model": "qwen3.6:latest", "stream": False,
+                    "think": False,
+                    "options": {"temperature": 0.8, "num_predict": 60},
+                    "messages": [{"role": "user", "content":
+                        "Reword this question in different words, same "
+                        "meaning, one line, no preamble: " + q0}]}).encode(),
+                headers={"Content-Type": "application/json"})
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                q1 = json.loads(resp.read())["message"].get("content", "").strip()
+            if 10 < len(q1) < 300 and q1 != q0:
+                add(q1, a0)
+                n_aug += 1
+        except Exception:
+            continue
+    print(f"teacher paraphrases: {n_aug}")
+
 random.seed(7)
 random.shuffle(rows)
 OUT.write_text("\n".join(json.dumps(r) for r in rows))

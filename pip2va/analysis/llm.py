@@ -22,9 +22,12 @@ def _pick_model():
         with urllib.request.urlopen(OLLAMA_URL + "/api/tags",
                                     timeout=2) as r:
             names = [m["name"] for m in json.loads(r.read())["models"]]
-        # ft student demoted until it passes the knowledge exam
-        # (set PIP2VA_LLM_MODEL=pip2va-expert-ft to test it explicitly)
-        for cand in ("pip2va-expert:latest",):
+        import pathlib
+        cands = ["pip2va-expert:latest"]
+        if pathlib.Path("scripts/distill/EXAM_PASS").exists() or \
+                pathlib.Path("/app/EXAM_PASS").exists():
+            cands.insert(0, "pip2va-expert-ft:latest")
+        for cand in cands:
             if cand in names:
                 return cand
     except Exception:
