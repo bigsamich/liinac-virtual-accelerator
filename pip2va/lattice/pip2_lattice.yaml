@@ -219,6 +219,326 @@ elements:
     noise_frac: 0.002
     floor_ma: 0.005
   knobs: {}
+- name: RFQ:BLMX104
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX105
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX106
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX107
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX108
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX109
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX110
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX111
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX112
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX113
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX114
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX115
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX116
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX117
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX118
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX119
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX120
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX121
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX122
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX123
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX124
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX125
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX126
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX127
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX128
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX129
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX130
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX131
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX132
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX133
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX134
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
+- name: RFQ:BLMX135
+  type: blm
+  s: 6.31
+  length: 0.0
+  section: RFQ
+  aperture_radius: 0.004
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
 - name: MEBT:D1
   type: drift
   s: 6.36
@@ -972,6 +1292,16 @@ elements:
     max_current: 134.62
   knobs:
     current: settings:magnet:MEBT:Q20
+- name: MEBT:BLMX102
+  type: blm
+  s: 14.05
+  length: 0.0
+  section: MEBT
+  aperture_radius: 0.014
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
 - name: MEBT:D27
   type: drift
   s: 14.15
@@ -8607,6 +8937,16 @@ elements:
     angle_deg: 7.0
     b_t: 0.24
   knobs: {}
+- name: BTL:BLMX103
+  type: blm
+  s: 189.03
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
+  knobs: {}
 - name: BTL:BLMX68
   type: blm
   s: 191.48
@@ -9359,6 +9699,16 @@ elements:
   section: BTL
   aperture_radius: 0.0225
   params: {}
+  knobs: {}
+- name: BTL:BLMX101
+  type: blm
+  s: 235.08
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
   knobs: {}
 - name: BTL:B12
   type: dipole
