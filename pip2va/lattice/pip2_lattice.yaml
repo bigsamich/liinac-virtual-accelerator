@@ -182,16 +182,6 @@ elements:
     noise_frac: 0.002
     floor_ma: 0.005
   knobs: {}
-- name: LEBT:BLMX204
-  type: blm
-  s: 1.849
-  length: 0.0
-  section: LEBT
-  aperture_radius: 0.004
-  params:
-    noise_frac: 0.05
-    dark_wpm: 0.001
-  knobs: {}
 - name: RFQ:RFQ
   type: rfq
   s: 1.86
@@ -11667,4 +11657,14 @@ elements:
   section: BTL
   aperture_radius: 0.0225
   params: {}
+  knobs: {}
+- name: BTL:BLMX204
+  type: blm
+  s: 349.54
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.0225
+  params:
+    noise_frac: 0.05
+    dark_wpm: 0.001
   knobs: {}
