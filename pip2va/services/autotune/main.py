@@ -148,6 +148,13 @@ class AutotuneService(Service):
         def finish(status):
             if plan.get("restore", True) or status != "completed":
                 apply(stu["orig"])
+            # ALWAYS restore pre-settings (they are context, not the scan)
+            for key, fld, old in stu.get("pre_orig", []):
+                if old is None:
+                    self.r.hdel(key, fld)
+                else:
+                    self.r.hset(key, fld, old)
+                self.publish_event(keys.CH_SETTINGS, {"key": key})
             self.r.hset("state:study", mapping={
                 "run": 0, "status": status,
                 "result": _json.dumps({"status": status,
