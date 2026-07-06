@@ -63,6 +63,34 @@ class DiagSimService(Service):
         self._last_blm_wf: dict[str, np.ndarray] = {}
         self._last_tor_wf: dict[str, np.ndarray] = {}
         self._last_pid = 0
+        from pip2va.common import schema
+        import json as _json
+        self.r.set("lattice:bpm.index",
+                   _json.dumps([b.name for b in self.bpms]))
+        self.r.set("lattice:blm.index",
+                   _json.dumps([b.name for b in self.blms]))
+        self.r.set("lattice:toroid.index",
+                   _json.dumps([t.name for t in self.tors]))
+        schema.register_stream(self.r, "bpm.orbit", {
+            "x": {"unit": "mm", "scale": 1e3},
+            "y": {"unit": "mm", "scale": 1e3},
+            "phase": {"unit": "deg"}, "sum": {"unit": "au"},
+            "w_tof": {"unit": "MeV"}},
+            pv="PIP2:BPM", index_key="lattice:bpm.index")
+        schema.register_stream(self.r, "blm.losses",
+            {"wpm": {"unit": "W/m"}},
+            pv="PIP2:BLM", index_key="lattice:blm.index")
+        schema.register_stream(self.r, "toroid.current",
+            {"i_ma": {"unit": "mA"}},
+            pv="PIP2:BCM", index_key="lattice:toroid.index")
+        schema.register_settings(self.r, "source",
+            {"current_ma": {"lo": 0.0, "hi": 15.0, "unit": "mA"}},
+            pv="PIP2:SRC")
+        schema.register_settings(self.r, "chopper",
+            {"duty": {"lo": 0.0, "hi": 1.0},
+             "notch": {"lo": 0, "hi": 200},
+             "turn": {"lo": 40, "hi": 1024}},
+            pv="PIP2:CHOP")
 
     def on_event(self, channel, data):
         if channel == keys.CH_MPS and isinstance(data, dict) \

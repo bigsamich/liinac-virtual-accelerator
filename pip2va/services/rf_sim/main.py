@@ -54,6 +54,17 @@ class RfSimService(Service):
             self.v_set[j] = float(st.get("amp", vd))
             self.phi_set[j] = float(st.get("phase", pd))
         self.model.pretune(self.v_set)
+        from pip2va.common import schema
+        schema.register_stream(self.r, "rf.cavity", {
+            "amp": {"unit": "MV"}, "phase": {"unit": "deg"},
+            "detuning_hz": {"unit": "Hz"},
+            "forward_pw": {"unit": "kW"}, "rad": {"unit": "au"}},
+            pv="PIP2:RF", index_key="lattice:rf.index")
+        schema.register_settings(self.r, "rf", {
+            "amp": {"lo": 0.0, "hi": 30.0, "unit": "MV"},
+            "phase": {"lo": -180.0, "hi": 180.0, "unit": "deg"},
+            "ff": {"lo": 0.0, "hi": 1.0}},
+            devices=[c.name for c in self.cavs], pv="PIP2:RF")
         self.r.set("lattice:rf.index",
                    json.dumps([c.name for c in self.cavs]))
         self._pos = {c.name: j for j, c in enumerate(self.cavs)}

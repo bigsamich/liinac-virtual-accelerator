@@ -48,6 +48,20 @@ services:
     <<: *svc
     command: python -m pip2va.services.autotune.main
 
+  epics-gateway:
+    build:
+      context: .
+      dockerfile: docker/epics-gateway.Dockerfile
+    # PVA discovery (UDP 5076 broadcast / TCP 5075) needs host networking
+    network_mode: host
+    environment:
+      PIP2VA_REDIS_URL: redis://localhost:6379/0
+      PIP2VA_EPICS_HZ: "10"
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
   web-gui:
     build:
       context: .

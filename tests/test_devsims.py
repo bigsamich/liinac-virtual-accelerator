@@ -130,3 +130,19 @@ def test_bpg_patterns():
     # stuck bucket forces a chopped bucket to pass
     st = {"mode": "custom", "pattern": "1000", "stuck_bucket": 2}
     assert bpg.pattern_bits(st, 4)[2]
+
+
+def test_epics_registry_pv_plan():
+    from pip2va.services.epics_gateway.main import build_pv_plan
+    streams = {"bpm.orbit": {"fields": {"x": {"scale": 1e3},
+                                        "y": {"scale": 1e3}},
+                             "pv": "PIP2:BPM",
+                             "index_key": "lattice:bpm.index"}}
+    settings = {"rf": {"fields": {"phase": {"lo": -180, "hi": 180}},
+                       "devices": ["SSR2:CAV17"], "pv": "PIP2:RF"}}
+    plan = build_pv_plan(streams, settings)
+    assert plan["PIP2:BPM:X"]["kind"] == "array"
+    assert plan["PIP2:RF:SSR2:CAV17:PHASE_SP"]["target"] == \
+        ("rf", "SSR2:CAV17", "phase")
+    assert plan["PIP2:BEAM:W"] == {"kind": "state", "field": "w_out"}
+    assert plan["PIP2:MPS:PERMIT"]["kind"] == "permit"

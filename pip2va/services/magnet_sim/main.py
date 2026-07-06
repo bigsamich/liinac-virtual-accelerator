@@ -45,6 +45,16 @@ class MagnetSimService(Service):
                 self.devices.append((el, f, dev, skey, rkey))
         self.r.set("lattice:magnet.index",
                    json.dumps([f"{el.name}:{f}" for el, f, *_ in self.devices]))
+        from pip2va.common import schema
+        schema.register_stream(self.r, "magnet.readback",
+            {"values": {"unit": "A"}},
+            pv="PIP2:MAG", index_key="lattice:magnet.index")
+        magd = sorted({el.name for el, *_ in self.devices})
+        flds = {"current": {"lo": -500.0, "hi": 500.0, "unit": "A"},
+                "current_x": {"lo": -10.0, "hi": 10.0, "unit": "A"},
+                "current_y": {"lo": -10.0, "hi": 10.0, "unit": "A"}}
+        schema.register_settings(self.r, "magnet", flds, devices=magd,
+                                 pv="PIP2:MAG")
         self._dirty = {skey for _, _, _, skey, _ in self.devices}
 
     def on_event(self, channel, data):
