@@ -1,0 +1,24 @@
+{
+ "plan": {
+  "name": "lebt-sol1-scan",
+  "kind": "sweep",
+  "description": "LEBT:SOL1 +/-10% source matching",
+  "sweeps": [
+   {
+    "cls": "magnet",
+    "device": "LEBT:SOL1",
+    "field": "current",
+    "from": 13.593960000000001,
+    "to": 16.61484
+   }
+  ],
+  "steps": 9,
+  "dwell_s": 2.0,
+  "restore": true
+ },
+ "result": {
+  "status": "aborted-no-beam",
+  "steps": [],
+  "t_end": 1783195926.7891333
+ }
+}

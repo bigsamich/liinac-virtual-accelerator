@@ -1,0 +1,93 @@
+{
+ "plan": {
+  "name": "source-chopper-2d-isocurrent",
+  "kind": "ramp",
+  "rebaseline": true,
+  "steps": 5,
+  "dwell_s": 3.0,
+  "sweeps": [
+   {
+    "cls": "source",
+    "device": "main",
+    "field": "current_ma",
+    "from": 4.5,
+    "to": 5.5
+   },
+   {
+    "cls": "chopper",
+    "device": "main",
+    "field": "duty",
+    "from": 0.45,
+    "to": 0.36
+   }
+  ],
+  "description": "source-chopper-2d-isocurrent",
+  "restore": true
+ },
+ "result": {
+  "status": "completed",
+  "steps": [
+   {
+    "step": 1,
+    "set_values": [
+     4.5,
+     0.45
+    ],
+    "transmission": 0.9956333210757419,
+    "w_tof": 800.561669921875,
+    "worst_blm": 43.37646484375,
+    "i_out_ma": 2.022183656692505,
+    "orbit_rms_mm": 1.1258610486984253
+   },
+   {
+    "step": 2,
+    "set_values": [
+     4.75,
+     0.4275
+    ],
+    "transmission": 0.9953922481265693,
+    "w_tof": 800.2236450195312,
+    "worst_blm": 21.908628463745117,
+    "i_out_ma": 2.012587785720825,
+    "orbit_rms_mm": 1.172857642173767
+   },
+   {
+    "step": 3,
+    "set_values": [
+     5.0,
+     0.405
+    ],
+    "transmission": 0.994790576947873,
+    "w_tof": 800.1261352539062,
+    "worst_blm": 22.920475006103516,
+    "i_out_ma": 2.024397373199463,
+    "orbit_rms_mm": 1.2111749649047852
+   },
+   {
+    "step": 4,
+    "set_values": [
+     5.25,
+     0.3825
+    ],
+    "transmission": 0.9939331961496249,
+    "w_tof": 799.9263610839844,
+    "worst_blm": 38.743804931640625,
+    "i_out_ma": 1.9973042011260986,
+    "orbit_rms_mm": 1.2398403882980347
+   },
+   {
+    "step": 5,
+    "set_values": [
+     5.5,
+     0.36
+    ],
+    "transmission": 0.9927426788906608,
+    "w_tof": 799.932177734375,
+    "worst_blm": 68.49809265136719,
+    "i_out_ma": 1.9665424823760986,
+    "orbit_rms_mm": 1.2605215311050415
+   }
+  ],
+  "t_end": 1783197756.8017828
+ }
+}

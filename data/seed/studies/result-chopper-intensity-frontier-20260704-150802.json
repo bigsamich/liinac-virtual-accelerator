@@ -1,0 +1,25 @@
+{
+ "plan": {
+  "name": "chopper-intensity-frontier",
+  "kind": "ramp",
+  "description": "duty 0.40 -> 0.60 with rebaseline (intensity frontier)",
+  "sweeps": [
+   {
+    "cls": "chopper",
+    "device": "main",
+    "field": "duty",
+    "from": 0.4,
+    "to": 0.6
+   }
+  ],
+  "steps": 5,
+  "dwell_s": 3.0,
+  "restore": true,
+  "rebaseline": true
+ },
+ "result": {
+  "status": "aborted-no-beam",
+  "steps": [],
+  "t_end": 1783195680.7911665
+ }
+}

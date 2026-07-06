@@ -1,0 +1,78 @@
+{
+ "plan": {
+  "name": "emittance-vs-current",
+  "kind": "ramp",
+  "rebaseline": true,
+  "description": "source 4.0 -> 5.5 mA: emittance growth vs current",
+  "sweeps": [
+   {
+    "cls": "source",
+    "device": "main",
+    "field": "current_ma",
+    "from": 4.0,
+    "to": 5.5
+   }
+  ],
+  "steps": 4,
+  "dwell_s": 4.0,
+  "restore": true
+ },
+ "result": {
+  "status": "completed",
+  "steps": [
+   {
+    "step": 1,
+    "emit_x_um": 0.2500254511833191,
+    "emit_y_um": 0.34658241271972656,
+    "set_values": [
+     4.0
+    ],
+    "transmission": 0.9945517930356956,
+    "w_tof": 799.9642272949219,
+    "worst_blm": 174.7875518798828,
+    "i_out_ma": 1.5957797765731812,
+    "orbit_rms_mm": 0.8585249781608582
+   },
+   {
+    "step": 2,
+    "emit_x_um": 0.2570873498916626,
+    "emit_y_um": 0.34526145458221436,
+    "set_values": [
+     4.5
+    ],
+    "transmission": 0.9954977548772045,
+    "w_tof": 800.0053527832031,
+    "worst_blm": 54.057289123535156,
+    "i_out_ma": 1.789527177810669,
+    "orbit_rms_mm": 1.033407211303711
+   },
+   {
+    "step": 3,
+    "emit_x_um": 0.26439496874809265,
+    "emit_y_um": 0.3438957631587982,
+    "set_values": [
+     5.0
+    ],
+    "transmission": 0.9947426447847687,
+    "w_tof": 800.2132690429687,
+    "worst_blm": 27.476736068725586,
+    "i_out_ma": 1.9851267337799072,
+    "orbit_rms_mm": 1.2024743556976318
+   },
+   {
+    "step": 4,
+    "emit_x_um": 0.27922436594963074,
+    "emit_y_um": 0.3439760208129883,
+    "set_values": [
+     5.5
+    ],
+    "transmission": 0.9928406526714748,
+    "w_tof": 800.4240478515625,
+    "worst_blm": 40.310997009277344,
+    "i_out_ma": 2.1890721321105957,
+    "orbit_rms_mm": 1.3112056255340576
+   }
+  ],
+  "t_end": 1783198628.8018973
+ }
+}

@@ -1,0 +1,58 @@
+{
+ "plan": {
+  "name": "pre-restore-verify",
+  "kind": "sweep",
+  "description": "verify pre restoration",
+  "sweeps": [
+   {
+    "cls": "source",
+    "device": "main",
+    "field": "current_ma",
+    "from": 5.0,
+    "to": 5.0
+   }
+  ],
+  "steps": 2,
+  "dwell_s": 1.0,
+  "restore": true,
+  "pre": {
+   "settings:chopper:main": {
+    "duty": 0.35
+   }
+  }
+ },
+ "result": {
+  "status": "completed",
+  "steps": [
+   {
+    "step": 1,
+    "rf_det_rms_hz": 3.24,
+    "emit_x_um": 0.23780448734760284,
+    "emit_y_um": 0.3290615379810333,
+    "set_values": [
+     5.0
+    ],
+    "transmission": 0.9954272425011755,
+    "w_tof": 800.0495727539062,
+    "worst_blm": 4.790843963623047,
+    "i_out_ma": 1.988580346107483,
+    "orbit_rms_mm": 0.21884214878082275
+   },
+   {
+    "step": 2,
+    "rf_det_rms_hz": 3.24,
+    "emit_x_um": 0.23786693811416626,
+    "emit_y_um": 0.32920217514038086,
+    "set_values": [
+     5.0
+    ],
+    "transmission": 0.9954285124806627,
+    "w_tof": 800.0366943359375,
+    "worst_blm": 5.043289661407471,
+    "i_out_ma": 1.9971716403961182,
+    "orbit_rms_mm": 0.21871651709079742
+   }
+  ],
+  "t_end": 1783336134.1597688
+ }
+}

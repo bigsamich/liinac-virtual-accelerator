@@ -1,0 +1,142 @@
+{
+ "plan": {
+  "name": "c4-util-combo-warm",
+  "dwell_s": 2.5,
+  "sweeps": [
+   {
+    "cls": "util",
+    "device": "main",
+    "field": "lcw_offset_c",
+    "from": 0.0,
+    "to": 3.0
+   },
+   {
+    "cls": "util",
+    "device": "main",
+    "field": "cryo_offset_mbar",
+    "from": 0.0,
+    "to": 2.5
+   }
+  ],
+  "kind": "sweep",
+  "description": "c4-util-combo-warm",
+  "steps": 7,
+  "restore": true,
+  "pre": {
+   "settings:util:main": {
+    "cryo_cm": "CM-HB650-2"
+   }
+  }
+ },
+ "result": {
+  "status": "completed",
+  "steps": [
+   {
+    "step": 1,
+    "rf_det_rms_hz": 3.24,
+    "emit_x_um": 0.23689764738082886,
+    "emit_y_um": 0.329171359539032,
+    "set_values": [
+     0.0,
+     0.0
+    ],
+    "transmission": 0.9954302787682427,
+    "w_tof": 799.9322570800781,
+    "worst_blm": 4.834854602813721,
+    "i_out_ma": 1.993815541267395,
+    "orbit_rms_mm": 0.1910213828086853
+   },
+   {
+    "step": 2,
+    "rf_det_rms_hz": 3.24,
+    "emit_x_um": 0.23694682121276855,
+    "emit_y_um": 0.3291879892349243,
+    "set_values": [
+     0.5,
+     0.41666666666666663
+    ],
+    "transmission": 0.995430100669539,
+    "w_tof": 800.3104309082031,
+    "worst_blm": 5.199924945831299,
+    "i_out_ma": 1.983502984046936,
+    "orbit_rms_mm": 0.19143737852573395
+   },
+   {
+    "step": 3,
+    "rf_det_rms_hz": 3.24,
+    "emit_x_um": 0.2370181530714035,
+    "emit_y_um": 0.32914063334465027,
+    "set_values": [
+     1.0,
+     0.8333333333333333
+    ],
+    "transmission": 0.9954314394405013,
+    "w_tof": 800.1972290039063,
+    "worst_blm": 5.068130970001221,
+    "i_out_ma": 1.9912711381912231,
+    "orbit_rms_mm": 0.1911081075668335
+   },
+   {
+    "step": 4,
+    "rf_det_rms_hz": 3.24,
+    "emit_x_um": 0.2369770109653473,
+    "emit_y_um": 0.32892221212387085,
+    "set_values": [
+     1.5,
+     1.25
+    ],
+    "transmission": 0.9954298260169938,
+    "w_tof": 799.9703979492188,
+    "worst_blm": 4.972930908203125,
+    "i_out_ma": 1.9785629510879517,
+    "orbit_rms_mm": 0.19145256280899048
+   },
+   {
+    "step": 5,
+    "rf_det_rms_hz": 3.24,
+    "emit_x_um": 0.23702731728553772,
+    "emit_y_um": 0.329149454832077,
+    "set_values": [
+     2.0,
+     1.6666666666666665
+    ],
+    "transmission": 0.9954305580560097,
+    "w_tof": 800.4234069824219,
+    "worst_blm": 4.891873836517334,
+    "i_out_ma": 1.9960603713989258,
+    "orbit_rms_mm": 0.191135972738266
+   },
+   {
+    "step": 6,
+    "rf_det_rms_hz": 3.24,
+    "emit_x_um": 0.23702731728553772,
+    "emit_y_um": 0.329149454832077,
+    "set_values": [
+     2.5,
+     2.0833333333333335
+    ],
+    "transmission": 0.9954307761575437,
+    "w_tof": 800.1761657714844,
+    "worst_blm": 4.742766380310059,
+    "i_out_ma": 1.9896838665008545,
+    "orbit_rms_mm": 0.1912853717803955
+   },
+   {
+    "step": 7,
+    "rf_det_rms_hz": 3.24,
+    "emit_x_um": 0.23708343505859375,
+    "emit_y_um": 0.32916808128356934,
+    "set_values": [
+     3.0,
+     2.5
+    ],
+    "transmission": 0.9954298536767674,
+    "w_tof": 799.9099731445312,
+    "worst_blm": 4.833431720733643,
+    "i_out_ma": 1.9858324527740479,
+    "orbit_rms_mm": 0.19075913727283478
+   }
+  ],
+  "t_end": 1783301896.1602917
+ }
+}

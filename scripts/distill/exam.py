@@ -39,10 +39,12 @@ for q, keys in QA:
             tok = AutoTokenizer.from_pretrained(target)
             model = AutoModelForCausalLM.from_pretrained(
                 target, dtype=torch.bfloat16, device_map={"": 0})
-        ids = tok.apply_chat_template(
+        enc = tok.apply_chat_template(
             [{"role": "system", "content": SYS},
              {"role": "user", "content": q}],
-            add_generation_prompt=True, return_tensors="pt").to("cuda")
+            add_generation_prompt=True, return_tensors="pt",
+            return_dict=True)
+        ids = enc["input_ids"].to(model.device)
         out = model.generate(ids, max_new_tokens=150, do_sample=False)
         a = tok.decode(out[0][ids.shape[1]:], skip_special_tokens=True)
     hit = any(k in a.lower() for k in keys)

@@ -1,0 +1,24 @@
+{
+ "plan": {
+  "name": "hb650-cav24-phase-trim",
+  "kind": "sweep",
+  "description": "last cavity phase +/-10 deg: end-of-linac energy trim vs the BTL entrance constraint",
+  "sweeps": [
+   {
+    "cls": "rf",
+    "device": "HB650:CAV24",
+    "field": "phase",
+    "from": -28.0,
+    "to": -8.0
+   }
+  ],
+  "steps": 9,
+  "dwell_s": 2.0,
+  "restore": true
+ },
+ "result": {
+  "status": "aborted-no-beam",
+  "steps": [],
+  "t_end": 1783196250.7893898
+ }
+}

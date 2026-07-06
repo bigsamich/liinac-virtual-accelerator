@@ -1,0 +1,104 @@
+{
+ "plan": {
+  "name": "unchopped-frontier",
+  "kind": "ramp",
+  "rebaseline": true,
+  "steps": 6,
+  "dwell_s": 3.0,
+  "sweeps": [
+   {
+    "cls": "chopper",
+    "device": "main",
+    "field": "duty",
+    "from": 0.5,
+    "to": 1.0
+   }
+  ],
+  "description": "unchopped-frontier",
+  "restore": true
+ },
+ "result": {
+  "status": "completed",
+  "steps": [
+   {
+    "step": 1,
+    "emit_x_um": 0.2643018364906311,
+    "emit_y_um": 0.34386229515075684,
+    "set_values": [
+     0.5
+    ],
+    "transmission": 0.9947827058499321,
+    "w_tof": 800.2111511230469,
+    "worst_blm": 4.809896945953369,
+    "i_out_ma": 2.474365234375,
+    "orbit_rms_mm": 1.274808645248413
+   },
+   {
+    "step": 2,
+    "emit_x_um": 0.2643856406211853,
+    "emit_y_um": 0.3439991772174835,
+    "set_values": [
+     0.6
+    ],
+    "transmission": 0.9942204459221249,
+    "w_tof": 799.900390625,
+    "worst_blm": 5.4453511238098145,
+    "i_out_ma": 2.9750759601593018,
+    "orbit_rms_mm": 1.2379944324493408
+   },
+   {
+    "step": 3,
+    "emit_x_um": 0.2644768953323364,
+    "emit_y_um": 0.34390851855278015,
+    "set_values": [
+     0.7
+    ],
+    "transmission": 0.9926028109006672,
+    "w_tof": 800.0027893066406,
+    "worst_blm": 27.066390991210938,
+    "i_out_ma": 3.461927652359009,
+    "orbit_rms_mm": 1.2106108665466309
+   },
+   {
+    "step": 4,
+    "emit_x_um": 0.26454147696495056,
+    "emit_y_um": 0.34402376413345337,
+    "set_values": [
+     0.8
+    ],
+    "transmission": 0.9886005717183004,
+    "w_tof": 800.0058044433594,
+    "worst_blm": 140.57745361328125,
+    "i_out_ma": 3.94413423538208,
+    "orbit_rms_mm": 1.214714527130127
+   },
+   {
+    "step": 5,
+    "emit_x_um": 0.2675255537033081,
+    "emit_y_um": 0.3478338420391083,
+    "set_values": [
+     0.9
+    ],
+    "transmission": 0.9811071702117601,
+    "w_tof": 799.9828186035156,
+    "worst_blm": 730.7225341796875,
+    "i_out_ma": 4.412181377410889,
+    "orbit_rms_mm": 1.344847321510315
+   },
+   {
+    "step": 6,
+    "emit_x_um": 0.2664278447628021,
+    "emit_y_um": 0.35133540630340576,
+    "set_values": [
+     1.0
+    ],
+    "transmission": 0.9698401975838508,
+    "w_tof": 799.4013427734375,
+    "worst_blm": 191.5100555419922,
+    "i_out_ma": 4.852991104125977,
+    "orbit_rms_mm": 1.441236138343811
+   }
+  ],
+  "t_end": 1783253728.8014784
+ }
+}

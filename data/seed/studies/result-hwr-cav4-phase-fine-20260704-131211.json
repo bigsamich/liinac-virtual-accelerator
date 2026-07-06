@@ -1,0 +1,91 @@
+{
+ "plan": {
+  "name": "hwr-cav4-phase-fine",
+  "kind": "sweep",
+  "description": "HWR:CAV4 phase -30 -> -27 (safe side of capture)",
+  "sweeps": [
+   {
+    "cls": "rf",
+    "device": "HWR:CAV4",
+    "field": "phase",
+    "from": -30.0,
+    "to": -27.0
+   }
+  ],
+  "steps": 7,
+  "dwell_s": 2.0,
+  "restore": true
+ },
+ "result": {
+  "status": "aborted-trip",
+  "steps": [
+   {
+    "step": 1,
+    "set_values": [
+     -30.0
+    ],
+    "transmission": 0.9947636657865585,
+    "w_tof": 800.1317504882812,
+    "worst_blm": 31.007143020629883,
+    "i_out_ma": 1.9921143054962158,
+    "orbit_rms_mm": 1.203025460243225
+   },
+   {
+    "step": 2,
+    "set_values": [
+     -29.5
+    ],
+    "transmission": 0.9948947254216054,
+    "w_tof": 799.6970031738281,
+    "worst_blm": 18.824234008789062,
+    "i_out_ma": 1.984032392501831,
+    "orbit_rms_mm": 1.160133957862854
+   },
+   {
+    "step": 3,
+    "set_values": [
+     -29.0
+    ],
+    "transmission": 0.9949780770161644,
+    "w_tof": 799.6648254394531,
+    "worst_blm": 7.148654937744141,
+    "i_out_ma": 1.9919471740722656,
+    "orbit_rms_mm": 1.1048688888549805
+   },
+   {
+    "step": 4,
+    "set_values": [
+     -28.5
+    ],
+    "transmission": 0.9949882516703583,
+    "w_tof": 798.9663513183593,
+    "worst_blm": 5.030813217163086,
+    "i_out_ma": 1.9829894304275513,
+    "orbit_rms_mm": 1.0595738887786865
+   },
+   {
+    "step": 5,
+    "set_values": [
+     -28.0
+    ],
+    "transmission": 0.9950017929064336,
+    "w_tof": 798.24013671875,
+    "worst_blm": 5.281404495239258,
+    "i_out_ma": 1.9967784881591797,
+    "orbit_rms_mm": 1.0061520338058472
+   },
+   {
+    "step": 6,
+    "set_values": [
+     -27.5
+    ],
+    "transmission": 0.9950245814449498,
+    "w_tof": 797.7585815429687,
+    "worst_blm": 5.149097442626953,
+    "i_out_ma": 1.996893048286438,
+    "orbit_rms_mm": 0.9677329659461975
+   }
+  ],
+  "t_end": 1783188730.7900674
+ }
+}

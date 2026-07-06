@@ -1,0 +1,147 @@
+{
+ "plan": {
+  "name": "autotune-ab-perturbation",
+  "kind": "procedure"
+ },
+ "result": {
+  "name": "autotune-ab-perturbation",
+  "phases": {
+   "trim OFF": {
+    "before": {
+     "orbit": 0.249,
+     "worst": 4.6
+    },
+    "trace": [
+     {
+      "t_s": 5,
+      "orbit_rms_mm": 0.245,
+      "worst_wpm": 4.5
+     },
+     {
+      "t_s": 10,
+      "orbit_rms_mm": 0.245,
+      "worst_wpm": 4.6
+     },
+     {
+      "t_s": 15,
+      "orbit_rms_mm": 0.245,
+      "worst_wpm": 4.6
+     },
+     {
+      "t_s": 20,
+      "orbit_rms_mm": 0.246,
+      "worst_wpm": 4.6
+     },
+     {
+      "t_s": 25,
+      "orbit_rms_mm": 0.245,
+      "worst_wpm": 4.6
+     },
+     {
+      "t_s": 30,
+      "orbit_rms_mm": 0.246,
+      "worst_wpm": 4.5
+     },
+     {
+      "t_s": 35,
+      "orbit_rms_mm": 0.245,
+      "worst_wpm": 4.6
+     },
+     {
+      "t_s": 40,
+      "orbit_rms_mm": 0.245,
+      "worst_wpm": 4.6
+     },
+     {
+      "t_s": 45,
+      "orbit_rms_mm": 0.245,
+      "worst_wpm": 4.6
+     },
+     {
+      "t_s": 50,
+      "orbit_rms_mm": 0.246,
+      "worst_wpm": 4.5
+     },
+     {
+      "t_s": 55,
+      "orbit_rms_mm": 0.245,
+      "worst_wpm": 4.7
+     },
+     {
+      "t_s": 60,
+      "orbit_rms_mm": 0.245,
+      "worst_wpm": 4.6
+     }
+    ]
+   },
+   "trim ON": {
+    "before": {
+     "orbit": 0.249,
+     "worst": 4.6
+    },
+    "trace": [
+     {
+      "t_s": 5,
+      "orbit_rms_mm": 0.239,
+      "worst_wpm": 4.7
+     },
+     {
+      "t_s": 10,
+      "orbit_rms_mm": 0.239,
+      "worst_wpm": 4.7
+     },
+     {
+      "t_s": 15,
+      "orbit_rms_mm": 0.239,
+      "worst_wpm": 4.6
+     },
+     {
+      "t_s": 20,
+      "orbit_rms_mm": 0.239,
+      "worst_wpm": 4.6
+     },
+     {
+      "t_s": 25,
+      "orbit_rms_mm": 0.238,
+      "worst_wpm": 4.6
+     },
+     {
+      "t_s": 30,
+      "orbit_rms_mm": 0.239,
+      "worst_wpm": 4.6
+     },
+     {
+      "t_s": 35,
+      "orbit_rms_mm": 0.239,
+      "worst_wpm": 4.6
+     },
+     {
+      "t_s": 40,
+      "orbit_rms_mm": 0.239,
+      "worst_wpm": 4.6
+     },
+     {
+      "t_s": 45,
+      "orbit_rms_mm": 0.238,
+      "worst_wpm": 4.5
+     },
+     {
+      "t_s": 50,
+      "orbit_rms_mm": 0.238,
+      "worst_wpm": 4.6
+     },
+     {
+      "t_s": 55,
+      "orbit_rms_mm": 0.238,
+      "worst_wpm": 4.5
+     },
+     {
+      "t_s": 60,
+      "orbit_rms_mm": 0.238,
+      "worst_wpm": 4.6
+     }
+    ]
+   }
+  }
+ }
+}

@@ -1,0 +1,113 @@
+{
+ "plan": {
+  "name": "rfq-amp-curve",
+  "kind": "sweep",
+  "description": "RFQ amplitude 0.95 -> 1.02 transmission curve",
+  "sweeps": [
+   {
+    "cls": "rf",
+    "device": "RFQ:RFQ",
+    "field": "amp",
+    "from": 0.95,
+    "to": 1.02
+   }
+  ],
+  "steps": 8,
+  "dwell_s": 2.0,
+  "restore": true
+ },
+ "result": {
+  "status": "completed",
+  "steps": [
+   {
+    "step": 1,
+    "set_values": [
+     0.95
+    ],
+    "transmission": 0.6005819997040324,
+    "w_tof": 800.4325439453125,
+    "worst_blm": 19.44746208190918,
+    "i_out_ma": 1.202589750289917,
+    "orbit_rms_mm": 1.2034554481506348
+   },
+   {
+    "step": 2,
+    "set_values": [
+     0.96
+    ],
+    "transmission": 0.7106292163613789,
+    "w_tof": 800.3419250488281,
+    "worst_blm": 26.731290817260742,
+    "i_out_ma": 1.4126452207565308,
+    "orbit_rms_mm": 1.2081773281097412
+   },
+   {
+    "step": 3,
+    "set_values": [
+     0.97
+    ],
+    "transmission": 0.8281488916574943,
+    "w_tof": 800.2518249511719,
+    "worst_blm": 25.247751235961914,
+    "i_out_ma": 1.6579225063323975,
+    "orbit_rms_mm": 1.205558180809021
+   },
+   {
+    "step": 4,
+    "set_values": [
+     0.98
+    ],
+    "transmission": 0.917670340459859,
+    "w_tof": 799.7463256835938,
+    "worst_blm": 24.762096405029297,
+    "i_out_ma": 1.8454794883728027,
+    "orbit_rms_mm": 1.1976970434188843
+   },
+   {
+    "step": 5,
+    "set_values": [
+     0.99
+    ],
+    "transmission": 0.9749851183705213,
+    "w_tof": 799.7289245605468,
+    "worst_blm": 28.87535858154297,
+    "i_out_ma": 1.94361412525177,
+    "orbit_rms_mm": 1.2023268938064575
+   },
+   {
+    "step": 6,
+    "set_values": [
+     1.0
+    ],
+    "transmission": 0.9947411361469609,
+    "w_tof": 799.8622436523438,
+    "worst_blm": 33.18973922729492,
+    "i_out_ma": 2.000995635986328,
+    "orbit_rms_mm": 1.2067924737930298
+   },
+   {
+    "step": 7,
+    "set_values": [
+     1.01
+    ],
+    "transmission": 0.9763835283143997,
+    "w_tof": 799.8101928710937,
+    "worst_blm": 29.65721321105957,
+    "i_out_ma": 1.9551360607147217,
+    "orbit_rms_mm": 1.2040112018585205
+   },
+   {
+    "step": 8,
+    "set_values": [
+     1.02
+    ],
+    "transmission": 0.9291442299464956,
+    "w_tof": 799.9208251953125,
+    "worst_blm": 26.83221435546875,
+    "i_out_ma": 1.8526415824890137,
+    "orbit_rms_mm": 1.2038390636444092
+   }
+  ],
+  "t_end": 1783185212.7914672
+ }
+}

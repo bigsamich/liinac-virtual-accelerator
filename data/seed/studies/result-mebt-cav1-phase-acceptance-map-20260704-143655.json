@@ -1,0 +1,25 @@
+{
+ "plan": {
+  "name": "mebt-cav1-phase-acceptance-map",
+  "kind": "sweep",
+  "description": "Scan MEBT:CAV1 phase around the known stable point of -90 degrees to map acceptance boundaries while avoiding MPS trips.",
+  "rationale": "Previous scans indicate that phases at -89 and -90 are stable, but scanning from -90 towards more negative values or large positive deviations causes trips. We will perform a narrow sweep centered on the known safe point of -90 degrees with small steps to map the local acceptance without exceeding the quench limit (0.16 MV) or triggering loss monitors.",
+  "sweeps": [
+   {
+    "cls": "rf",
+    "device": "MEBT:CAV1",
+    "field": "phase",
+    "from": -92.0,
+    "to": -88.0
+   }
+  ],
+  "steps": 9,
+  "dwell_s": 1.0,
+  "restore": true
+ },
+ "result": {
+  "status": "aborted-no-beam",
+  "steps": [],
+  "t_end": 1783193814.791099
+ }
+}

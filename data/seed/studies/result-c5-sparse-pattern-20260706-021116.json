@@ -1,0 +1,88 @@
+{
+ "plan": {
+  "name": "c5-sparse-pattern",
+  "kind": "ramp",
+  "rebaseline": true,
+  "steps": 4,
+  "dwell_s": 3.0,
+  "sweeps": [
+   {
+    "cls": "source",
+    "device": "main",
+    "field": "current_ma",
+    "from": 5.0,
+    "to": 5.0
+   }
+  ],
+  "description": "c5-sparse-pattern",
+  "restore": true,
+  "pre": {
+   "settings:chopper:main": {
+    "mode": "custom",
+    "pattern": "1000000000"
+   }
+  }
+ },
+ "result": {
+  "status": "completed",
+  "steps": [
+   {
+    "step": 1,
+    "rf_det_rms_hz": 3.24,
+    "emit_x_um": 0.25549888610839844,
+    "emit_y_um": 0.3478039503097534,
+    "set_values": [
+     5.0
+    ],
+    "transmission": 0.9945216237125104,
+    "w_tof": 799.0825134277344,
+    "worst_blm": 13.641819953918457,
+    "i_out_ma": 0.4127788245677948,
+    "orbit_rms_mm": 0.32113999128341675
+   },
+   {
+    "step": 2,
+    "rf_det_rms_hz": 3.24,
+    "emit_x_um": 0.25549888610839844,
+    "emit_y_um": 0.3478039503097534,
+    "set_values": [
+     5.0
+    ],
+    "transmission": 0.9945229795299058,
+    "w_tof": 799.4877685546875,
+    "worst_blm": 13.414989471435547,
+    "i_out_ma": 0.41260388493537903,
+    "orbit_rms_mm": 0.3222426772117615
+   },
+   {
+    "step": 3,
+    "rf_det_rms_hz": 3.24,
+    "emit_x_um": 0.25549888610839844,
+    "emit_y_um": 0.3478039503097534,
+    "set_values": [
+     5.0
+    ],
+    "transmission": 0.9945155750322845,
+    "w_tof": 800.1443237304687,
+    "worst_blm": 13.352049827575684,
+    "i_out_ma": 0.4141063690185547,
+    "orbit_rms_mm": 0.3226051926612854
+   },
+   {
+    "step": 4,
+    "rf_det_rms_hz": 3.24,
+    "emit_x_um": 0.2558121979236603,
+    "emit_y_um": 0.3479258418083191,
+    "set_values": [
+     5.0
+    ],
+    "transmission": 0.9945254224658158,
+    "w_tof": 799.4988159179687,
+    "worst_blm": 12.83388614654541,
+    "i_out_ma": 0.41645076870918274,
+    "orbit_rms_mm": 0.3224755525588989
+   }
+  ],
+  "t_end": 1783303876.1613796
+ }
+}

@@ -1,0 +1,24 @@
+{
+ "plan": {
+  "name": "buncher-phase-scan-v2",
+  "kind": "sweep",
+  "description": "MEBT:CAV1 phase -96 -> -84 with physical re-centering",
+  "sweeps": [
+   {
+    "cls": "rf",
+    "device": "MEBT:CAV1",
+    "field": "phase",
+    "from": -96.0,
+    "to": -84.0
+   }
+  ],
+  "steps": 9,
+  "dwell_s": 2.0,
+  "restore": true
+ },
+ "result": {
+  "status": "aborted-trip",
+  "steps": [],
+  "t_end": 1783191236.791405
+ }
+}

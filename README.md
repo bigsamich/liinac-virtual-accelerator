@@ -112,3 +112,16 @@ as the MPS threshold table.
 
 Docs: design spec in `docs/superpowers/specs/`, implementation plan in
 `docs/superpowers/plans/`, machine physics reference in `docs/research/`.
+
+## Run on a fresh machine (DGX Spark / CUDA aarch64)
+```bash
+git clone https://github.com/bigsamich/liinac-virtual-accelerator.git
+cd liinac-virtual-accelerator
+./scripts/bootstrap_new_host.sh   # venv + seed state + build + start
+make gui                          # native control room
+```
+Browser GUI: http://<host>:6080/vnc.html — Phone: http://<host>:6081
+AI assistant needs [ollama](https://ollama.com) with `qwen3.6` pulled;
+then `.venv/bin/python scripts/distill/bake_expert.py`.
+Docs: `docs/guides/00-overview.md`. Seeded with 500+ study results and
+the measured knowledge base (`data/seed/`).

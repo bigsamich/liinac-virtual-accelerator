@@ -1,0 +1,80 @@
+{
+ "plan": {
+  "name": "quad-scan-lb650",
+  "kind": "sweep",
+  "description": "LB650:Q7 +/-6% quad scan vs losses",
+  "sweeps": [
+   {
+    "cls": "magnet",
+    "device": "LB650:Q7",
+    "field": "current",
+    "from": 122.091712,
+    "to": 137.67788800000002
+   }
+  ],
+  "steps": 9,
+  "dwell_s": 2.0,
+  "restore": true
+ },
+ "result": {
+  "status": "aborted-trip",
+  "steps": [
+   {
+    "step": 1,
+    "set_values": [
+     122.091712
+    ],
+    "transmission": 0.9950001770927553,
+    "w_tof": 799.9576232910156,
+    "worst_blm": 5.679113388061523,
+    "i_out_ma": 1.9970651865005493,
+    "orbit_rms_mm": 1.133779525756836
+   },
+   {
+    "step": 2,
+    "set_values": [
+     124.039984
+    ],
+    "transmission": 0.9949748832928976,
+    "w_tof": 800.3776550292969,
+    "worst_blm": 8.969258308410645,
+    "i_out_ma": 1.9887654781341553,
+    "orbit_rms_mm": 1.1513700485229492
+   },
+   {
+    "step": 3,
+    "set_values": [
+     125.988256
+    ],
+    "transmission": 0.9949606208508049,
+    "w_tof": 800.1149597167969,
+    "worst_blm": 9.997762680053711,
+    "i_out_ma": 1.9881315231323242,
+    "orbit_rms_mm": 1.1650489568710327
+   },
+   {
+    "step": 4,
+    "set_values": [
+     127.93652800000001
+    ],
+    "transmission": 0.9948936546087656,
+    "w_tof": 799.936767578125,
+    "worst_blm": 12.186253547668457,
+    "i_out_ma": 1.9906954765319824,
+    "orbit_rms_mm": 1.1811591386795044
+   },
+   {
+    "step": 5,
+    "set_values": [
+     129.8848
+    ],
+    "transmission": 0.9948230492843511,
+    "w_tof": 799.5313415527344,
+    "worst_blm": 32.0296745300293,
+    "i_out_ma": 1.99165678024292,
+    "orbit_rms_mm": 1.207511305809021
+   }
+  ],
+  "t_end": 1783188324.790567
+ }
+}

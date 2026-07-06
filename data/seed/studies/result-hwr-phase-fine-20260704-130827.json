@@ -1,0 +1,24 @@
+{
+ "plan": {
+  "name": "hwr-phase-fine",
+  "kind": "sweep",
+  "description": "HWR:CAV4 phase +/-3 deg (fine capture scan)",
+  "sweeps": [
+   {
+    "cls": "rf",
+    "device": "HWR:CAV4",
+    "field": "phase",
+    "from": -33.0,
+    "to": -27.0
+   }
+  ],
+  "steps": 9,
+  "dwell_s": 2.0,
+  "restore": true
+ },
+ "result": {
+  "status": "aborted-trip",
+  "steps": [],
+  "t_end": 1783188506.7882478
+ }
+}

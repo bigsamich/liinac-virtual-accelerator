@@ -1,0 +1,179 @@
+{
+ "plan": {
+  "name": "beamloading-ff-fade-hb650",
+  "kind": "sweep",
+  "description": "HB650:CAV12 feedforward 1.0 -> 0.0: beam-loading transient emerges as the FF fades (PI loop alone)",
+  "capture_rf_wf": "HB650:CAV12",
+  "sweeps": [
+   {
+    "cls": "rf",
+    "device": "HB650:CAV12",
+    "field": "ff",
+    "from": 1.0,
+    "to": 0.0
+   }
+  ],
+  "steps": 9,
+  "dwell_s": 2.5,
+  "restore": true
+ },
+ "result": {
+  "status": "completed",
+  "steps": [
+   {
+    "step": 1,
+    "wf_amp_dip_pct": 0.0,
+    "wf_amp_ripple_pct": 0.0,
+    "wf_phase_dip_deg": 0.006,
+    "wf_fwd_step_x": 1.018,
+    "emit_x_um": 0.26436036825180054,
+    "emit_y_um": 0.34394970536231995,
+    "set_values": [
+     1.0
+    ],
+    "transmission": 0.9947922816003028,
+    "w_tof": 800.2469482421875,
+    "worst_blm": 24.088197708129883,
+    "i_out_ma": 1.9950854778289795,
+    "orbit_rms_mm": 1.203157663345337
+   },
+   {
+    "step": 2,
+    "wf_amp_dip_pct": 0.0165,
+    "wf_amp_ripple_pct": 0.0085,
+    "wf_phase_dip_deg": 0.0035,
+    "wf_fwd_step_x": 1.219,
+    "emit_x_um": 0.26462456583976746,
+    "emit_y_um": 0.34391435980796814,
+    "set_values": [
+     0.875
+    ],
+    "transmission": 0.9947987710602921,
+    "w_tof": 800.2601745605468,
+    "worst_blm": 26.760929107666016,
+    "i_out_ma": 1.9898474216461182,
+    "orbit_rms_mm": 1.2026543617248535
+   },
+   {
+    "step": 3,
+    "wf_amp_dip_pct": 0.033,
+    "wf_amp_ripple_pct": 0.017,
+    "wf_phase_dip_deg": 0.0067,
+    "wf_fwd_step_x": 1.492,
+    "emit_x_um": 0.26438379287719727,
+    "emit_y_um": 0.3439940810203552,
+    "set_values": [
+     0.75
+    ],
+    "transmission": 0.994785711244826,
+    "w_tof": 799.6642456054688,
+    "worst_blm": 24.116933822631836,
+    "i_out_ma": 1.9915975332260132,
+    "orbit_rms_mm": 1.2019983530044556
+   },
+   {
+    "step": 4,
+    "wf_amp_dip_pct": 0.0494,
+    "wf_amp_ripple_pct": 0.0254,
+    "wf_phase_dip_deg": 0.0079,
+    "wf_fwd_step_x": 1.833,
+    "emit_x_um": 0.26446548104286194,
+    "emit_y_um": 0.3437909483909607,
+    "set_values": [
+     0.625
+    ],
+    "transmission": 0.9948035868886066,
+    "w_tof": 799.5992797851562,
+    "worst_blm": 26.623611450195312,
+    "i_out_ma": 1.9848284721374512,
+    "orbit_rms_mm": 1.2028945684432983
+   },
+   {
+    "step": 5,
+    "wf_amp_dip_pct": 0.0659,
+    "wf_amp_ripple_pct": 0.0339,
+    "wf_phase_dip_deg": 0.0088,
+    "wf_fwd_step_x": 2.268,
+    "emit_x_um": 0.26448163390159607,
+    "emit_y_um": 0.3438703119754791,
+    "set_values": [
+     0.5
+    ],
+    "transmission": 0.9947877151729623,
+    "w_tof": 800.0462219238282,
+    "worst_blm": 26.58519172668457,
+    "i_out_ma": 1.9853310585021973,
+    "orbit_rms_mm": 1.202274203300476
+   },
+   {
+    "step": 6,
+    "wf_amp_dip_pct": 0.0824,
+    "wf_amp_ripple_pct": 0.0424,
+    "wf_phase_dip_deg": 0.0135,
+    "wf_fwd_step_x": 2.863,
+    "emit_x_um": 0.2644132673740387,
+    "emit_y_um": 0.3437075614929199,
+    "set_values": [
+     0.375
+    ],
+    "transmission": 0.9948015897095149,
+    "w_tof": 799.8608825683593,
+    "worst_blm": 26.160884857177734,
+    "i_out_ma": 1.9923956394195557,
+    "orbit_rms_mm": 1.2026346921920776
+   },
+   {
+    "step": 7,
+    "wf_amp_dip_pct": 0.0989,
+    "wf_amp_ripple_pct": 0.0509,
+    "wf_phase_dip_deg": 0.0234,
+    "wf_fwd_step_x": 3.711,
+    "emit_x_um": 0.26458123326301575,
+    "emit_y_um": 0.34369364380836487,
+    "set_values": [
+     0.25
+    ],
+    "transmission": 0.9947068681997137,
+    "w_tof": 800.0206237792969,
+    "worst_blm": 24.00325584411621,
+    "i_out_ma": 1.9865087270736694,
+    "orbit_rms_mm": 1.2026846408843994
+   },
+   {
+    "step": 8,
+    "wf_amp_dip_pct": 0.1154,
+    "wf_amp_ripple_pct": 0.0594,
+    "wf_phase_dip_deg": 0.0204,
+    "wf_fwd_step_x": 4.726,
+    "emit_x_um": 0.2644692063331604,
+    "emit_y_um": 0.34416481852531433,
+    "set_values": [
+     0.125
+    ],
+    "transmission": 0.9947631592991821,
+    "w_tof": 799.9840576171875,
+    "worst_blm": 24.853797912597656,
+    "i_out_ma": 1.99565851688385,
+    "orbit_rms_mm": 1.202834129333496
+   },
+   {
+    "step": 9,
+    "wf_amp_dip_pct": 0.1319,
+    "wf_amp_ripple_pct": 0.0679,
+    "wf_phase_dip_deg": 0.0218,
+    "wf_fwd_step_x": 6.203,
+    "emit_x_um": 0.26442697644233704,
+    "emit_y_um": 0.34379851818084717,
+    "set_values": [
+     0.0
+    ],
+    "transmission": 0.9946962264837097,
+    "w_tof": 800.0667541503906,
+    "worst_blm": 24.783863067626953,
+    "i_out_ma": 1.9834825992584229,
+    "orbit_rms_mm": 1.2023494243621826
+   }
+  ],
+  "t_end": 1783256418.8016794
+ }
+}

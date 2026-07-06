@@ -1,0 +1,36 @@
+{
+ "plan": {
+  "name": "buncher-phase-asymmetry",
+  "kind": "sweep",
+  "description": "MEBT:CAV1 phase -90 -> -84 (surviving side)",
+  "sweeps": [
+   {
+    "cls": "rf",
+    "device": "MEBT:CAV1",
+    "field": "phase",
+    "from": -90.0,
+    "to": -84.0
+   }
+  ],
+  "steps": 7,
+  "dwell_s": 2.0,
+  "restore": true
+ },
+ "result": {
+  "status": "aborted-trip",
+  "steps": [
+   {
+    "step": 1,
+    "set_values": [
+     -90.0
+    ],
+    "transmission": 0.9947255184335517,
+    "w_tof": 799.4820556640625,
+    "worst_blm": 31.01422119140625,
+    "i_out_ma": 1.9943853616714478,
+    "orbit_rms_mm": 1.1977406740188599
+   }
+  ],
+  "t_end": 1783190812.7905092
+ }
+}

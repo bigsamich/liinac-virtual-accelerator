@@ -1,0 +1,90 @@
+{
+ "plan": {
+  "name": "mebt-buncher3-phase-fine",
+  "kind": "sweep",
+  "description": "MEBT:CAV3 phase +/-3 deg",
+  "sweeps": [
+   {
+    "cls": "rf",
+    "device": "MEBT:CAV3",
+    "field": "phase",
+    "from": -93.0,
+    "to": -87.0
+   }
+  ],
+  "steps": 7,
+  "dwell_s": 2.0,
+  "restore": true
+ },
+ "result": {
+  "status": "aborted-trip",
+  "steps": [
+   {
+    "step": 1,
+    "emit_x_um": 0.2611636519432068,
+    "emit_y_um": 0.3384154140949249,
+    "set_values": [
+     -93.0
+    ],
+    "transmission": 0.9948361095675008,
+    "w_tof": 800.3053894042969,
+    "worst_blm": 21.843046188354492,
+    "i_out_ma": 1.9804966449737549,
+    "orbit_rms_mm": 0.7760109305381775
+   },
+   {
+    "step": 1,
+    "emit_x_um": 0.0,
+    "emit_y_um": 0.0,
+    "set_values": [
+     -92.0
+    ],
+    "transmission": 0.9948439497795956,
+    "w_tof": 799.8294189453125,
+    "worst_blm": 21.129377365112305,
+    "i_out_ma": 1.987070083618164,
+    "orbit_rms_mm": 0.7770393490791321
+   },
+   {
+    "step": 2,
+    "emit_x_um": 0.2611953914165497,
+    "emit_y_um": 0.3386213481426239,
+    "set_values": [
+     -92.0
+    ],
+    "transmission": 0.9948216248874574,
+    "w_tof": 799.7120544433594,
+    "worst_blm": 21.572328567504883,
+    "i_out_ma": 1.9933726787567139,
+    "orbit_rms_mm": 0.7777307033538818
+   },
+   {
+    "step": 3,
+    "emit_x_um": 0.2602164149284363,
+    "emit_y_um": 0.3385213017463684,
+    "set_values": [
+     -91.0
+    ],
+    "transmission": 0.9949187167171839,
+    "w_tof": 800.1029052734375,
+    "worst_blm": 13.159085273742676,
+    "i_out_ma": 2.000927686691284,
+    "orbit_rms_mm": 0.790478527545929
+   },
+   {
+    "step": 4,
+    "emit_x_um": 0.2602164149284363,
+    "emit_y_um": 0.3385213017463684,
+    "set_values": [
+     -90.0
+    ],
+    "transmission": 0.994995377707391,
+    "w_tof": 800.0018188476563,
+    "worst_blm": 5.045502185821533,
+    "i_out_ma": 1.9951387643814087,
+    "orbit_rms_mm": 0.8274862766265869
+   }
+  ],
+  "t_end": 1783203018.8017821
+ }
+}

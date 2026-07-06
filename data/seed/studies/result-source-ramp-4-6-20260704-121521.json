@@ -1,0 +1,69 @@
+{
+ "plan": {
+  "name": "source-ramp-4-6",
+  "kind": "ramp",
+  "description": "source 5 -> 6 mA in gentle steps from the operating point",
+  "sweeps": [
+   {
+    "cls": "source",
+    "device": "main",
+    "field": "current_ma",
+    "from": 5.0,
+    "to": 6.0
+   }
+  ],
+  "steps": 9,
+  "dwell_s": 2.5,
+  "restore": true
+ },
+ "result": {
+  "status": "aborted-trip",
+  "steps": [
+   {
+    "step": 1,
+    "set_values": [
+     5.0
+    ],
+    "transmission": 0.9946950748117944,
+    "w_tof": 800.0356262207031,
+    "worst_blm": 28.645753860473633,
+    "i_out_ma": 1.996194839477539,
+    "orbit_rms_mm": 1.200086236000061
+   },
+   {
+    "step": 2,
+    "set_values": [
+     5.125
+    ],
+    "transmission": 0.9944307586539636,
+    "w_tof": 800.2457275390625,
+    "worst_blm": 35.06986999511719,
+    "i_out_ma": 2.0387473106384277,
+    "orbit_rms_mm": 1.2380666732788086
+   },
+   {
+    "step": 3,
+    "set_values": [
+     5.25
+    ],
+    "transmission": 0.9940542070780977,
+    "w_tof": 799.6929626464844,
+    "worst_blm": 38.675941467285156,
+    "i_out_ma": 2.0867950916290283,
+    "orbit_rms_mm": 1.2618154287338257
+   },
+   {
+    "step": 4,
+    "set_values": [
+     5.375
+    ],
+    "transmission": 0.993386559339703,
+    "w_tof": 800.1471740722657,
+    "worst_blm": 50.51826858520508,
+    "i_out_ma": 2.139284372329712,
+    "orbit_rms_mm": 1.2912098169326782
+   }
+  ],
+  "t_end": 1783185320.7903872
+ }
+}

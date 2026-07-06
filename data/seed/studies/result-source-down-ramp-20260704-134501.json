@@ -1,0 +1,81 @@
+{
+ "plan": {
+  "name": "source-down-ramp",
+  "kind": "ramp",
+  "description": "source 5 -> 4 mA with rebaseline (down-intensity)",
+  "sweeps": [
+   {
+    "cls": "source",
+    "device": "main",
+    "field": "current_ma",
+    "from": 5.0,
+    "to": 4.0
+   }
+  ],
+  "steps": 5,
+  "dwell_s": 3.0,
+  "restore": true,
+  "rebaseline": true
+ },
+ "result": {
+  "status": "completed",
+  "steps": [
+   {
+    "step": 1,
+    "set_values": [
+     5.0
+    ],
+    "transmission": 0.9947538065876679,
+    "w_tof": 799.8424499511718,
+    "worst_blm": 25.427526473999023,
+    "i_out_ma": 1.9839609861373901,
+    "orbit_rms_mm": 1.2006233930587769
+   },
+   {
+    "step": 2,
+    "set_values": [
+     4.75
+    ],
+    "transmission": 0.9953984510828122,
+    "w_tof": 799.9098388671875,
+    "worst_blm": 34.87850570678711,
+    "i_out_ma": 1.890179991722107,
+    "orbit_rms_mm": 1.120070457458496
+   },
+   {
+    "step": 3,
+    "set_values": [
+     4.5
+    ],
+    "transmission": 0.9954804461192542,
+    "w_tof": 799.9777648925781,
+    "worst_blm": 59.68100357055664,
+    "i_out_ma": 1.791662573814392,
+    "orbit_rms_mm": 1.0335195064544678
+   },
+   {
+    "step": 4,
+    "set_values": [
+     4.25
+    ],
+    "transmission": 0.9952026933717815,
+    "w_tof": 800.0377807617188,
+    "worst_blm": 114.84490966796875,
+    "i_out_ma": 1.684550404548645,
+    "orbit_rms_mm": 0.9426771402359009
+   },
+   {
+    "step": 5,
+    "set_values": [
+     4.0
+    ],
+    "transmission": 0.9946061139096187,
+    "w_tof": 800.1492004394531,
+    "worst_blm": 191.09063720703125,
+    "i_out_ma": 1.5912235975265503,
+    "orbit_rms_mm": 0.8603071570396423
+   }
+  ],
+  "t_end": 1783190700.7914126
+ }
+}

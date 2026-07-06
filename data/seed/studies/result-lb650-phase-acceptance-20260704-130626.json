@@ -1,0 +1,124 @@
+{
+ "plan": {
+  "name": "lb650-phase-acceptance",
+  "kind": "sweep",
+  "description": "LB650:CAV22 phase +/-8 deg (stuck-tuner region)",
+  "sweeps": [
+   {
+    "cls": "rf",
+    "device": "LB650:CAV22",
+    "field": "phase",
+    "from": -28.0,
+    "to": -12.0
+   }
+  ],
+  "steps": 9,
+  "dwell_s": 2.0,
+  "restore": true
+ },
+ "result": {
+  "status": "completed",
+  "steps": [
+   {
+    "step": 1,
+    "set_values": [
+     -28.0
+    ],
+    "transmission": 0.9947691115844153,
+    "w_tof": 799.6937255859375,
+    "worst_blm": 33.12232208251953,
+    "i_out_ma": 1.9902311563491821,
+    "orbit_rms_mm": 1.1991583108901978
+   },
+   {
+    "step": 2,
+    "set_values": [
+     -26.0
+    ],
+    "transmission": 0.9947841084273151,
+    "w_tof": 800.2559692382813,
+    "worst_blm": 36.14223098754883,
+    "i_out_ma": 1.9885544776916504,
+    "orbit_rms_mm": 1.2027387619018555
+   },
+   {
+    "step": 3,
+    "set_values": [
+     -24.0
+    ],
+    "transmission": 0.9947935398264545,
+    "w_tof": 799.5750549316406,
+    "worst_blm": 26.93445587158203,
+    "i_out_ma": 1.9959402084350586,
+    "orbit_rms_mm": 1.1966944932937622
+   },
+   {
+    "step": 4,
+    "set_values": [
+     -22.0
+    ],
+    "transmission": 0.9948092525394933,
+    "w_tof": 799.8421203613282,
+    "worst_blm": 29.18018341064453,
+    "i_out_ma": 1.9874528646469116,
+    "orbit_rms_mm": 1.1977055072784424
+   },
+   {
+    "step": 5,
+    "set_values": [
+     -20.0
+    ],
+    "transmission": 0.9947705629107956,
+    "w_tof": 799.9864379882813,
+    "worst_blm": 35.54756164550781,
+    "i_out_ma": 1.99379301071167,
+    "orbit_rms_mm": 1.206992745399475
+   },
+   {
+    "step": 6,
+    "set_values": [
+     -18.0
+    ],
+    "transmission": 0.9947645514902222,
+    "w_tof": 799.6582092285156,
+    "worst_blm": 27.69190788269043,
+    "i_out_ma": 1.9881657361984253,
+    "orbit_rms_mm": 1.2036279439926147
+   },
+   {
+    "step": 7,
+    "set_values": [
+     -16.0
+    ],
+    "transmission": 0.9948248530319094,
+    "w_tof": 799.9503295898437,
+    "worst_blm": 30.354476928710938,
+    "i_out_ma": 1.971890926361084,
+    "orbit_rms_mm": 1.199124813079834
+   },
+   {
+    "step": 8,
+    "set_values": [
+     -14.0
+    ],
+    "transmission": 0.9948166571711933,
+    "w_tof": 800.143212890625,
+    "worst_blm": 21.58568000793457,
+    "i_out_ma": 1.978646993637085,
+    "orbit_rms_mm": 1.1980206966400146
+   },
+   {
+    "step": 9,
+    "set_values": [
+     -12.0
+    ],
+    "transmission": 0.9948549439362772,
+    "w_tof": 799.6986633300781,
+    "worst_blm": 22.47899055480957,
+    "i_out_ma": 1.9886064529418945,
+    "orbit_rms_mm": 1.1881994009017944
+   }
+  ],
+  "t_end": 1783188384.7926328
+ }
+}

@@ -1,0 +1,24 @@
+{
+ "plan": {
+  "name": "hwr-cav1-capture-amp",
+  "sweeps": [
+   {
+    "cls": "rf",
+    "device": "HWR:CAV1",
+    "field": "amp",
+    "from": 0.45,
+    "to": 0.62
+   }
+  ],
+  "kind": "sweep",
+  "description": "hwr-cav1-capture-amp",
+  "steps": 7,
+  "dwell_s": 2.0,
+  "restore": true
+ },
+ "result": {
+  "status": "aborted-trip",
+  "steps": [],
+  "t_end": 1783203502.7997887
+ }
+}

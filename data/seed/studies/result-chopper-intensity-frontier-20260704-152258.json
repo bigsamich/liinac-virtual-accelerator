@@ -1,0 +1,81 @@
+{
+ "plan": {
+  "name": "chopper-intensity-frontier",
+  "kind": "ramp",
+  "rebaseline": true,
+  "steps": 5,
+  "dwell_s": 3.0,
+  "sweeps": [
+   {
+    "cls": "chopper",
+    "device": "main",
+    "field": "duty",
+    "from": 0.4,
+    "to": 0.6
+   }
+  ],
+  "description": "chopper-intensity-frontier",
+  "restore": true
+ },
+ "result": {
+  "status": "completed",
+  "steps": [
+   {
+    "step": 1,
+    "set_values": [
+     0.4
+    ],
+    "transmission": 0.9948072511253606,
+    "w_tof": 800.4658081054688,
+    "worst_blm": 23.828596115112305,
+    "i_out_ma": 1.9922373294830322,
+    "orbit_rms_mm": 1.2030086517333984
+   },
+   {
+    "step": 2,
+    "set_values": [
+     0.45
+    ],
+    "transmission": 0.9948378023471866,
+    "w_tof": 799.7257202148437,
+    "worst_blm": 13.13636589050293,
+    "i_out_ma": 2.240467071533203,
+    "orbit_rms_mm": 1.2629247903823853
+   },
+   {
+    "step": 3,
+    "set_values": [
+     0.5
+    ],
+    "transmission": 0.994780366736694,
+    "w_tof": 800.0349548339843,
+    "worst_blm": 5.193024635314941,
+    "i_out_ma": 2.4919373989105225,
+    "orbit_rms_mm": 1.2766000032424927
+   },
+   {
+    "step": 4,
+    "set_values": [
+     0.55
+    ],
+    "transmission": 0.9945359396131814,
+    "w_tof": 799.9983642578125,
+    "worst_blm": 5.238123416900635,
+    "i_out_ma": 2.726435422897339,
+    "orbit_rms_mm": 1.2572484016418457
+   },
+   {
+    "step": 5,
+    "set_values": [
+     0.6
+    ],
+    "transmission": 0.9942232630865019,
+    "w_tof": 800.052587890625,
+    "worst_blm": 5.141147613525391,
+    "i_out_ma": 2.9787023067474365,
+    "orbit_rms_mm": 1.2385433912277222
+   }
+  ],
+  "t_end": 1783196576.8008053
+ }
+}

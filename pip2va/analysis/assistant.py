@@ -82,7 +82,8 @@ def collect_context(r) -> dict:
 def ask(r, question: str, timeout: float = 240.0) -> tuple[str, str]:
     """Returns (answer, engine)."""
     ctx = collect_context(r)
-    findings = knowledge.context(question, n=10 if not llm.BAKED else 5)
+    findings = knowledge.context_semantic(
+        question, n=10 if not llm.BAKED else 6)
     if llm.BAKED:
         # KB insights are baked into the model: send live data only (RAG)
         user = (f"LIVE MACHINE SNAPSHOT:\n{json.dumps(ctx, indent=1)}\n\n"
@@ -107,10 +108,14 @@ def ask(r, question: str, timeout: float = 240.0) -> tuple[str, str]:
         if "losses" in ctx:
             lines.append("worst loss: " + ctx["losses"]["worst"])
         return "\n".join(lines), "rules"
+    # a baked model carries its own system prompt (insights); overriding
+    # it would silently discard the baked knowledge
+    msgs = ([{"role": "user", "content": user}] if llm.BAKED else
+            [{"role": "system", "content": SYSTEM},
+             {"role": "user", "content": user}])
     payload = {"model": llm.MODEL, "stream": False, "think": False,
                "options": {"temperature": 0.3, "num_predict": 600},
-               "messages": [{"role": "system", "content": SYSTEM},
-                            {"role": "user", "content": user}]}
+               "messages": msgs}
     req = urllib.request.Request(
         f"{llm.OLLAMA_URL}/api/chat",
         data=json.dumps(payload).encode(),

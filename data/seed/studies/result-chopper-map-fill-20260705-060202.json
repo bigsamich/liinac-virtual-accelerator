@@ -1,0 +1,91 @@
+{
+ "plan": {
+  "name": "chopper-map-fill",
+  "kind": "ramp",
+  "rebaseline": true,
+  "steps": 5,
+  "dwell_s": 3.0,
+  "sweeps": [
+   {
+    "cls": "chopper",
+    "device": "main",
+    "field": "duty",
+    "from": 0.42,
+    "to": 0.5
+   }
+  ],
+  "description": "chopper-map-fill",
+  "restore": true
+ },
+ "result": {
+  "status": "completed",
+  "steps": [
+   {
+    "step": 1,
+    "emit_x_um": 0.2595503628253937,
+    "emit_y_um": 0.3392494320869446,
+    "set_values": [
+     0.42
+    ],
+    "transmission": 0.9948689686470431,
+    "w_tof": 797.5080139160157,
+    "worst_blm": 16.978408813476562,
+    "i_out_ma": 2.092123508453369,
+    "orbit_rms_mm": 0.8456662893295288
+   },
+   {
+    "step": 2,
+    "emit_x_um": 0.25957661867141724,
+    "emit_y_um": 0.3394780158996582,
+    "set_values": [
+     0.44
+    ],
+    "transmission": 0.9948830514221924,
+    "w_tof": 797.7921936035157,
+    "worst_blm": 15.365974426269531,
+    "i_out_ma": 2.187626600265503,
+    "orbit_rms_mm": 0.8569214344024658
+   },
+   {
+    "step": 3,
+    "emit_x_um": 0.25947725772857666,
+    "emit_y_um": 0.3395310342311859,
+    "set_values": [
+     0.45999999999999996
+    ],
+    "transmission": 0.9948633589182997,
+    "w_tof": 797.7089721679688,
+    "worst_blm": 13.012704849243164,
+    "i_out_ma": 2.28843092918396,
+    "orbit_rms_mm": 0.8644923567771912
+   },
+   {
+    "step": 4,
+    "emit_x_um": 0.25943535566329956,
+    "emit_y_um": 0.33972933888435364,
+    "set_values": [
+     0.48
+    ],
+    "transmission": 0.994814262047366,
+    "w_tof": 797.5483337402344,
+    "worst_blm": 13.59546184539795,
+    "i_out_ma": 2.3858120441436768,
+    "orbit_rms_mm": 0.8720282316207886
+   },
+   {
+    "step": 5,
+    "emit_x_um": 0.25939732789993286,
+    "emit_y_um": 0.3395622968673706,
+    "set_values": [
+     0.5
+    ],
+    "transmission": 0.9947558064513466,
+    "w_tof": 797.5009887695312,
+    "worst_blm": 12.057062149047852,
+    "i_out_ma": 2.487515687942505,
+    "orbit_rms_mm": 0.8753430843353271
+   }
+  ],
+  "t_end": 1783249322.8010674
+ }
+}

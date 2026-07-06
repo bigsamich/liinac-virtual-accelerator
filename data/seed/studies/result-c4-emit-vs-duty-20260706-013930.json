@@ -1,0 +1,97 @@
+{
+ "plan": {
+  "name": "c4-emit-vs-duty",
+  "kind": "ramp",
+  "rebaseline": true,
+  "steps": 5,
+  "dwell_s": 3.0,
+  "autotune": true,
+  "sweeps": [
+   {
+    "cls": "chopper",
+    "device": "main",
+    "field": "duty",
+    "from": 0.3,
+    "to": 0.5
+   }
+  ],
+  "description": "c4-emit-vs-duty",
+  "restore": true
+ },
+ "result": {
+  "status": "completed",
+  "steps": [
+   {
+    "step": 1,
+    "rf_det_rms_hz": 3.24,
+    "emit_x_um": 0.23702827095985413,
+    "emit_y_um": 0.3290517330169678,
+    "set_values": [
+     0.3
+    ],
+    "transmission": 0.9954038184656082,
+    "w_tof": 799.5700744628906,
+    "worst_blm": 5.085057258605957,
+    "i_out_ma": 1.495051383972168,
+    "orbit_rms_mm": 0.2094709873199463
+   },
+   {
+    "step": 2,
+    "rf_det_rms_hz": 3.24,
+    "emit_x_um": 0.23698583245277405,
+    "emit_y_um": 0.329039067029953,
+    "set_values": [
+     0.35
+    ],
+    "transmission": 0.9954307423023009,
+    "w_tof": 799.9163513183594,
+    "worst_blm": 4.942070960998535,
+    "i_out_ma": 1.9935768842697144,
+    "orbit_rms_mm": 0.19072535634040833
+   },
+   {
+    "step": 3,
+    "rf_det_rms_hz": 3.24,
+    "emit_x_um": 0.23704485595226288,
+    "emit_y_um": 0.3290482759475708,
+    "set_values": [
+     0.4
+    ],
+    "transmission": 0.9954300882562651,
+    "w_tof": 799.9816711425781,
+    "worst_blm": 4.866272926330566,
+    "i_out_ma": 1.9905513525009155,
+    "orbit_rms_mm": 0.19049322605133057
+   },
+   {
+    "step": 4,
+    "rf_det_rms_hz": 3.24,
+    "emit_x_um": 0.2369343340396881,
+    "emit_y_um": 0.3290695548057556,
+    "set_values": [
+     0.45
+    ],
+    "transmission": 0.9954304503894726,
+    "w_tof": 800.2038940429687,
+    "worst_blm": 4.830476760864258,
+    "i_out_ma": 1.9882135391235352,
+    "orbit_rms_mm": 0.19103260338306427
+   },
+   {
+    "step": 5,
+    "rf_det_rms_hz": 3.24,
+    "emit_x_um": 0.23698481917381287,
+    "emit_y_um": 0.3290294408798218,
+    "set_values": [
+     0.5
+    ],
+    "transmission": 0.9953819725061532,
+    "w_tof": 800.2545043945313,
+    "worst_blm": 4.94893741607666,
+    "i_out_ma": 2.4930713176727295,
+    "orbit_rms_mm": 0.2070724070072174
+   }
+  ],
+  "t_end": 1783301970.1591988
+ }
+}

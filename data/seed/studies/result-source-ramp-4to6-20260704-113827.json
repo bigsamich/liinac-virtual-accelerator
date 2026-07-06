@@ -1,0 +1,25 @@
+{
+ "plan": {
+  "name": "source-ramp-4to6",
+  "kind": "ramp",
+  "description": "Monotonically increase the main ion source current from 4 mA to 6 mA.",
+  "rationale": "Ramping source current requires a safe rate to prevent arc instability or power supply overshoot; using 0.25 mA/step with 2s dwell ensures stability and results in a total duration of 16 seconds, which is appropriate for this small change.",
+  "sweeps": [
+   {
+    "cls": "source",
+    "device": "main",
+    "field": "current_ma",
+    "from": 4.0,
+    "to": 6.0
+   }
+  ],
+  "steps": 8,
+  "dwell_s": 2.0,
+  "restore": false
+ },
+ "result": {
+  "status": "aborted-trip",
+  "steps": [],
+  "t_end": 1783183106.7886128
+ }
+}

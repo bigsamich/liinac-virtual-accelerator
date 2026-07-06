@@ -1,0 +1,24 @@
+{
+ "plan": {
+  "name": "ssr1-cav11-amp-scan",
+  "kind": "sweep",
+  "description": "SSR1:CAV11 amplitude +/-5%",
+  "sweeps": [
+   {
+    "cls": "rf",
+    "device": "SSR1:CAV11",
+    "field": "amp",
+    "from": 1.63,
+    "to": 1.81
+   }
+  ],
+  "steps": 9,
+  "dwell_s": 2.0,
+  "restore": true
+ },
+ "result": {
+  "status": "aborted-no-beam",
+  "steps": [],
+  "t_end": 1783195842.7904456
+ }
+}

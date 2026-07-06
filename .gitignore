@@ -12,3 +12,5 @@ scripts/distill/*.gguf
 scripts/distill/dataset.jsonl
 scripts/distill/*.log
 .venv-train/
+scripts/distill/merged*/
+scripts/distill/out*/

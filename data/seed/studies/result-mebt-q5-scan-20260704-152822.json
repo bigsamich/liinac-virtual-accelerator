@@ -1,0 +1,24 @@
+{
+ "plan": {
+  "name": "mebt-q5-scan",
+  "kind": "sweep",
+  "steps": 9,
+  "dwell_s": 2.0,
+  "sweeps": [
+   {
+    "cls": "magnet",
+    "device": "MEBT:Q5",
+    "field": "current",
+    "from": -12.981085,
+    "to": -14.347515000000001
+   }
+  ],
+  "description": "mebt-q5-scan",
+  "restore": true
+ },
+ "result": {
+  "status": "aborted-no-beam",
+  "steps": [],
+  "t_end": 1783196900.7982836
+ }
+}

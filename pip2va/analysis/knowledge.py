@@ -63,6 +63,48 @@ def load(n: int = 100) -> list[dict]:
     return out
 
 
+_EMB_CACHE: dict = {}
+
+
+def _embed(texts):
+    import urllib.request
+
+    from . import llm
+    req = urllib.request.Request(
+        llm.OLLAMA_URL + "/api/embed",
+        data=json.dumps({"model": "qwen3-embedding:8b",
+                         "input": texts}).encode(),
+        headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=120) as r:
+        return json.loads(r.read())["embeddings"]
+
+
+def context_semantic(query: str, n: int = 8) -> str:
+    """Embedding retrieval over the KB (falls back to keyword matching)."""
+    import numpy as np
+    try:
+        rows = load(600)
+        keys_ = [f.get("summary", "")[:400] for f in rows]
+        missing = [k for k in keys_ if k and k not in _EMB_CACHE]
+        for i in range(0, len(missing), 64):
+            batch = missing[i:i + 64]
+            for k, v in zip(batch, _embed(batch)):
+                _EMB_CACHE[k] = np.array(v)
+        qv = np.array(_embed([query])[0])
+        qv /= np.linalg.norm(qv) + 1e-9
+        scored = []
+        for f, k in zip(rows, keys_):
+            if k in _EMB_CACHE:
+                v = _EMB_CACHE[k]
+                scored.append((float(qv @ v / (np.linalg.norm(v) + 1e-9)),
+                               f))
+        scored.sort(key=lambda x: -x[0])
+        picks = [f for _, f in scored[:n]]
+        return "\n".join("- " + f.get("summary", "") for f in picks)
+    except Exception:
+        return context(query, n)
+
+
 def context(query: str, n: int = 8) -> str:
     """Compact prior-findings text relevant to query tokens (device names,
     sections). Empty string when nothing matches."""

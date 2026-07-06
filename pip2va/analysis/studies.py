@@ -117,7 +117,7 @@ def plan_from_text(text: str, timeout: float = 240.0) -> tuple[dict, str]:
             {"role": "user", "content":
                 f"Device catalog:\n{device_catalog(text)}\n"
                 + (f"\nPrior study findings (use them to pick spans/rates):"
-                   f"\n{_kb.context(text)}\n" if _kb.context(text) else "")
+                   f"\n{_kb.context_semantic(text)}\n" if _kb.context_semantic(text) else "")
                 + f"\nRequest: {text}"},
         ],
     }

@@ -1,0 +1,24 @@
+{
+ "plan": {
+  "name": "lb650-c5-y-response",
+  "kind": "sweep",
+  "description": "LB650:C5 y-trim +/-0.8 A (y-plane response)",
+  "sweeps": [
+   {
+    "cls": "magnet",
+    "device": "LB650:C5",
+    "field": "current_y",
+    "from": -0.8,
+    "to": 0.8
+   }
+  ],
+  "steps": 9,
+  "dwell_s": 2.0,
+  "restore": true
+ },
+ "result": {
+  "status": "aborted-no-beam",
+  "steps": [],
+  "t_end": 1783196088.790203
+ }
+}

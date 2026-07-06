@@ -1,0 +1,24 @@
+{
+ "plan": {
+  "name": "hwr-sol4-tolerance-down",
+  "kind": "sweep",
+  "steps": 9,
+  "dwell_s": 2.0,
+  "sweeps": [
+   {
+    "cls": "magnet",
+    "device": "HWR:SOL4",
+    "field": "current",
+    "from": 210.563939,
+    "to": 220.4858
+   }
+  ],
+  "description": "hwr-sol4-tolerance-down",
+  "restore": true
+ },
+ "result": {
+  "status": "aborted-no-beam",
+  "steps": [],
+  "t_end": 1783196658.7999785
+ }
+}

@@ -1,0 +1,24 @@
+{
+ "plan": {
+  "name": "hb650-cav24-phase-trim",
+  "kind": "sweep",
+  "steps": 9,
+  "dwell_s": 2.0,
+  "sweeps": [
+   {
+    "cls": "rf",
+    "device": "HB650:CAV24",
+    "field": "phase",
+    "from": -28.0,
+    "to": -8.0
+   }
+  ],
+  "description": "hb650-cav24-phase-trim",
+  "restore": true
+ },
+ "result": {
+  "status": "aborted-no-beam",
+  "steps": [],
+  "t_end": 1783197144.8001983
+ }
+}

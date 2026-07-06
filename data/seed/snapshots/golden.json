@@ -1,0 +1,1103 @@
+{
+ "fingerprint": 96446.18,
+ "name": "golden",
+ "note": "verified state after quad-candidate retest",
+ "settings": {
+  "settings:chopper:main": {
+   "duty": 0.4
+  },
+  "settings:magnet:BTL:C1": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:BTL:C10": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:BTL:C11": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:BTL:C12": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:BTL:C2": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:BTL:C3": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:BTL:C4": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:BTL:C5": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:BTL:C6": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:BTL:C7": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:BTL:C8": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:BTL:C9": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:BTL:Q1": {
+   "current": 272.0107
+  },
+  "settings:magnet:BTL:Q10": {
+   "current": -82.4753
+  },
+  "settings:magnet:BTL:Q11": {
+   "current": 80.314
+  },
+  "settings:magnet:BTL:Q12": {
+   "current": -41.5209
+  },
+  "settings:magnet:BTL:Q2": {
+   "current": -89.3462
+  },
+  "settings:magnet:BTL:Q3": {
+   "current": 154.6862
+  },
+  "settings:magnet:BTL:Q4": {
+   "current": -114.3722
+  },
+  "settings:magnet:BTL:Q5": {
+   "current": 64.9274
+  },
+  "settings:magnet:BTL:Q6": {
+   "current": -70.0012
+  },
+  "settings:magnet:BTL:Q7": {
+   "current": 91.5247
+  },
+  "settings:magnet:BTL:Q8": {
+   "current": -84.8049
+  },
+  "settings:magnet:BTL:Q9": {
+   "current": 85.8695
+  },
+  "settings:magnet:HB650:C1": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:HB650:C2": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:HB650:C3": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:HB650:C4": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:HB650:Q1": {
+   "current": 146.3821
+  },
+  "settings:magnet:HB650:Q2": {
+   "current": -143.2259
+  },
+  "settings:magnet:HB650:Q3": {
+   "current": 129.283
+  },
+  "settings:magnet:HB650:Q4": {
+   "current": -123.3966
+  },
+  "settings:magnet:HB650:Q5": {
+   "current": 156.9938
+  },
+  "settings:magnet:HB650:Q6": {
+   "current": -162.8318
+  },
+  "settings:magnet:HB650:Q7": {
+   "current": 192.2551
+  },
+  "settings:magnet:HB650:Q8": {
+   "current": -348.0351
+  },
+  "settings:magnet:HWR:C1": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:HWR:C2": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:HWR:C3": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:HWR:C4": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:HWR:C5": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:HWR:C6": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:HWR:C7": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:HWR:C8": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:HWR:SOL1": {
+   "current": 118.8218
+  },
+  "settings:magnet:HWR:SOL2": {
+   "current": 132.27
+  },
+  "settings:magnet:HWR:SOL3": {
+   "current": 189.4412
+  },
+  "settings:magnet:HWR:SOL4": {
+   "current": 220.4858
+  },
+  "settings:magnet:HWR:SOL5": {
+   "current": 196.28
+  },
+  "settings:magnet:HWR:SOL6": {
+   "current": 202.4801
+  },
+  "settings:magnet:HWR:SOL7": {
+   "current": 170.9142
+  },
+  "settings:magnet:HWR:SOL8": {
+   "current": 205.5116
+  },
+  "settings:magnet:LB650:C1": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:LB650:C2": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:LB650:C3": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:LB650:C4": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:LB650:C5": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:LB650:C6": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:LB650:C7": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:LB650:C8": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:LB650:C9": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:LB650:Q1": {
+   "current": 126.5324
+  },
+  "settings:magnet:LB650:Q10": {
+   "current": -136.885
+  },
+  "settings:magnet:LB650:Q11": {
+   "current": 137.6392
+  },
+  "settings:magnet:LB650:Q12": {
+   "current": -143.2894
+  },
+  "settings:magnet:LB650:Q13": {
+   "current": 156.5075
+  },
+  "settings:magnet:LB650:Q14": {
+   "current": -169.2699
+  },
+  "settings:magnet:LB650:Q15": {
+   "current": 141.9372
+  },
+  "settings:magnet:LB650:Q16": {
+   "current": -166.3013
+  },
+  "settings:magnet:LB650:Q17": {
+   "current": 156.6734
+  },
+  "settings:magnet:LB650:Q18": {
+   "current": -159.0682
+  },
+  "settings:magnet:LB650:Q2": {
+   "current": -117.4371
+  },
+  "settings:magnet:LB650:Q3": {
+   "current": 112.7807
+  },
+  "settings:magnet:LB650:Q4": {
+   "current": -111.7083
+  },
+  "settings:magnet:LB650:Q5": {
+   "current": 108.1094
+  },
+  "settings:magnet:LB650:Q6": {
+   "current": -117.7625
+  },
+  "settings:magnet:LB650:Q7": {
+   "current": 129.8848
+  },
+  "settings:magnet:LB650:Q8": {
+   "current": -133.7376
+  },
+  "settings:magnet:LB650:Q9": {
+   "current": 133.7856
+  },
+  "settings:magnet:LEBT:SOL1": {
+   "current": 15.1044
+  },
+  "settings:magnet:LEBT:SOL2": {
+   "current": 17.4684
+  },
+  "settings:magnet:LEBT:SOL3": {
+   "current": 29.2297
+  },
+  "settings:magnet:MEBT:C1": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:MEBT:C2": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:MEBT:C3": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:MEBT:C4": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:MEBT:C5": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:MEBT:C6": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:MEBT:C7": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:MEBT:C8": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:MEBT:C9": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:MEBT:Q1": {
+   "current": 64.9623
+  },
+  "settings:magnet:MEBT:Q10": {
+   "current": 94.2272
+  },
+  "settings:magnet:MEBT:Q11": {
+   "current": -61.5215
+  },
+  "settings:magnet:MEBT:Q12": {
+   "current": 66.7243
+  },
+  "settings:magnet:MEBT:Q13": {
+   "current": -113.5125
+  },
+  "settings:magnet:MEBT:Q14": {
+   "current": 83.2827
+  },
+  "settings:magnet:MEBT:Q15": {
+   "current": -89.3024
+  },
+  "settings:magnet:MEBT:Q16": {
+   "current": 108.9874
+  },
+  "settings:magnet:MEBT:Q17": {
+   "current": -77.0204
+  },
+  "settings:magnet:MEBT:Q18": {
+   "current": 61.1279
+  },
+  "settings:magnet:MEBT:Q19": {
+   "current": -117.0025
+  },
+  "settings:magnet:MEBT:Q2": {
+   "current": -54.345
+  },
+  "settings:magnet:MEBT:Q20": {
+   "current": 89.7445
+  },
+  "settings:magnet:MEBT:Q21": {
+   "current": -55.5682
+  },
+  "settings:magnet:MEBT:Q22": {
+   "current": 78.5452
+  },
+  "settings:magnet:MEBT:Q23": {
+   "current": -101.1947
+  },
+  "settings:magnet:MEBT:Q24": {
+   "current": 97.2164
+  },
+  "settings:magnet:MEBT:Q25": {
+   "current": -56.8839
+  },
+  "settings:magnet:MEBT:Q3": {
+   "current": -53.1542
+  },
+  "settings:magnet:MEBT:Q4": {
+   "current": 76.3614
+  },
+  "settings:magnet:MEBT:Q5": {
+   "current": -13.6643
+  },
+  "settings:magnet:MEBT:Q6": {
+   "current": 5.9269
+  },
+  "settings:magnet:MEBT:Q7": {
+   "current": -66.5392
+  },
+  "settings:magnet:MEBT:Q8": {
+   "current": 60.8167
+  },
+  "settings:magnet:MEBT:Q9": {
+   "current": -58.4698
+  },
+  "settings:magnet:SSR1:C1": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR1:C2": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR1:C3": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR1:C4": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR1:C5": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR1:C6": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR1:C7": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR1:C8": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR1:SOL1": {
+   "current": 257.7542
+  },
+  "settings:magnet:SSR1:SOL2": {
+   "current": 293.8204
+  },
+  "settings:magnet:SSR1:SOL3": {
+   "current": 247.2351
+  },
+  "settings:magnet:SSR1:SOL4": {
+   "current": 266.8159
+  },
+  "settings:magnet:SSR1:SOL5": {
+   "current": 294.2542
+  },
+  "settings:magnet:SSR1:SOL6": {
+   "current": 283.8402
+  },
+  "settings:magnet:SSR1:SOL7": {
+   "current": 280.5642
+  },
+  "settings:magnet:SSR1:SOL8": {
+   "current": 254.5295
+  },
+  "settings:magnet:SSR2:C1": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR2:C10": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR2:C11": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR2:C12": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR2:C13": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR2:C14": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR2:C15": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR2:C16": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR2:C17": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR2:C18": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR2:C19": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR2:C2": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR2:C20": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR2:C21": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR2:C3": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR2:C4": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR2:C5": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR2:C6": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR2:C7": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR2:C8": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR2:C9": {
+   "current_x": 0.0,
+   "current_y": 0.0
+  },
+  "settings:magnet:SSR2:SOL1": {
+   "current": 171.8815
+  },
+  "settings:magnet:SSR2:SOL10": {
+   "current": 350.5579
+  },
+  "settings:magnet:SSR2:SOL11": {
+   "current": 400.4355
+  },
+  "settings:magnet:SSR2:SOL12": {
+   "current": 361.0399
+  },
+  "settings:magnet:SSR2:SOL13": {
+   "current": 370.573
+  },
+  "settings:magnet:SSR2:SOL14": {
+   "current": 445.7986
+  },
+  "settings:magnet:SSR2:SOL15": {
+   "current": 391.0175
+  },
+  "settings:magnet:SSR2:SOL16": {
+   "current": 443.1011
+  },
+  "settings:magnet:SSR2:SOL17": {
+   "current": 366.9637
+  },
+  "settings:magnet:SSR2:SOL18": {
+   "current": 500.2425
+  },
+  "settings:magnet:SSR2:SOL19": {
+   "current": 637.7447
+  },
+  "settings:magnet:SSR2:SOL2": {
+   "current": 298.9611
+  },
+  "settings:magnet:SSR2:SOL20": {
+   "current": 140.8908
+  },
+  "settings:magnet:SSR2:SOL21": {
+   "current": 536.1589
+  },
+  "settings:magnet:SSR2:SOL3": {
+   "current": 239.0554
+  },
+  "settings:magnet:SSR2:SOL4": {
+   "current": 292.0357
+  },
+  "settings:magnet:SSR2:SOL5": {
+   "current": 293.7882
+  },
+  "settings:magnet:SSR2:SOL6": {
+   "current": 295.5764
+  },
+  "settings:magnet:SSR2:SOL7": {
+   "current": 286.2982
+  },
+  "settings:magnet:SSR2:SOL8": {
+   "current": 333.839
+  },
+  "settings:magnet:SSR2:SOL9": {
+   "current": 338.9945
+  },
+  "settings:rf:BTL:CAV1": {
+   "amp": 1.3,
+   "phase": -90.0
+  },
+  "settings:rf:HB650:CAV1": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HB650:CAV10": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HB650:CAV11": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HB650:CAV12": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HB650:CAV13": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HB650:CAV14": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HB650:CAV15": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HB650:CAV16": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HB650:CAV17": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HB650:CAV18": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HB650:CAV19": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HB650:CAV2": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HB650:CAV20": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HB650:CAV21": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HB650:CAV22": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HB650:CAV23": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HB650:CAV24": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HB650:CAV3": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HB650:CAV4": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HB650:CAV5": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HB650:CAV6": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HB650:CAV7": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HB650:CAV8": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HB650:CAV9": {
+   "amp": 12.4423,
+   "phase": -18.0
+  },
+  "settings:rf:HWR:CAV1": {
+   "amp": 0.5297,
+   "phase": -30.0
+  },
+  "settings:rf:HWR:CAV2": {
+   "amp": 0.7127,
+   "phase": -30.0
+  },
+  "settings:rf:HWR:CAV3": {
+   "amp": 0.9861,
+   "phase": -30.0
+  },
+  "settings:rf:HWR:CAV4": {
+   "amp": 1.4104,
+   "phase": -30.0
+  },
+  "settings:rf:HWR:CAV5": {
+   "amp": 1.4574,
+   "phase": -30.0
+  },
+  "settings:rf:HWR:CAV6": {
+   "amp": 1.4574,
+   "phase": -30.0
+  },
+  "settings:rf:HWR:CAV7": {
+   "amp": 1.4574,
+   "phase": -30.0
+  },
+  "settings:rf:HWR:CAV8": {
+   "amp": 1.4574,
+   "phase": -30.0
+  },
+  "settings:rf:LB650:CAV1": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV10": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV11": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV12": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV13": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV14": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV15": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV16": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV17": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV18": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV19": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV2": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV20": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV21": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV22": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV23": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV24": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV25": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV26": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV27": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV28": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV29": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV3": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV30": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV31": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV32": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV33": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV34": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV35": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV36": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV4": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV5": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV6": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV7": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV8": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:LB650:CAV9": {
+   "amp": 9.7845,
+   "phase": -20.0
+  },
+  "settings:rf:MEBT:CAV1": {
+   "amp": 0.12,
+   "phase": -90.0
+  },
+  "settings:rf:MEBT:CAV2": {
+   "amp": 0.12,
+   "phase": -90.0
+  },
+  "settings:rf:MEBT:CAV3": {
+   "amp": 0.12,
+   "phase": -90.0
+  },
+  "settings:rf:RFQ:RFQ": {
+   "amp": 1.0,
+   "phase": 0.0
+  },
+  "settings:rf:SSR1:CAV1": {
+   "amp": 1.7176,
+   "phase": -26.0
+  },
+  "settings:rf:SSR1:CAV10": {
+   "amp": 1.7176,
+   "phase": -26.0
+  },
+  "settings:rf:SSR1:CAV11": {
+   "amp": 1.7176,
+   "phase": -26.0
+  },
+  "settings:rf:SSR1:CAV12": {
+   "amp": 1.7176,
+   "phase": -26.0
+  },
+  "settings:rf:SSR1:CAV13": {
+   "amp": 1.7176,
+   "phase": -26.0
+  },
+  "settings:rf:SSR1:CAV14": {
+   "amp": 1.7176,
+   "phase": -26.0
+  },
+  "settings:rf:SSR1:CAV15": {
+   "amp": 1.7176,
+   "phase": -26.0
+  },
+  "settings:rf:SSR1:CAV16": {
+   "amp": 1.7176,
+   "phase": -26.0
+  },
+  "settings:rf:SSR1:CAV2": {
+   "amp": 1.7176,
+   "phase": -26.0
+  },
+  "settings:rf:SSR1:CAV3": {
+   "amp": 1.7176,
+   "phase": -26.0
+  },
+  "settings:rf:SSR1:CAV4": {
+   "amp": 1.7176,
+   "phase": -26.0
+  },
+  "settings:rf:SSR1:CAV5": {
+   "amp": 1.7176,
+   "phase": -26.0
+  },
+  "settings:rf:SSR1:CAV6": {
+   "amp": 1.7176,
+   "phase": -26.0
+  },
+  "settings:rf:SSR1:CAV7": {
+   "amp": 1.7176,
+   "phase": -26.0
+  },
+  "settings:rf:SSR1:CAV8": {
+   "amp": 1.7176,
+   "phase": -26.0
+  },
+  "settings:rf:SSR1:CAV9": {
+   "amp": 1.7176,
+   "phase": -26.0
+  },
+  "settings:rf:SSR2:CAV1": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV10": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV11": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV12": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV13": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV14": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV15": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV16": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV17": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV18": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV19": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV2": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV20": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV21": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV22": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV23": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV24": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV25": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV26": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV27": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV28": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV29": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV3": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV30": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV31": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV32": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV33": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV34": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV35": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV4": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV5": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV6": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV7": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV8": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:rf:SSR2:CAV9": {
+   "amp": 4.6558,
+   "phase": -23.0
+  },
+  "settings:source:main": {
+   "current_ma": 5.0
+  }
+ },
+ "t": 1783249775.4644418
+}

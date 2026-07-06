@@ -1,0 +1,32 @@
+{
+ "plan": {
+  "name": "source-chopper-2d-isocurrent",
+  "kind": "ramp",
+  "description": "source 4.5->5.5 mA with duty 0.45->0.36: near-constant output current, tests the two intensity knobs together",
+  "sweeps": [
+   {
+    "cls": "source",
+    "device": "main",
+    "field": "current_ma",
+    "from": 4.5,
+    "to": 5.5
+   },
+   {
+    "cls": "chopper",
+    "device": "main",
+    "field": "duty",
+    "from": 0.45,
+    "to": 0.36
+   }
+  ],
+  "steps": 5,
+  "dwell_s": 3.0,
+  "restore": true,
+  "rebaseline": true
+ },
+ "result": {
+  "status": "aborted-no-beam",
+  "steps": [],
+  "t_end": 1783196330.7927613
+ }
+}

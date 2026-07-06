@@ -1,0 +1,24 @@
+{
+ "plan": {
+  "name": "rfq-amp-fine",
+  "kind": "sweep",
+  "steps": 9,
+  "dwell_s": 2.0,
+  "sweeps": [
+   {
+    "cls": "rf",
+    "device": "RFQ:RFQ",
+    "field": "amp",
+    "from": 0.98,
+    "to": 1.02
+   }
+  ],
+  "description": "rfq-amp-fine",
+  "restore": true
+ },
+ "result": {
+  "status": "aborted-no-beam",
+  "steps": [],
+  "t_end": 1783197062.7992282
+ }
+}

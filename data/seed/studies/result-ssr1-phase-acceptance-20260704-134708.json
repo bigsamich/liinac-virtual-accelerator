@@ -1,0 +1,24 @@
+{
+ "plan": {
+  "name": "ssr1-phase-acceptance",
+  "kind": "sweep",
+  "description": "SSR1:CAV11 phase +/-6 deg",
+  "sweeps": [
+   {
+    "cls": "rf",
+    "device": "SSR1:CAV11",
+    "field": "phase",
+    "from": -32.0,
+    "to": -20.0
+   }
+  ],
+  "steps": 9,
+  "dwell_s": 2.0,
+  "restore": true
+ },
+ "result": {
+  "status": "aborted-trip",
+  "steps": [],
+  "t_end": 1783190828.7906985
+ }
+}

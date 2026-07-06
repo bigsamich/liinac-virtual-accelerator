@@ -1,0 +1,102 @@
+{
+ "plan": {
+  "name": "hwr-sol4-tolerance",
+  "kind": "sweep",
+  "description": "HWR:SOL4 +/-4% (drift-scenario tolerance)",
+  "sweeps": [
+   {
+    "cls": "magnet",
+    "device": "HWR:SOL4",
+    "field": "current",
+    "from": 211.666368,
+    "to": 229.30523200000002
+   }
+  ],
+  "steps": 9,
+  "dwell_s": 2.0,
+  "restore": true
+ },
+ "result": {
+  "status": "aborted-trip",
+  "steps": [
+   {
+    "step": 1,
+    "set_values": [
+     211.666368
+    ],
+    "transmission": 0.9947959834215154,
+    "w_tof": 800.2572082519531,
+    "worst_blm": 31.5013484954834,
+    "i_out_ma": 1.9818195104599,
+    "orbit_rms_mm": 1.1767421960830688
+   },
+   {
+    "step": 2,
+    "set_values": [
+     213.871226
+    ],
+    "transmission": 0.994734018832775,
+    "w_tof": 799.9032775878907,
+    "worst_blm": 32.10740661621094,
+    "i_out_ma": 1.9922720193862915,
+    "orbit_rms_mm": 1.1810773611068726
+   },
+   {
+    "step": 3,
+    "set_values": [
+     216.076084
+    ],
+    "transmission": 0.9948410539757259,
+    "w_tof": 800.3462829589844,
+    "worst_blm": 27.717926025390625,
+    "i_out_ma": 1.9978489875793457,
+    "orbit_rms_mm": 1.1820216178894043
+   },
+   {
+    "step": 4,
+    "set_values": [
+     218.280942
+    ],
+    "transmission": 0.994792075539705,
+    "w_tof": 799.8869323730469,
+    "worst_blm": 27.440771102905273,
+    "i_out_ma": 1.9851438999176025,
+    "orbit_rms_mm": 1.1880981922149658
+   },
+   {
+    "step": 5,
+    "set_values": [
+     220.4858
+    ],
+    "transmission": 0.9948535480100412,
+    "w_tof": 799.6604553222656,
+    "worst_blm": 22.673410415649414,
+    "i_out_ma": 1.9846092462539673,
+    "orbit_rms_mm": 1.1957035064697266
+   },
+   {
+    "step": 6,
+    "set_values": [
+     222.690658
+    ],
+    "transmission": 0.9947149175546447,
+    "w_tof": 800.1187683105469,
+    "worst_blm": 45.66795349121094,
+    "i_out_ma": 1.9901905059814453,
+    "orbit_rms_mm": 1.2087455987930298
+   },
+   {
+    "step": 7,
+    "set_values": [
+     224.89551600000001
+    ],
+    "transmission": 0.9946511933388167,
+    "w_tof": 800.0121887207031,
+    "worst_blm": 58.95661544799805,
+    "i_out_ma": 1.993486762046814,
+    "orbit_rms_mm": 1.2177740335464478
+   }
+  ],
+  "t_end": 1783188418.7902882
+ }
+}

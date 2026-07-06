@@ -1,0 +1,124 @@
+{
+ "plan": {
+  "name": "chopper-duty-scan",
+  "kind": "sweep",
+  "description": "chopper keep-fraction 0.30 -> 0.50",
+  "sweeps": [
+   {
+    "cls": "chopper",
+    "device": "main",
+    "field": "duty",
+    "from": 0.3,
+    "to": 0.5
+   }
+  ],
+  "steps": 9,
+  "dwell_s": 2.0,
+  "restore": true
+ },
+ "result": {
+  "status": "completed",
+  "steps": [
+   {
+    "step": 1,
+    "set_values": [
+     0.3
+    ],
+    "transmission": 0.9949546434856189,
+    "w_tof": 800.3166198730469,
+    "worst_blm": 26.28326416015625,
+    "i_out_ma": 1.4942853450775146,
+    "orbit_rms_mm": 0.9416077136993408
+   },
+   {
+    "step": 2,
+    "set_values": [
+     0.325
+    ],
+    "transmission": 0.9948955545690951,
+    "w_tof": 800.0334655761719,
+    "worst_blm": 35.32941436767578,
+    "i_out_ma": 1.6136438846588135,
+    "orbit_rms_mm": 1.024786353111267
+   },
+   {
+    "step": 3,
+    "set_values": [
+     0.35
+    ],
+    "transmission": 0.994811819612521,
+    "w_tof": 799.8393371582031,
+    "worst_blm": 29.623769760131836,
+    "i_out_ma": 1.7428985834121704,
+    "orbit_rms_mm": 1.0876643657684326
+   },
+   {
+    "step": 4,
+    "set_values": [
+     0.375
+    ],
+    "transmission": 0.9947369484876815,
+    "w_tof": 800.0865356445313,
+    "worst_blm": 33.03794479370117,
+    "i_out_ma": 1.868504524230957,
+    "orbit_rms_mm": 1.150378942489624
+   },
+   {
+    "step": 5,
+    "set_values": [
+     0.4
+    ],
+    "transmission": 0.9947357947908999,
+    "w_tof": 800.5027587890625,
+    "worst_blm": 34.24460983276367,
+    "i_out_ma": 2.006197452545166,
+    "orbit_rms_mm": 1.2059749364852905
+   },
+   {
+    "step": 6,
+    "set_values": [
+     0.425
+    ],
+    "transmission": 0.9948511998323804,
+    "w_tof": 799.7530334472656,
+    "worst_blm": 22.411638259887695,
+    "i_out_ma": 2.1126513481140137,
+    "orbit_rms_mm": 1.238447904586792
+   },
+   {
+    "step": 7,
+    "set_values": [
+     0.45
+    ],
+    "transmission": 0.9948498587102466,
+    "w_tof": 800.2328247070312,
+    "worst_blm": 17.90882110595703,
+    "i_out_ma": 2.236276149749756,
+    "orbit_rms_mm": 1.2681031227111816
+   },
+   {
+    "step": 8,
+    "set_values": [
+     0.475
+    ],
+    "transmission": 0.9948096806933365,
+    "w_tof": 800.2968994140625,
+    "worst_blm": 13.694586753845215,
+    "i_out_ma": 2.358367443084717,
+    "orbit_rms_mm": 1.2748159170150757
+   },
+   {
+    "step": 9,
+    "set_values": [
+     0.5
+    ],
+    "transmission": 0.9947798161030613,
+    "w_tof": 799.4427185058594,
+    "worst_blm": 5.2404303550720215,
+    "i_out_ma": 2.4862847328186035,
+    "orbit_rms_mm": 1.273175597190857
+   }
+  ],
+  "t_end": 1783185160.7931018
+ }
+}
