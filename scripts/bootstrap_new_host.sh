@@ -14,11 +14,21 @@ mkdir -p ~/.pip2va
 echo "== build + start the stack =="
 docker compose build
 make reset          # up + wait for baseline + MACHINE READY
-echo "== optional: AI assistant models (needs ollama with qwen3.6) =="
+echo "== optional: AI assistant (needs ollama) =="
 if curl -sf http://localhost:11434/api/tags >/dev/null 2>&1; then
-  .venv/bin/python scripts/distill/bake_expert.py || true
+  echo "  pulling models (qwen3.6 is ~20+ GB — one-time download)..."
+  ollama pull qwen3.6 || curl -s http://localhost:11434/api/pull \
+      -d '{"model":"qwen3.6"}' >/dev/null
+  ollama pull qwen3-embedding:8b || curl -s http://localhost:11434/api/pull \
+      -d '{"model":"qwen3-embedding:8b"}' >/dev/null
+  if .venv/bin/python scripts/distill/bake_expert.py; then
+    echo "  AI assistant ready (pip2va-expert)"
+  else
+    echo "  !! bake failed — check 'ollama list' has qwen3.6, then rerun:"
+    echo "     .venv/bin/python scripts/distill/bake_expert.py"
+  fi
 else
-  echo "  (ollama not detected — GUI works without AI; install ollama and"
-  echo "   run scripts/distill/bake_expert.py later)"
+  echo "  (ollama not detected — everything except the AI works; install"
+  echo "   ollama, then rerun this script or bake_expert.py)"
 fi
 echo "== done. Native GUI: make gui | Browser: :6080 | Phone: :6081 =="
