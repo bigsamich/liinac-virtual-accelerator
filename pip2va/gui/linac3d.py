@@ -38,6 +38,14 @@ TYPE_COLORS = {
     "orbump":   (1.00, 0.45, 0.15, 1.0),
     "foil":     (0.95, 0.95, 0.95, 1.0),
     "sweep":    (0.90, 0.20, 0.60, 1.0),
+    "scraper2": (0.75, 0.45, 0.20, 1.0),
+    "allison":  (0.30, 0.90, 0.75, 1.0),
+    "ffc":      (0.95, 0.85, 0.40, 1.0),
+    "eid":      (0.50, 0.50, 0.80, 1.0),
+    "absorber": (0.45, 0.30, 0.25, 1.0),
+    "dpi":      (0.40, 0.60, 0.60, 1.0),
+    "rfsep":    (1.00, 0.50, 0.60, 1.0),
+    "mwpm":     (0.65, 0.85, 0.55, 1.0),
 }
 
 
@@ -84,6 +92,14 @@ TYPE_SHAPES = {
     "orbump":   ("box", dict(ly=1.4, lz=0.6)),
     "foil":     ("box", dict(ly=1.2, lz=1.2)),
     "sweep":    ("box", dict(ly=1.5, lz=0.7)),
+    "scraper2": ("box", dict(ly=0.4, lz=0.4)),
+    "allison":  ("box", dict(ly=0.8, lz=1.3)),
+    "ffc":      ("cyl", dict(radius=0.4)),
+    "eid":      ("cyl", dict(radius=0.55)),
+    "absorber": ("box", dict(ly=1.3, lz=1.3)),
+    "dpi":      ("cyl", dict(radius=0.6)),
+    "rfsep":    ("box", dict(ly=1.2, lz=0.9)),
+    "mwpm":     ("box", dict(ly=0.35, lz=1.1)),
 }
 ORBIT_EXAG = 0.25       # display metres per mm of beam coordinate
 LOSS_SCALE = 2.0        # spike height = LOSS_SCALE * log10(1 + W/m)

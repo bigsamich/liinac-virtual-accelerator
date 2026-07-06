@@ -19,6 +19,7 @@ ELEMENT_TYPES = {
     "aperture", "dipole", "bpm", "blm", "toroid", "wire_scanner", "source",
     # passive/diagnostic species from the LINAC2 diagram (drift transport)
     "valve", "skew_quad", "halo", "bsm", "septum", "orbump", "foil", "sweep",
+    "scraper2", "allison", "ffc", "eid", "absorber", "dpi", "rfsep", "mwpm",
 }
 
 

@@ -486,6 +486,14 @@ elements:
   aperture_radius: 0.014
   params: {}
   knobs: {}
+- name: MEBT:SCRPT
+  type: scraper2
+  s: 9.17
+  length: 0.0
+  section: MEBT
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: MEBT:Q8
   type: quad
   s: 9.17
@@ -505,6 +513,14 @@ elements:
   length: 0.12
   section: MEBT
   aperture_radius: 0.014
+  params: {}
+  knobs: {}
+- name: MEBT:SCRPB
+  type: scraper2
+  s: 9.39
+  length: 0.0
+  section: MEBT
+  aperture_radius: 0.02
   params: {}
   knobs: {}
 - name: MEBT:C3
@@ -560,6 +576,14 @@ elements:
     phase_noise_deg: 0.3
     intensity_noise_frac: 0.01
   knobs: {}
+- name: MEBT:ASCN
+  type: allison
+  s: 10.04
+  length: 0.0
+  section: MEBT
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: MEBT:ABS
   type: aperture
   s: 10.04
@@ -608,6 +632,14 @@ elements:
   length: 0.12
   section: MEBT
   aperture_radius: 0.014
+  params: {}
+  knobs: {}
+- name: MEBT:EID1
+  type: eid
+  s: 10.61
+  length: 0.0
+  section: MEBT
+  aperture_radius: 0.02
   params: {}
   knobs: {}
 - name: MEBT:Q10
@@ -675,6 +707,14 @@ elements:
     phase_noise_deg: 0.3
     intensity_noise_frac: 0.01
   knobs: {}
+- name: MEBT:ABS
+  type: absorber
+  s: 11.1
+  length: 0.0
+  section: MEBT
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: MEBT:SCR1
   type: aperture
   s: 11.1
@@ -683,6 +723,14 @@ elements:
   aperture_radius: 0.01
   params:
     kind: scraper
+  knobs: {}
+- name: MEBT:DPI
+  type: dpi
+  s: 11.2
+  length: 0.0
+  section: MEBT
+  aperture_radius: 0.02
+  params: {}
   knobs: {}
 - name: MEBT:CAV2
   type: rfgap
@@ -710,6 +758,14 @@ elements:
   aperture_radius: 0.014
   params: {}
   knobs: {}
+- name: MEBT:SCRPL
+  type: scraper2
+  s: 11.62
+  length: 0.0
+  section: MEBT
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: MEBT:Q12
   type: quad
   s: 11.62
@@ -723,6 +779,14 @@ elements:
     max_current: 100.09
   knobs:
     current: settings:magnet:MEBT:Q12
+- name: MEBT:SCRPR
+  type: scraper2
+  s: 11.72
+  length: 0.0
+  section: MEBT
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: MEBT:D18
   type: drift
   s: 11.72
@@ -771,6 +835,14 @@ elements:
   length: 0.12
   section: MEBT
   aperture_radius: 0.014
+  params: {}
+  knobs: {}
+- name: MEBT:FFC
+  type: ffc
+  s: 12.28
+  length: 0.0
+  section: MEBT
+  aperture_radius: 0.02
   params: {}
   knobs: {}
 - name: MEBT:C5
@@ -919,6 +991,14 @@ elements:
   knobs:
     amp: settings:rf:MEBT:CAV3
     phase: settings:rf:MEBT:CAV3
+- name: MEBT:EID2
+  type: eid
+  s: 13.49
+  length: 0.0
+  section: MEBT
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: MEBT:D24
   type: drift
   s: 13.49
@@ -1229,6 +1309,14 @@ elements:
   length: 0.15
   section: HWR
   aperture_radius: 0.0165
+  params: {}
+  knobs: {}
+- name: HWR:GVX8
+  type: valve
+  s: 15.97
+  length: 0.0
+  section: HWR
+  aperture_radius: 0.02
   params: {}
   knobs: {}
 - name: HWR:CAV1
@@ -1911,12 +1999,28 @@ elements:
     kind: laserwire
     bins: 64
   knobs: {}
+- name: HWR:GVX7
+  type: valve
+  s: 23.52
+  length: 0.0
+  section: HWR
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: SSR1:D1
   type: drift
   s: 23.52
   length: 0.2
   section: SSR1
   aperture_radius: 0.015
+  params: {}
+  knobs: {}
+- name: SSR1:GVX10
+  type: valve
+  s: 23.72
+  length: 0.0
+  section: SSR1
+  aperture_radius: 0.02
   params: {}
   knobs: {}
 - name: SSR1:CAV1
@@ -2317,12 +2421,28 @@ elements:
     dark_wpm: 0.001
     design_wpm: 0.0021
   knobs: {}
+- name: SSR1:GVX12
+  type: valve
+  s: 28.82
+  length: 0.0
+  section: SSR1
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: SSR1:D13
   type: drift
   s: 28.82
   length: 0.1
   section: SSR1
   aperture_radius: 0.015
+  params: {}
+  knobs: {}
+- name: SSR1:GVX9
+  type: valve
+  s: 28.92
+  length: 0.0
+  section: SSR1
+  aperture_radius: 0.02
   params: {}
   knobs: {}
 - name: SSR1:D14
@@ -2747,6 +2867,14 @@ elements:
   aperture_radius: 0.015
   params: {}
   knobs: {}
+- name: SSR1:GVX11
+  type: valve
+  s: 34.52
+  length: 0.0
+  section: SSR1
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: SSR1:D28
   type: drift
   s: 34.52
@@ -2779,6 +2907,14 @@ elements:
   type: drift
   s: 34.82
   length: 0.2
+  section: SSR2
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: SSR2:GVX14
+  type: valve
+  s: 35.02
+  length: 0.0
   section: SSR2
   aperture_radius: 0.02
   params: {}
@@ -3051,6 +3187,14 @@ elements:
   aperture_radius: 0.02
   params: {}
   knobs: {}
+- name: SSR2:GVX16
+  type: valve
+  s: 39.25
+  length: 0.0
+  section: SSR2
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: SSR2:SOL4
   type: solenoid
   s: 39.25
@@ -3064,6 +3208,14 @@ elements:
     max_current: 425.71
   knobs:
     current: settings:magnet:SSR2:SOL4
+- name: SSR2:GVX13
+  type: valve
+  s: 39.65
+  length: 0.0
+  section: SSR2
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: SSR2:C4
   type: corrector
   s: 39.65
@@ -3325,6 +3477,22 @@ elements:
   type: drift
   s: 43.33
   length: 0.2
+  section: SSR2
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: SSR2:GVX15
+  type: valve
+  s: 43.53
+  length: 0.0
+  section: SSR2
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: SSR2:GVX18
+  type: valve
+  s: 43.53
+  length: 0.0
   section: SSR2
   aperture_radius: 0.02
   params: {}
@@ -3597,6 +3765,14 @@ elements:
   aperture_radius: 0.02
   params: {}
   knobs: {}
+- name: SSR2:GVX20
+  type: valve
+  s: 47.76
+  length: 0.0
+  section: SSR2
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: SSR2:SOL10
   type: solenoid
   s: 47.76
@@ -3610,6 +3786,14 @@ elements:
     max_current: 524.83
   knobs:
     current: settings:magnet:SSR2:SOL10
+- name: SSR2:GVX17
+  type: valve
+  s: 48.16
+  length: 0.0
+  section: SSR2
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: SSR2:C10
   type: corrector
   s: 48.16
@@ -3871,6 +4055,22 @@ elements:
   type: drift
   s: 51.84
   length: 0.2
+  section: SSR2
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: SSR2:GVX19
+  type: valve
+  s: 52.04
+  length: 0.0
+  section: SSR2
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: SSR2:GVX22
+  type: valve
+  s: 52.04
+  length: 0.0
   section: SSR2
   aperture_radius: 0.02
   params: {}
@@ -4139,6 +4339,22 @@ elements:
   type: drift
   s: 56.07
   length: 0.2
+  section: SSR2
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: SSR2:GVX21
+  type: valve
+  s: 56.27
+  length: 0.0
+  section: SSR2
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: SSR2:GVX24
+  type: valve
+  s: 56.27
+  length: 0.0
   section: SSR2
   aperture_radius: 0.02
   params: {}
@@ -4421,6 +4637,22 @@ elements:
   aperture_radius: 0.02
   params: {}
   knobs: {}
+- name: SSR2:GVX23
+  type: valve
+  s: 60.55
+  length: 0.0
+  section: SSR2
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: SSR2:GVX26
+  type: valve
+  s: 60.55
+  length: 0.0
+  section: SSR2
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: SSR2:SOL19
   type: solenoid
   s: 60.55
@@ -4691,12 +4923,28 @@ elements:
     noise_frac: 0.002
     floor_ma: 0.005
   knobs: {}
+- name: SSR2:GVX25
+  type: valve
+  s: 64.63
+  length: 0.0
+  section: SSR2
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: LB650:D1
   type: drift
   s: 64.63
   length: 0.3
   section: LB650
   aperture_radius: 0.0415
+  params: {}
+  knobs: {}
+- name: LB650:GVX28
+  type: valve
+  s: 64.93
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
   params: {}
   knobs: {}
 - name: LB650:CAV1
@@ -4813,6 +5061,14 @@ elements:
   aperture_radius: 0.0415
   params: {}
   knobs: {}
+- name: LB650:GVX27
+  type: valve
+  s: 68.93
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: LB650:Q1
   type: quad
   s: 68.93
@@ -4880,6 +5136,14 @@ elements:
     noise_frac: 0.05
     dark_wpm: 0.001
     design_wpm: 0.0164
+  knobs: {}
+- name: LB650:GVX30
+  type: valve
+  s: 69.73
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
   knobs: {}
 - name: LB650:D7
   type: drift
@@ -5021,6 +5285,14 @@ elements:
   aperture_radius: 0.0415
   params: {}
   knobs: {}
+- name: LB650:GVX29
+  type: valve
+  s: 74.38
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: LB650:Q3
   type: quad
   s: 74.38
@@ -5088,6 +5360,14 @@ elements:
     noise_frac: 0.05
     dark_wpm: 0.001
     design_wpm: 0.0023
+  knobs: {}
+- name: LB650:GVX32
+  type: valve
+  s: 75.18
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
   knobs: {}
 - name: LB650:D14
   type: drift
@@ -5219,6 +5499,14 @@ elements:
   aperture_radius: 0.0415
   params: {}
   knobs: {}
+- name: LB650:GVX31
+  type: valve
+  s: 79.78
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: LB650:Q5
   type: quad
   s: 79.78
@@ -5293,6 +5581,14 @@ elements:
   length: 0.3
   section: LB650
   aperture_radius: 0.0415
+  params: {}
+  knobs: {}
+- name: LB650:GVX34
+  type: valve
+  s: 80.88
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
   params: {}
   knobs: {}
 - name: LB650:WS2
@@ -5427,6 +5723,14 @@ elements:
   aperture_radius: 0.0415
   params: {}
   knobs: {}
+- name: LB650:GVX33
+  type: valve
+  s: 85.23
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: LB650:Q7
   type: quad
   s: 85.23
@@ -5494,6 +5798,14 @@ elements:
     noise_frac: 0.05
     dark_wpm: 0.001
     design_wpm: 0.0025
+  knobs: {}
+- name: LB650:GVX36
+  type: valve
+  s: 86.03
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
   knobs: {}
 - name: LB650:D28
   type: drift
@@ -5625,6 +5937,14 @@ elements:
   aperture_radius: 0.0415
   params: {}
   knobs: {}
+- name: LB650:GVX35
+  type: valve
+  s: 90.63
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: LB650:Q9
   type: quad
   s: 90.63
@@ -5692,6 +6012,14 @@ elements:
     noise_frac: 0.05
     dark_wpm: 0.001
     design_wpm: 0.0056
+  knobs: {}
+- name: LB650:GVX38
+  type: valve
+  s: 91.43
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
   knobs: {}
 - name: LB650:D35
   type: drift
@@ -5823,6 +6151,14 @@ elements:
   aperture_radius: 0.0415
   params: {}
   knobs: {}
+- name: LB650:GVX37
+  type: valve
+  s: 96.03
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: LB650:Q11
   type: quad
   s: 96.03
@@ -5897,6 +6233,14 @@ elements:
   length: 0.3
   section: LB650
   aperture_radius: 0.0415
+  params: {}
+  knobs: {}
+- name: LB650:GVX40
+  type: valve
+  s: 97.13
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
   params: {}
   knobs: {}
 - name: LB650:WS3
@@ -6031,6 +6375,14 @@ elements:
   aperture_radius: 0.0415
   params: {}
   knobs: {}
+- name: LB650:GVX39
+  type: valve
+  s: 101.48
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: LB650:Q13
   type: quad
   s: 101.48
@@ -6098,6 +6450,14 @@ elements:
     noise_frac: 0.05
     dark_wpm: 0.001
     design_wpm: 0.0029
+  knobs: {}
+- name: LB650:GVX42
+  type: valve
+  s: 102.28
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
   knobs: {}
 - name: LB650:D49
   type: drift
@@ -6229,6 +6589,14 @@ elements:
   aperture_radius: 0.0415
   params: {}
   knobs: {}
+- name: LB650:GVX41
+  type: valve
+  s: 106.88
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: LB650:Q15
   type: quad
   s: 106.88
@@ -6296,6 +6664,14 @@ elements:
     noise_frac: 0.05
     dark_wpm: 0.001
     design_wpm: 0.0034
+  knobs: {}
+- name: LB650:GVX44
+  type: valve
+  s: 107.68
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
   knobs: {}
 - name: LB650:D56
   type: drift
@@ -6425,6 +6801,14 @@ elements:
   length: 0.25
   section: LB650
   aperture_radius: 0.0415
+  params: {}
+  knobs: {}
+- name: LB650:GVX43
+  type: valve
+  s: 112.28
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
   params: {}
   knobs: {}
 - name: LB650:Q17
@@ -8346,6 +8730,14 @@ elements:
     phase_noise_deg: 0.3
     intensity_noise_frac: 0.01
   knobs: {}
+- name: BTL:RFSEP
+  type: rfsep
+  s: 175.18
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: BTL:D3
   type: drift
   s: 175.18
@@ -8487,6 +8879,14 @@ elements:
   length: 0.4
   section: BTL
   aperture_radius: 0.0225
+  params: {}
+  knobs: {}
+- name: BTL:MWPM
+  type: mwpm
+  s: 180.63
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
   params: {}
   knobs: {}
 - name: BTL:Q6

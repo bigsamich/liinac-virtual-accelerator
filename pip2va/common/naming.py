@@ -30,6 +30,8 @@ DEVICE_CODE = {
     "chopper": "CHOP", "source": "ISRC", "aperture": "COLL",
     "valve": "GV", "halo": "HALO", "bsm": "BSM", "septum": "SEPT",
     "orbump": "ORB", "foil": "FOIL", "sweep": "SWM",
+    "scraper2": "SCRP", "allison": "ASCN", "ffc": "FFC", "eid": "EID",
+    "absorber": "ABS", "dpi": "DPI", "rfsep": "RFSEP", "mwpm": "MWPM",
 }
 # signal codes (sim field -> official-style signal)
 SIGNAL = {"amp": "AMPL", "phase": "PHS", "detuning_hz": "DET",
