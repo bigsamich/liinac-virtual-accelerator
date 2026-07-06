@@ -8,9 +8,17 @@ python3 -m venv .venv
 .venv/bin/pip -q install --upgrade pip
 .venv/bin/pip -q install -e ".[gui,dev]" 2>/dev/null || .venv/bin/pip -q install -e ".[gui]"
 echo "== seed machine state (study results, knowledge base, golden) =="
-mkdir -p ~/.pip2va
-[ -d ~/.pip2va/studies ] || cp -r data/seed/studies ~/.pip2va/studies
-[ -d ~/.pip2va/snapshots ] || cp -r data/seed/snapshots ~/.pip2va/snapshots 2>/dev/null || true
+# pre-create as the invoking user BEFORE docker mounts it — otherwise the
+# web-gui volume mount makes docker create it root-owned and host-side
+# snapshot/study writes get permission-denied
+mkdir -p ~/.pip2va/studies ~/.pip2va/snapshots
+if [ ! -w ~/.pip2va/studies ]; then
+  echo "!! ~/.pip2va is not writable by $USER (root-owned from an earlier"
+  echo "   docker run). Fix with: sudo chown -R \$USER:\$USER ~/.pip2va"
+  exit 1
+fi
+[ -f ~/.pip2va/studies/knowledge.jsonl ] || cp -r data/seed/studies/. ~/.pip2va/studies/
+[ -f ~/.pip2va/snapshots/golden.json ] || cp -r data/seed/snapshots/. ~/.pip2va/snapshots/ 2>/dev/null || true
 echo "== build + start the stack =="
 docker compose build
 make reset          # up + wait for baseline + MACHINE READY
