@@ -37,6 +37,7 @@ VALID_FIELDS = {
     "source": {"current_ma"},
     "chopper": {"duty", "notch", "turn"},
     "util": {"lcw_offset_c", "cryo_offset_mbar"},
+    "scraper": {"pos_mm", "bias_v"},
 }
 
 PLAN_SYSTEM = """You are the beam-studies planner for a PIP-II 800 MeV H-
@@ -157,6 +158,8 @@ def validate_plan(plan: dict) -> tuple[dict, str]:
                 lo, hi = 0.0, 1.0
             elif cls == "util":
                 lo, hi = -5.0, 8.0
+            elif cls == "scraper":
+                lo, hi = (0.5, 30.0) if fld == "pos_mm" else (0.0, 300.0)
             elif fld == "notch":
                 lo, hi = 0.0, 200.0
             elif fld == "turn":

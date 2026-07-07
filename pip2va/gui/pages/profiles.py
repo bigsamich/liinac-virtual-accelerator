@@ -3,7 +3,8 @@ from __future__ import annotations
 
 import numpy as np
 import pyqtgraph as pg
-from PyQt6.QtWidgets import QComboBox, QHBoxLayout, QLabel, QPushButton
+from PyQt6.QtWidgets import (QCheckBox, QComboBox, QHBoxLayout, QLabel,
+                             QPushButton)
 
 from .. import theme
 from ..plotkit import CrosshairPlot
@@ -42,6 +43,8 @@ class ProfilesPage(Page):
         bar.addWidget(self.spin_pts)
         bar.addWidget(QLabel("pulses/pt:"))
         bar.addWidget(self.spin_ppp)
+        self.chk_halo = QCheckBox("halo mode (7σ, high stats)")
+        bar.addWidget(self.chk_halo)
         bar.addWidget(self.btn_scan)
         bar.addStretch(1)
         bar.addWidget(self.lbl_fit)
@@ -121,7 +124,10 @@ class ProfilesPage(Page):
             lambda: (self.hub.request_lw_scan if ":LW" in
                      self.sel_ws.currentText() else
                      self.hub.request_wire_scan)(
-                self.sel_ws.currentText(), points=self.spin_pts.value(),
+                self.sel_ws.currentText(),
+                halo=1 if (self.chk_halo.isChecked() and ":LW" in
+                           self.sel_ws.currentText()) else 0,
+                points=self.spin_pts.value(),
                 ppp=self.spin_ppp.value()))
         # ---- profiler cycle: all wires + all lasers, one at a time each
         from PyQt6.QtWidgets import QSpinBox
@@ -157,12 +163,74 @@ class ProfilesPage(Page):
         self.p_sig.addLegend(offset=(6, 6), labelTextSize="8pt")
         self.body.addWidget(self.p_sig, 2)
 
+        # ---- scraper jaws (halo scraping + biased current readback)
+        from PyQt6.QtWidgets import QDoubleSpinBox, QGridLayout
+        scr = QGridLayout()
+        scr.addWidget(QLabel("<b>Scraper jaws</b> (pos mm / bias V / µA):"),
+                      0, 0, 1, 5)
+        self._scr_rows = {}
+        names = [e.name for e in self.lat.elements if e.type == "scraper2"]
+        for r_, nm in enumerate(names, start=1):
+            scr.addWidget(QLabel(nm), r_, 0)
+            sp = QDoubleSpinBox(); sp.setRange(0.5, 30.0); sp.setValue(30.0)
+            sb = QDoubleSpinBox(); sb.setRange(0.0, 300.0); sb.setValue(150.0)
+            lab = QLabel("—")
+            btn = QPushButton("Apply")
+            btn.clicked.connect(lambda _, n=nm, a=sp, b=sb: (
+                self.hub.set_setting("scraper", n, "pos_mm", a.value()),
+                self.hub.set_setting("scraper", n, "bias_v", b.value())))
+            for c_, w_ in enumerate((sp, sb, lab, btn), start=1):
+                scr.addWidget(w_, r_, c_)
+            self._scr_rows[nm] = lab
+        self.body.addLayout(scr)
+        self.hub.scraper.connect(self._on_scraper)
+
+        # ---- Allison scanner
+        alli = QHBoxLayout()
+        alli.addWidget(QLabel("<b>Allison scanner</b> (MEBT x-x′):"))
+        self.btn_alli = QPushButton("Run scan")
+        alli.addWidget(self.btn_alli)
+        self.lbl_alli = QLabel("—")
+        alli.addWidget(self.lbl_alli, 1)
+        self.body.addLayout(alli)
+        self.img_alli = pg.ImageView()
+        self.img_alli.ui.roiBtn.hide(); self.img_alli.ui.menuBtn.hide()
+        self.img_alli.setMaximumHeight(240)
+        self.body.addWidget(self.img_alli)
+        self.btn_alli.clicked.connect(
+            lambda: self.hub.r.hset("req:allison", mapping={"steps": 48}))
+        self.hub.allison.connect(self._on_allison)
+
         self.btn_cycle.clicked.connect(self._start_cycle)
         self.btn_cyc_stop.clicked.connect(
             lambda: self.hub.set_setting("profilers", "main", "cycle", 0))
         self._cyc_gate = 0
         self.hub.beamState.connect(self._poll_cycle)
         self.hub.scan.connect(self._on_scan)
+
+    def _on_scraper(self, _pid, data):
+        if not self.isVisible():
+            return
+        for nm, lab in self._scr_rows.items():
+            v = data.get(f"{nm}:i_ua")
+            if v is not None and len(v):
+                ua = float(v[0])
+                lab.setText(f"{ua:8.3f} µA")
+                lab.setStyleSheet(
+                    f"color: {'#ff7043' if ua > 50 else '#2ecc71'};")
+
+    def _on_allison(self, _pid, data):
+        if not self.isVisible():
+            return
+        import numpy as np
+        n = int(float(data["n"][0]))
+        img = np.asarray(data["img"], dtype=float).reshape(n, n)
+        self.img_alli.setImage(img.T, autoLevels=True)
+        self.lbl_alli.setText(
+            f"ε = {float(data['eps_ummrad'][0]):.3f} mm·mrad rms   "
+            f"α = {float(data['alpha'][0]):+.2f}   "
+            f"β = {float(data['beta_m'][0]):.2f} m"
+            + ("   ✓ complete" if float(data['done'][0]) else "   scanning…"))
 
     def _start_cycle(self):
         for f, v in (("ws_points", self.sp_wsp.value()),

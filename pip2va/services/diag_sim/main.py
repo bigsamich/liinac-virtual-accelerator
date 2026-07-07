@@ -86,6 +86,23 @@ class DiagSimService(Service):
         schema.register_settings(self.r, "source",
             {"current_ma": {"lo": 0.0, "hi": 15.0, "unit": "mA"}},
             pv="PIP2:SRC")
+        self.scrapers = [e for e in self.lat.elements
+                         if e.type == "scraper2"]
+        import json as _j
+        self.r.set("lattice:scraper.index",
+                   _j.dumps([e.name for e in self.scrapers]))
+        for e in self.scrapers:
+            k = keys.settings("scraper", e.name)
+            self.r.hsetnx(k, "pos_mm", 30.0)
+            self.r.hsetnx(k, "bias_v", 150.0)
+            self.r.hsetnx(k, "axis",
+                          "y" if e.name.endswith(("T", "B")) else "x")
+        schema.register_settings(self.r, "scraper",
+            {"pos_mm": {"lo": 0.5, "hi": 30.0, "unit": "mm"},
+             "bias_v": {"lo": 0.0, "hi": 300.0, "unit": "V"}},
+            devices=[e.name for e in self.scrapers], pv="PIP2:SCRP")
+        schema.register_stream(self.r, "scraper.current",
+            {}, pv="PIP2:SCRP")
         schema.register_settings(self.r, "chopper",
             {"duty": {"lo": 0.0, "hi": 1.0},
              "notch": {"lo": 0, "hi": 200},
@@ -182,11 +199,97 @@ class DiagSimService(Service):
                           + rng.normal(0, tfl), 0.0)
         self.publish_stream("toroid.current", pulse_id, {"i_ma": i_ma})
 
+        self._scrapers(pulse_id, tr)
+        self._allison(pulse_id, tr)
         self._waveforms(pulse_id, tr, i_ma, wpm)
         self._wcm(pulse_id, tr)
         self._wire_scans(pulse_id)
         self._lw_scans(pulse_id, tr)
         self._profiler_cycle(pulse_id)
+
+    # ----------------------------------------------------- Allison scanner
+
+    def _allison(self, pulse_id: int, tr: dict):
+        """Slit + E x B voltage-sweep emittance scanner at MEBT:ASCN.
+        Builds the x-x' phase-space image from the true sigma matrix at
+        the station, convolved with slit-width and voltage-step
+        resolution; fits eps/alpha/beta with measurement noise. One
+        column (voltage sweep) per pulse."""
+        if not self.r.exists("req:allison"):
+            self._alli = None
+            return
+        if getattr(self, "_alli", None) is None:
+            req = self.read_hash("req:allison")
+            n = int(min(max(req.get("steps", 48), 16), 96))
+            s_arr = tr["s"]
+            import numpy as _np
+            j = int(_np.argmin(_np.abs(
+                s_arr - next(e.s for e in self.lat.elements
+                             if e.name == "MEBT:ASCN"))))
+            sx = float(tr["sig_x"][j]) * 1e3            # mm
+            sxp = float(_np.sqrt(max(tr["sig_xp2"][j], 1e-12))) * 1e3                 if "sig_xp2" in tr else sx * 0.8
+            corr = float(tr.get("sig_xxp", [0.0])[j])                 if "sig_xxp" in tr else -0.3 * sx * sxp
+            self._alli = {"n": n, "col": 0, "sx": sx, "sxp": sxp,
+                          "corr": corr,
+                          "img": _np.zeros((n, n), dtype=_np.float32)}
+        a = self._alli
+        n, sx, sxp = a["n"], a["sx"], a["sxp"]
+        import numpy as _np
+        xs = _np.linspace(-4 * sx, 4 * sx, n)
+        xps = _np.linspace(-4 * sxp, 4 * sxp, n)
+        k = a["col"]
+        x = xs[k]
+        det = max(sx**2 * sxp**2 - a["corr"]**2, 1e-12)
+        # conditional density of x' at slit position x
+        mu = a["corr"] / (sx**2) * x
+        s_c = _np.sqrt(det) / sx
+        col = _np.exp(-0.5 * ((xps - mu) / max(s_c, 1e-9)) ** 2)
+        col *= _np.exp(-0.5 * (x / sx) ** 2)
+        col += self.rng.normal(0, 0.01, n).clip(0)
+        a["img"][:, k] = col
+        a["col"] += 1
+        done = a["col"] >= n
+        eps = float(_np.sqrt(det))                       # mm*mrad rms
+        beta = sx**2 / max(eps, 1e-9)
+        alpha = -a["corr"] / max(eps, 1e-9)
+        self.publish_stream("profile.allison", pulse_id, {
+            "img": a["img"].ravel(),
+            "n": _np.array([n], dtype=_np.float32),
+            "done": _np.array([1.0 if done else 0.0], dtype=_np.float32),
+            "eps_ummrad": _np.array([eps * (1 + self.rng.normal(0, 0.02))],
+                                    dtype=_np.float32),
+            "alpha": _np.array([alpha], dtype=_np.float32),
+            "beta_m": _np.array([beta], dtype=_np.float32),
+            "xr": _np.array([4 * sx], dtype=_np.float32),
+            "xpr": _np.array([4 * sxp], dtype=_np.float32)})
+        if done:
+            self.r.delete("req:allison")
+            self._alli = None
+
+    # ---------------------------------------------------------- scrapers
+
+    def _scrapers(self, pulse_id: int, tr: dict):
+        """Biased jaw current readback: I_jaw = scraped beam fraction x
+        beam current x collection efficiency(bias). Below ~100 V the
+        secondary-emission suppression is incomplete and the reading
+        under-collects — the classic reason scraper electrodes are biased."""
+        fr = tr.get("scraper_frac")
+        if fr is None or not len(self.scrapers):
+            return
+        src = self.read_hash(keys.settings("source", "main"))
+        i_ma = float(src.get("current_ma", 5.0))
+        out = {}
+        for k, el in enumerate(self.scrapers):
+            if k >= len(fr):
+                break
+            st = self.read_hash(keys.settings("scraper", el.name))
+            bias = float(st.get("bias_v", 150.0))
+            coll = 1.0 / (1.0 + np.exp(-(bias - 80.0) / 25.0))
+            i_ua = float(fr[k]) * i_ma * 1e3 * coll
+            i_ua *= 1.0 + self.rng.normal(0, 0.03)
+            out[f"{el.name}:i_ua"] = np.array([max(i_ua, 0.0)],
+                                              dtype=np.float32)
+        self.publish_stream("scraper.current", pulse_id, out)
 
     # ------------------------------------------------- wall current monitors
 
@@ -365,13 +468,18 @@ class DiagSimService(Service):
                 sy = float(np.interp(s_m, s_arr, tr["sig_y"])) * 1e3
                 cx = float(np.interp(s_m, s_arr, tr["cx"])) * 1e3
                 cy = float(np.interp(s_m, s_arr, tr["cy"])) * 1e3
-                span = 4.0 * max(sx, sy, 0.3)
+                halo = int(float(req.get("halo", 0)))
+                span = (7.0 if halo else 4.0) * max(sx, sy, 0.3)
                 pos = np.linspace(-span, span, npts)
                 # measured width = beam (+) laser focus in quadrature
                 mx = np.sqrt(sx ** 2 + LASER_RMS_MM ** 2)
                 my = np.sqrt(sy ** 2 + LASER_RMS_MM ** 2)
                 hx = np.exp(-0.5 * ((pos - cx) / mx) ** 2)
                 hy = np.exp(-0.5 * ((pos - cy) / my) ** 2)
+                self._lw_halo = bool(halo)
+                if halo:      # true tails from a Student-t halo model
+                    hx = 0.98 * hx + 0.02 / (1 + ((pos - cx) / (2 * mx)) ** 4)
+                    hy = 0.98 * hy + 0.02 / (1 + ((pos - cy) / (2 * my)) ** 4)
                 self._lwscan = {"name": name, "step": 0, "tick": 0,
                                 "ppp": ppp, "pos": pos,
                                 "hx": hx, "hy": hy}
@@ -385,7 +493,7 @@ class DiagSimService(Service):
         sc["step"] = min(sc["step"] + 1, len(sc["pos"]))
         k = sc["step"]
         # photodetachment counting statistics (Poisson-like)
-        n0 = 4000.0
+        n0 = 200000.0 if getattr(self, "_lw_halo", False) else 4000.0
         ix = self.rng.poisson(np.maximum(sc["hx"][:k] * n0, 0.01)) / n0
         iy = self.rng.poisson(np.maximum(sc["hy"][:k] * n0, 0.01)) / n0
         done = 1.0 if k >= len(sc["pos"]) else 0.0

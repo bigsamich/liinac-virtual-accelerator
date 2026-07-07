@@ -64,8 +64,27 @@ class BeamPhysicsService(Service):
             pipe.hgetall(rk)
         pipe.hgetall(keys.settings("source", "main"))
         pipe.hgetall(keys.settings("chopper", "main"))
+        scraper_keys = [e.name for e in self.lat.elements
+                        if e.type == "scraper2"]
+        for nm in scraper_keys:
+            pipe.hgetall(keys.settings("scraper", nm))
         raw = pipe.execute()
+        scraper_raw = raw[-len(scraper_keys):] if scraper_keys else []
+        raw = raw[:len(raw) - len(scraper_keys)]
+        scraper_ds = {}
+        for nm, h in zip(scraper_keys, scraper_raw):
+            if h:
+                d = {}
+                for k, v in h.items():
+                    kk = k.decode() if isinstance(k, bytes) else k
+                    vv = v.decode() if isinstance(v, bytes) else v
+                    try:
+                        d[kk] = float(vv)
+                    except ValueError:
+                        d[kk] = vv
+                scraper_ds[nm] = d
         ds: dict = {}
+        ds.update(scraper_ds)
         stale = False
         for (name, _), h in zip(self._rb_keys, raw[:-2]):
             if h:
@@ -102,6 +121,27 @@ class BeamPhysicsService(Service):
         ds, stale = self._collect_device_state()
         permit = self.r.get("state:mps.permit")
         beam_on = permit is None or permit in (b"1", "1")
+        # ---- dual-source legs: each source behaves slightly differently.
+        # Leg A (ISRC:0110): reference. Leg B (ISRC:0120): -2.5% current
+        # calibration, 6% larger emittance, 1.6x glitch rate. A changeover
+        # drops the beam for ~3 s (real switching transient).
+        leg = str(ds.get("LEBT:SRC", {}).get("leg", "A")).upper()
+        if leg != getattr(self, "_leg", "A"):
+            self._leg = leg
+            self._leg_switch_t = time.time()
+            self.r.xadd(keys.stream("mps.events"),
+                        {"t": time.time(), "kind": "source",
+                         "detail": f"source changeover -> leg {leg} "
+                                   f"(ISRC:{'0110' if leg == 'A' else '0120'})"},
+                        maxlen=500, approximate=True)
+        if time.time() - getattr(self, "_leg_switch_t", 0.0) < 3.0:
+            beam_on = False
+        if leg == "B" and "LEBT:SRC" in ds:
+            src = dict(ds["LEBT:SRC"])
+            src["current_ma"] = float(src.get("current_ma", 5.0)) * 0.975
+            ds = dict(ds)
+            ds["LEBT:SRC"] = src
+        self.engine.emit_scale = 1.06 if leg == "B" else 1.0
         # errant-beam events: a source/LEBT glitch mis-steers 2-3 pulses
         # (PIP2IT-style; the MPS race is to catch it)
         kick = 0.0
@@ -109,7 +149,8 @@ class BeamPhysicsService(Service):
             if self._errant_left > 0:
                 self._errant_left -= 1
                 kick = self._errant_kick
-            elif self._rng.random() < self._errant_rate:
+            elif self._rng.random() < self._errant_rate * (
+                    1.6 if getattr(self, '_leg', 'A') == 'B' else 1.0):
                 self._errant_left = int(self._rng.integers(2, 4))
                 self._errant_kick = float(self._rng.choice([-1, 1])
                                           * self._rng.uniform(2.0, 5.0))
@@ -138,6 +179,10 @@ class BeamPhysicsService(Service):
             "bpm_w": res.bpm_w,
             "beam_on": np.array([1.0 if beam_on else 0.0]),
             "wcm_sig_ps": self._wcm_sig_ps(res),
+            "scraper_frac": np.array(
+                [self.engine.scrape_out.get(e.name, 0.0)
+                 for e in self.lat.elements if e.type == "scraper2"],
+                dtype=np.float32),
         })
         lag_ms = (time.perf_counter() - t0) * 1e3
         pipe = self.r.pipeline(transaction=False)

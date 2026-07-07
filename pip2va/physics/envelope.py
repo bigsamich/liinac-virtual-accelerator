@@ -88,6 +88,8 @@ class EnvelopeEngine:
 
     # ------------------------------------------------------------------ API
 
+    emit_scale = 1.0    # dual-source legs: leg B delivers ~6% hotter beam
+
     def run(self, device_state: dict, current_ma: float | None = None,
             beam_on: bool = True, _design_mode: bool = False,
             errant_kick_mrad: float = 0.0) -> EnvelopeResult:
@@ -126,7 +128,9 @@ class EnvelopeEngine:
         w = self.w_init if self.w_init is not None else 0.030
         c6 = np.zeros(6)
         c6[1] = errant_kick_mrad * 1e-3   # errant-beam source glitch
+        self.scrape_out = {}
         sig = self._init_sigma(w)
+        sig[:4, :4] *= self.emit_scale
         f_surv = 1.0
         i_ma = i_peak
         t = 0.0
@@ -274,6 +278,26 @@ class EnvelopeEngine:
                 beta, gamma = beta_gamma(w)
                 c6 = np.zeros(6)
                 sig = self._rfq_exit_sigma(w)
+            elif typ == "scraper2":
+                st = device_state.get(el.name, {})
+                pos_mm = float(st.get("pos_mm", 30.0))   # 30 = retracted
+                ap_eff = max(pos_mm, 0.5) * 1e-3
+                sx = math.sqrt(max(sig[0, 0], 1e-12))
+                sy = math.sqrt(max(sig[2, 2], 1e-12))
+                axis = st.get("axis", "x")
+                # one-sided jaw ~ half of the symmetric scrape fraction
+                if axis == "x":
+                    f_jaw = 0.5 * loss_mod.scrape_fraction(
+                        ap_eff, c6[0], sx, 1.0, 0.0, sy)
+                else:
+                    f_jaw = 0.5 * loss_mod.scrape_fraction(
+                        1.0, 0.0, sx, ap_eff, c6[2], sy)
+                f_jaw = min(f_jaw, 0.5)
+                if f_jaw > 1e-12 and f_surv > 0:
+                    p_w = f_jaw * f_surv * i_ma * 1e-3 * self.duty * w * 1e6
+                    out.loss_wpm[i] += p_w / 0.1     # deposit over 0.1 m
+                    f_surv *= (1.0 - f_jaw)
+                self.scrape_out[el.name] = f_jaw
             elif typ == "chopper":
                 mtx = drift(L, beta, gamma)
                 c6 = mtx @ c6

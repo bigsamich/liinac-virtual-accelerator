@@ -22,6 +22,8 @@ STREAM_SIGNALS = {
     "rf.cavity": "rf",
     "magnet.readback": "magnets",
     "wf.wcm": "wcm",
+    "scraper.current": "scraper",
+    "profile.allison": "allison",
     "beam.deep": "deep",
     "profile.scan": "scan",
     "wf.toroid": "wfToroid",
@@ -37,6 +39,8 @@ class DataHub(QThread):
     rf = pyqtSignal(int, object)
     magnets = pyqtSignal(int, object)
     wcm = pyqtSignal(int, object)
+    scraper = pyqtSignal(int, object)
+    allison = pyqtSignal(int, object)
     deep = pyqtSignal(int, object)
     scan = pyqtSignal(int, object)
     wfToroid = pyqtSignal(int, object)
@@ -181,9 +185,9 @@ class DataHub(QThread):
             "plane": plane, "points": points, "ppp": ppp})
 
     def request_lw_scan(self, name: str, plane: str = "x",
-                        points: int = 48, ppp: int = 1):
+                        points: int = 48, ppp: int = 1, halo: int = 0):
         self.r.hset(f"req:lw:{name}", mapping={
-            "plane": plane, "points": points, "ppp": ppp})
+            "plane": plane, "points": points, "ppp": ppp, "halo": halo})
 
     def select_3d_station(self, name: str):
         """Choose the scanner station where the GPU tracker dumps a 3D cloud."""
