@@ -27,7 +27,7 @@ x-epics-env: &epics-env
   EPICS_CAS_BEACON_ADDR_LIST: "239.128.1.7"     # send mcast beacons
   # ---- PVA protocol clients ----
   EPICS_PVA_AUTO_ADDR_LIST: "NO"                # no broadcast search
-  EPICS_PVA_ADDR_LIST: "239.128.1.6,8@${EPICS_HOST_INTERFACE}"  # mcast (PVXS)
+  EPICS_PVA_ADDR_LIST: "239.128.1.6,8@${EPICS_HOST_INTERFACE:-enP7s7}"  # mcast (PVXS)
   # ---- PVA protocol IOC servers ----
   EPICS_PVAS_INTF_ADDR_LIST: "239.128.1.6"      # mcast search listen
   EPICS_PVAS_AUTO_BEACON_ADDR_LIST: "NO"        # no broadcast beacons

@@ -38,6 +38,42 @@ try:
 except ImportError:                       # pragma: no cover
     HAVE_P4P = False
 
+class _AskRPC:
+    """PVA RPC handler for the local LLM: take a question, return the answer.
+
+    Call from any EPICS client, e.g.:
+      pvcall <prefix>:AI:ASK query='what is the beam status?'
+    Accepts the question as query.query / q / question / text, or a plain
+    NTScalar string argument."""
+
+    def __init__(self, r):
+        self.r = r
+
+    @staticmethod
+    def _question(v):
+        for path in ("query.query", "query.q", "query.question",
+                     "query.text", "value"):
+            try:
+                got = v[path]
+            except Exception:
+                got = None
+            if got:
+                return str(got)
+        return None
+
+    def rpc(self, pv, op):
+        try:
+            q = self._question(op.value())
+            if not q:
+                op.done(error="missing question (use query=...)")
+                return
+            from pip2va.analysis import assistant
+            answer, engine = assistant.ask(self.r, q)
+            op.done(NTScalar("s").wrap(f"[{engine}] {answer}"))
+        except Exception as e:                 # pragma: no cover
+            op.done(error=f"ask failed: {e}")
+
+
 STATE_PVS = {"PIP2:BEAM:W": "w_out", "PIP2:BEAM:T": "transmission",
              "PIP2:BEAM:IOUT": "i_out_ma", "PIP2:BEAM:PULSE": "pulse_id",
              "PIP2:BEAM:LAG": "lag_ms"}
@@ -148,6 +184,11 @@ class Gateway:
             self.pvs[name] = pv
         for name in self.dev_rb:
             self.pvs[name] = SharedPV(nt=NTScalar("d"), initial=0.0)
+        # LLM RPC: EPICS clients ask the local AI and get a text reply
+        self.ai_pv = f"{prefix}:AI:ASK" if prefix else "PIP2:AI:ASK"
+        self.pvs[self.ai_pv] = SharedPV(handler=_AskRPC(self.r),
+                                        nt=NTScalar("s"), initial="")
+        log.info("LLM RPC PV: %s", self.ai_pv)
         log.info("PVA registry: %d PVs (%d writable, %d per-device RB)",
                  len(self.pvs),
                  sum(1 for d in self.plan.values() if d["kind"] == "write"),
