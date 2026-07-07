@@ -21,3 +21,14 @@ Single-column, thumb-first:
   modes**: Interact passes touches to the app; Pan/Zoom makes pinch
   zoom your *view* (never the plots), + / − / Fit buttons.
 All buttons flash green on tap and show busy states.
+
+## Flutter web console — http://gb10:8085
+A Dart/Flutter web app speaking EPICS through the **web gateway** (one
+endpoint: the same port serves the app and the pvws-style WebSocket at
+`/ws`). Pages: Status (permit banner + RESET, big values, BCM + vacuum
+strips), Orbit (108-BPM x/y), Losses (120 BLMs), RF (official ED0011740
+PVs, tap a cavity to set phase via `:sPHS`). The gateway is a PVA client
+— anything on PVAccess, from this stack or any future IOC, is reachable
+by PV name: subscribe/get/put JSON ops. Rebuild the app with
+`cd webapp && flutter build web --release && docker compose up -d --build
+epics-ws`.

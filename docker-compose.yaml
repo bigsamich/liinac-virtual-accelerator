@@ -62,6 +62,18 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  epics-ws:
+    build:
+      context: .
+      dockerfile: docker/epics-ws.Dockerfile
+    network_mode: host          # PVA discovery + serves :8085
+    environment:
+      PIP2VA_REDIS_URL: redis://localhost:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
   web-gui:
     build:
       context: .
