@@ -70,6 +70,15 @@ sections:
   s_end: 349.54
   w_out: 800.0
 elements:
+- name: LEBT:SRC2
+  type: source
+  s: 0.0
+  length: 0.0
+  section: LEBT
+  aperture_radius: 0.02
+  params:
+    leg: B
+  knobs: {}
 - name: LEBT:SRC
   type: source
   s: 0.0
@@ -80,6 +89,7 @@ elements:
     design_current_ma: 5.0
     max_current_ma: 15.0
     energy_kev: 30.0
+    leg: A
   knobs:
     current_ma: settings:source:main
 - name: LEBT:D1
@@ -99,6 +109,17 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
+  knobs: {}
+- name: LEBT:MERGE
+  type: dipole
+  s: 0.3
+  length: 0.0
+  section: LEBT
+  aperture_radius: 0.02
+  params:
+    angle_deg: 0.0
+    b_t: 0.05
+    role: leg-merge
   knobs: {}
 - name: LEBT:SOL1
   type: solenoid

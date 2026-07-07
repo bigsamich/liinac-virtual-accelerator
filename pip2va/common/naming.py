@@ -100,6 +100,8 @@ class Namer:
                 if e.type == "solenoid":
                     lebt_sol += 1
                 ident = 100 + lebt_sol * 10 + 1
+                if e.type == "source":
+                    ident = 110 if e.params.get("leg", "A") == "A" else 120
                 comp, system = "LWFE", "LEBT"
             elif sec == "RFQ":
                 ident, comp, system = 201, "LWFE", "RFQ"
