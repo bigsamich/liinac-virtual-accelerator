@@ -62,7 +62,7 @@ class MainWindow(QMainWindow):
         GROUPS = [
             ("Overview", ["Dashboard"]),
             ("Instrumentation", ["Orbit", "Losses", "Profiles",
-                                 "Waveforms", "Bunch Monitor",
+                                 "Scope", "Bunch Monitor",
                                  "Strip Tool"]),
             ("RF & Magnets", ["RF", "Magnets", "Source & LEBT"]),
             ("Operations", ["Studies", "Training", "Snapshots", "MPS"]),

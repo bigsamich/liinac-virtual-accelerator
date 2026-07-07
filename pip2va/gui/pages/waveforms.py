@@ -25,9 +25,9 @@ COLORS = [theme.ACCENT, "#ffb74d", "#ba68c8", "#4db6ac", "#e57373",
 MAX_SEL = 8
 
 
-@register("Waveforms")
+@register("Scope")
 class WaveformsPage(Page):
-    title = "Intra-Pulse Waveforms (1000 samples / 0.55 ms)"
+    title = "Scope — Intra-Pulse Waveforms (1000 samples / 0.55 ms)"
 
     def build(self):
         lay = QHBoxLayout()
