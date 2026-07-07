@@ -130,6 +130,14 @@ class Gateway:
                           if devfld in self.namer.map else
                           _dev_pv(d["pv"], devfld, fld, "RB"))
                     self.dev_rb[pv] = (d["product"], fld, j, scale)
+        # namespace every PV under a facility prefix (default SPARK:) so this
+        # virtual accelerator does not collide with real machines sharing the
+        # PVA network. The name after the prefix is unchanged.
+        prefix = os.environ.get("PIP2VA_PV_PREFIX", "SPARK").rstrip(":")
+        if prefix:
+            self.plan = {f"{prefix}:{n}": d for n, d in self.plan.items()}
+            self.dev_rb = {f"{prefix}:{n}": v
+                           for n, v in self.dev_rb.items()}
         self.pvs: dict[str, SharedPV] = {}
         for name, d in self.plan.items():
             array = d["kind"] == "array"
