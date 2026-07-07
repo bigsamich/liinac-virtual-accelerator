@@ -170,8 +170,9 @@ class Linac3D(QWidget):
             self.sel_zoom.addItems([s.name for s in lat.sections])
             self.sel_zoom.currentTextChanged.connect(self._zoom_section)
             bar.addWidget(self.sel_zoom)
-        self.lbl_hover = QLabel("drag = rotate  ·  hold Space + drag = pan  "
-                                "·  wheel = zoom  ·  triple-click = center")
+        self.lbl_hover = QLabel(
+            "arrows / drag = rotate  ·  Space + arrows / drag = pan  ·  "
+            ", . or wheel = zoom  ·  triple-click = center")
         self.lbl_hover.setStyleSheet(
             "color:#cfd8e3; background:#161b22; padding:2px 6px;")
         bar.addWidget(self.lbl_hover, 1)
@@ -432,6 +433,30 @@ class Linac3D(QWidget):
                 self._pan_last = None
                 self.view.unsetCursor()
                 return True
+            # ---- keyboard-only navigation: arrows rotate, Space+arrows pan,
+            # comma/period zoom (all auto-repeat so holding keeps moving)
+            if ev.type() == QEvent.Type.KeyPress:
+                k = ev.key()
+                STEP, PX = 6.0, 45          # deg per press, px per press
+                orb = {Qt.Key.Key_Left: (-STEP, 0), Qt.Key.Key_Right: (STEP, 0),
+                       Qt.Key.Key_Up: (0, STEP), Qt.Key.Key_Down: (0, -STEP)}
+                panv = {Qt.Key.Key_Left: (PX, 0), Qt.Key.Key_Right: (-PX, 0),
+                        Qt.Key.Key_Up: (0, PX), Qt.Key.Key_Down: (0, -PX)}
+                if k in orb:
+                    if self._space:
+                        dx, dy = panv[k]
+                        self.view.pan(dx, dy, 0, relative="view")
+                    else:
+                        az, el = orb[k]
+                        self.view.orbit(az, el)
+                    self.view.update()
+                    return True
+                if k in (Qt.Key.Key_Comma, Qt.Key.Key_Period):
+                    f = 0.9 if k == Qt.Key.Key_Comma else 1.0 / 0.9
+                    self.view.setCameraPosition(
+                        distance=self.view.opts["distance"] * f)
+                    self.view.update()
+                    return True
             if self._space and ev.type() == QEvent.Type.MouseButtonPress:
                 self._pan_last = ev.position()
                 self.view.setCursor(Qt.CursorShape.ClosedHandCursor)
