@@ -224,7 +224,11 @@ def main():
     hub = DataHub(settings=settings)
     hub.start()
     win = MainWindow(hub)
-    win.show()
+    import os as _os
+    if _os.environ.get("PIP2VA_MAXIMIZE"):
+        win.showMaximized()
+    else:
+        win.show()
     sys.exit(app.exec())
 
 
