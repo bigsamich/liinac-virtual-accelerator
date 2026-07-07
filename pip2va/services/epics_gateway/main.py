@@ -39,7 +39,10 @@ except ImportError:                       # pragma: no cover
     HAVE_P4P = False
 
 STATE_PVS = {"PIP2:BEAM:W": "w_out", "PIP2:BEAM:T": "transmission",
-             "PIP2:BEAM:IOUT": "i_out_ma", "PIP2:BEAM:PULSE": "pulse_id"}
+             "PIP2:BEAM:IOUT": "i_out_ma", "PIP2:BEAM:PULSE": "pulse_id",
+             "PIP2:BEAM:LAG": "lag_ms"}
+INJ_PVS = {"PIP2:INJ:SCORE": "score", "PIP2:INJ:PROTONS": "protons_per_pulse",
+           "PIP2:INJ:FOILHITS": "foil_hits", "PIP2:INJ:EPS": "eps_paint_um"}
 
 
 def _dev_pv(prefix: str, device: str, field: str, suffix: str) -> str:
@@ -54,6 +57,8 @@ def build_pv_plan(streams: dict, settings: dict) -> dict:
     plan: dict[str, dict] = {}
     for name, fld in STATE_PVS.items():
         plan[name] = {"kind": "state", "field": fld}
+    for name, fld in INJ_PVS.items():
+        plan[name] = {"kind": "inj", "field": fld}
     plan["PIP2:MPS:PERMIT"] = {"kind": "permit"}
     plan["PIP2:MPS:RESET"] = {"kind": "write",
                               "target": ("mps", "main", "reset"),
@@ -170,6 +175,10 @@ class Gateway:
             try:
                 if d["kind"] == "state" and st:
                     self.pvs[name].post(float(st.get(d["field"], 0.0)))
+                elif d["kind"] == "inj":
+                    ij = self.r.hget("state:injection", d["field"])
+                    if ij is not None:
+                        self.pvs[name].post(float(ij))
                 elif d["kind"] == "permit":
                     self.pvs[name].post(
                         1.0 if self.r.get("state:mps.permit") == b"1"

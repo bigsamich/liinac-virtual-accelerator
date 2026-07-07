@@ -22,6 +22,7 @@ import logging
 import os
 import time
 
+import redis as redis_lib
 from aiohttp import WSMsgType, web
 
 log = logging.getLogger("epics-ws")
@@ -43,6 +44,8 @@ class Hub:
     def __init__(self, loop):
         self.ctx = Context("pva")
         self.loop = loop
+        self.r = redis_lib.Redis.from_url(
+            os.environ.get("PIP2VA_REDIS_URL", "redis://localhost:6379/0"))
         self.monitors: dict = {}
         self.values: dict = {}
         self.subs: dict[str, set] = {}          # pv -> set[ws]
@@ -94,6 +97,98 @@ class Hub:
             s.discard(ws)
 
 
+async def _rpc(hub, ws, m):
+    """Redis-backed request/response for things that are not PVs:
+    studies queue/plan/run, ask-the-machine, snapshots/rescue, KB."""
+    import json as _j
+    rid = m.get("id")
+    method = m.get("method")
+    args = m.get("args", {})
+    r = hub.r
+
+    def reply(result=None, error=None):
+        asyncio.ensure_future(ws.send_json(
+            {"op": "rpc-reply", "id": rid, "result": result,
+             "error": error}))
+
+    def work():
+        try:
+            if method == "study_state":
+                st = {k.decode(): v.decode()
+                      for k, v in r.hgetall("state:study").items()}
+                running = None
+                if st.get("run") == "1":
+                    pl = _j.loads(st.get("plan", "{}"))
+                    running = {"name": pl.get("name"),
+                               "status": st.get("status"),
+                               "step": st.get("step"),
+                               "total": st.get("total")}
+                queue = []
+                for raw in r.lrange("state:study.queue", 0, -1):
+                    pl = _j.loads(raw)
+                    queue.append(f"{pl['name']} ({pl['steps']}x"
+                                 f"{pl['dwell_s']}s)")
+                from pip2va.analysis.study_presets import PRESETS
+                return {"running": running, "queue": queue,
+                        "presets": list(PRESETS)}
+            if method == "plan":
+                from pip2va.analysis import studies
+                plan, note = studies.plan_from_text(args["text"])
+                return {"plan": plan, "note": note}
+            if method == "queue_preset":
+                from pip2va.analysis import studies, study_presets
+                plan, _ = studies.validate_plan(
+                    study_presets.get_plan(args["name"]))
+                r.rpush("state:study.queue", _j.dumps(plan))
+                return {"queued": plan["name"]}
+            if method == "queue_plan":
+                from pip2va.analysis import studies
+                plan, _ = studies.validate_plan(args["plan"])
+                r.rpush("state:study.queue", _j.dumps(plan))
+                return {"queued": plan["name"]}
+            if method == "run_next":
+                if r.hget("state:study", "run") == b"1":
+                    return {"error": "already running"}
+                raw = r.lpop("state:study.queue")
+                if not raw:
+                    return {"error": "queue empty"}
+                plan = _j.loads(raw)
+                r.hset("state:study", mapping={
+                    "plan": _j.dumps(plan), "run": 1, "status": "starting",
+                    "step": 0, "total": plan["steps"], "result": ""})
+                return {"started": plan["name"]}
+            if method == "abort":
+                r.hset("state:study", "run", 0)
+                r.hset("settings:autotune:main", "restore", 1)
+                return {"ok": True}
+            if method == "ask":
+                from pip2va.analysis import assistant
+                text, engine = assistant.ask(r, args["q"])
+                return {"answer": text, "engine": engine}
+            if method == "rescue":
+                r.hset("settings:autotune:main", "restore", 1)
+                return {"ok": True}
+            if method == "mps_reset":
+                r.hset("settings:mps:main", "reset", 1)
+                return {"ok": True}
+            if method == "results":
+                from pathlib import Path
+                d = Path.home() / ".pip2va" / "studies"
+                fs = sorted((f.stem.replace("result-", "")
+                             for f in d.glob("result-*.json")),
+                            reverse=True)[:20]
+                return {"results": fs}
+            return {"error": f"unknown method {method}"}
+        except Exception as e:
+            return {"error": str(e)}
+
+    res = await asyncio.get_event_loop().run_in_executor(None, work)
+    if isinstance(res, dict) and "error" in res and len(res) == 1:
+        reply(error=res["error"])
+    else:
+        reply(result=res)
+
+
 async def ws_handler(request):
     hub: Hub = request.app["hub"]
     ws = web.WebSocketResponse(heartbeat=20)
@@ -121,6 +216,8 @@ async def ws_handler(request):
                 log.warning("put %s failed: %s", m.get("pv"), e)
             await ws.send_json({"op": "put-ack", "pv": m.get("pv"),
                                 "ok": ok})
+        elif op == "rpc":
+            asyncio.ensure_future(_rpc(hub, ws, m))
         elif op == "get":
             try:
                 v = await asyncio.get_event_loop().run_in_executor(
