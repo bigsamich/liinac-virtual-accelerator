@@ -157,24 +157,33 @@ class Linac3D(QWidget):
             b.setFixedWidth(44)
             b.clicked.connect(lambda _, n=nm: self._preset(n))
             bar.addWidget(b)
+        self.btn_reset = QPushButton("Reset view")
+        self.btn_reset.setToolTip("recenter on the whole machine and "
+                                  "restore the default camera")
+        self.btn_reset.clicked.connect(lambda: self._preset("Iso"))
+        bar.addWidget(self.btn_reset)
         if section is None:
             from PyQt6.QtWidgets import QComboBox
-            bar.addWidget(QLabel(" zoom:"))
+            bar.addWidget(QLabel(" center on:"))
             self.sel_zoom = QComboBox()
             self.sel_zoom.addItem("full machine")
             self.sel_zoom.addItems([s.name for s in lat.sections])
             self.sel_zoom.currentTextChanged.connect(self._zoom_section)
             bar.addWidget(self.sel_zoom)
-        self.lbl_hover = QLabel("hover for nearby BPM/BLM/BCM; "
-                                "triple-click moves the zoom center")
+        self.lbl_hover = QLabel("drag = rotate  ·  hold Space + drag = pan  "
+                                "·  wheel = zoom  ·  triple-click = center")
         self.lbl_hover.setStyleSheet(
             "color:#cfd8e3; background:#161b22; padding:2px 6px;")
         bar.addWidget(self.lbl_hover, 1)
         lay.addLayout(bar)
 
+        self._space = False          # hold Space to pan instead of rotate
+        self._pan_last = None
         self.view = gl.GLViewWidget()
         self.view.installEventFilter(self)
         self.view.setMouseTracking(True)
+        from PyQt6.QtCore import Qt as _Qt
+        self.view.setFocusPolicy(_Qt.FocusPolicy.StrongFocus)
         lay.addWidget(self.view, 1)
 
         centers, headings, poly = floor_map(lat)
@@ -406,8 +415,40 @@ class Linac3D(QWidget):
         return cam + tt * d if tt > 0 else None
 
     def eventFilter(self, obj, ev):
-        from PyQt6.QtCore import QEvent
+        from PyQt6.QtCore import QEvent, Qt
         if obj is self.view:
+            # ---- hold Space to pan: intercept drag and translate the
+            # camera centre instead of orbiting (no middle mouse needed)
+            if ev.type() == QEvent.Type.KeyPress \
+                    and ev.key() == Qt.Key.Key_Space:
+                self._space = True
+                if not ev.isAutoRepeat():
+                    self.view.setCursor(Qt.CursorShape.OpenHandCursor)
+                return True
+            if ev.type() == QEvent.Type.KeyRelease \
+                    and ev.key() == Qt.Key.Key_Space \
+                    and not ev.isAutoRepeat():
+                self._space = False
+                self._pan_last = None
+                self.view.unsetCursor()
+                return True
+            if self._space and ev.type() == QEvent.Type.MouseButtonPress:
+                self._pan_last = ev.position()
+                self.view.setCursor(Qt.CursorShape.ClosedHandCursor)
+                return True
+            if self._space and ev.type() == QEvent.Type.MouseButtonRelease:
+                self._pan_last = None
+                self.view.setCursor(Qt.CursorShape.OpenHandCursor)
+                return True
+            if self._space and ev.type() == QEvent.Type.MouseMove \
+                    and self._pan_last is not None:
+                p = ev.position()
+                dx = p.x() - self._pan_last.x()
+                dy = p.y() - self._pan_last.y()
+                self._pan_last = p
+                self.view.pan(dx, dy, 0, relative="view")
+                self.view.update()
+                return True
             if ev.type() == QEvent.Type.MouseMove:
                 self._hover(ev.position().x(), ev.position().y())
             elif ev.type() in (QEvent.Type.MouseButtonPress,
