@@ -131,6 +131,46 @@ class DashboardPage extends StatelessWidget {
   }
 }
 
+// ----------------------------------------------------------- orbit page
+
+class MultiOrbitPage extends StatelessWidget {
+  const MultiOrbitPage({super.key, required this.e});
+  final Epics e;
+  @override
+  Widget build(BuildContext context) {
+    e.subscribe(const ['PIP2:BPM:W_TOF', 'PIP2:BPM:PHASE']);
+    Widget cell(String t, String pv, Color c,
+            {String? pv2, bool sym = false}) =>
+        chartCard(
+            t,
+            CustomPaint(
+                size: Size.infinite,
+                painter: SeriesPainter(e.array(pv), c,
+                    data2: pv2 == null ? null : e.array(pv2),
+                    color2: kWarn, symmetric: sym)));
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Column(children: [
+        Expanded(
+            child: Row(children: [
+          Expanded(child: cell('BPM x [mm]', 'PIP2:BPM:X', kAccent, sym: true)),
+          const SizedBox(width: 8),
+          Expanded(child: cell('BPM y [mm]', 'PIP2:BPM:Y', kWarn, sym: true)),
+        ])),
+        const SizedBox(height: 8),
+        Expanded(
+            child: Row(children: [
+          Expanded(
+              child: cell('TOF energy [MeV]', 'PIP2:BPM:W_TOF', kOk)),
+          const SizedBox(width: 8),
+          Expanded(child: cell('BPM phase [deg]', 'PIP2:BPM:PHASE',
+              const Color(0xFFBA68C8), sym: true)),
+        ])),
+      ]),
+    );
+  }
+}
+
 // ----------------------------------------------------- generic array page
 
 class ArrayPage extends StatelessWidget {

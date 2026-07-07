@@ -103,6 +103,65 @@ class Scene3DPainter extends CustomPainter {
   bool shouldRepaint(covariant Scene3DPainter o) => true;
 }
 
+// reusable scene builder (full machine or a section's geo)
+List<Prim> buildMachineScene(Map geo, List rings, Epics e,
+    {bool elems = true, bool env = true, bool orbit = true,
+    bool loss = true}) {
+  final prims = <Prim>[];
+  final poly = (geo['poly'] as List?) ?? [];
+  if (elems) {
+    prims.add(Prim([for (final p in poly) [p[0], p[1], 0.0]],
+        Colors.white24, width: 1.0));
+    for (final el in (geo['elements'] as List?) ?? []) {
+      final th = el['th'], l = el['len'] / 2;
+      final dx = math.cos(th) * l, dy = math.sin(th) * l;
+      prims.add(Prim([
+        [el['x'] - dx, el['y'] - dy, 0.0],
+        [el['x'] + dx, el['y'] + dy, 0.0]
+      ], Color.fromARGB(255, el['rgb'][0], el['rgb'][1], el['rgb'][2]),
+          width: 4));
+    }
+  }
+  if (env) {
+    for (final rg in rings) {
+      final pts = <List<double>>[];
+      for (var k = 0; k <= 14; k++) {
+        final ph = k / 14 * 2 * math.pi;
+        final ht = (rg['cx'] + 2 * rg['sx'] * math.cos(ph)) * kExag;
+        final vt = (rg['cy'] + 2 * rg['sy'] * math.sin(ph)) * kExag;
+        pts.add([rg['x'] + rg['nx'] * ht, rg['y'] + rg['ny'] * ht, vt]);
+      }
+      prims.add(Prim(pts, const Color(0x6633E0A0), width: 1.2, close: true));
+    }
+  }
+  if (orbit) {
+    final xs = e.array('PIP2:BPM:X'), ys = e.array('PIP2:BPM:Y');
+    for (final m in (geo['bpm'] as List?) ?? []) {
+      final g = m['g'] as int;
+      if (g >= xs.length) continue;
+      final cx = m['x'] + m['nx'] * xs[g] * kExag;
+      final cy = m['y'] + m['ny'] * xs[g] * kExag;
+      prims.add(Prim([
+        [cx - 0.3, cy, ys[g] * kExag],
+        [cx + 0.3, cy, ys[g] * kExag]
+      ], const Color(0xFF33FF88), width: 5));
+    }
+  }
+  if (loss) {
+    final w = e.array('PIP2:BLM:WPM');
+    for (final m in (geo['blm'] as List?) ?? []) {
+      final g = m['g'] as int;
+      final lv = g < w.length ? w[g] : 0.0;
+      final h = 2.0 * (math.log(1 + math.max(lv, 0)) / math.ln10);
+      if (h < 0.05) continue;
+      prims.add(Prim(
+          [[m['x'], m['y'], 0.0], [m['x'], m['y'], h]],
+          const Color(0xFFFF4030), width: 2));
+    }
+  }
+  return prims;
+}
+
 // ------------------------------------------------------------ machine page
 
 class Machine3DPage extends StatefulWidget {
@@ -175,7 +234,10 @@ class _Machine3DPageState extends State<Machine3DPage> {
     _startDist = cam.dist;
   }
 
-  List<Prim> _build() {
+  List<Prim> _build() => buildMachineScene(geo, rings, widget.e,
+      elems: showElems, env: showEnv, orbit: showOrbit, loss: showLoss);
+
+  List<Prim> _buildOld() {
     final prims = <Prim>[];
     final poly = (geo['poly'] as List?) ?? [];
     if (showElems) {
@@ -441,4 +503,160 @@ class SpotPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant SpotPainter o) => true;
+}
+
+// ------------------------------------------------------- section view page
+
+class SectionViewPage extends StatefulWidget {
+  const SectionViewPage({super.key, required this.e});
+  final Epics e;
+  @override
+  State<SectionViewPage> createState() => _SectionViewPageState();
+}
+
+class _SectionViewPageState extends State<SectionViewPage> {
+  final cam = Cam();
+  Map geo = {};
+  List rings = [];
+  List<String> sections = [];
+  String section = 'SSR2';
+  double _startDist = 60;
+  Timer? _t;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+    _t = Timer.periodic(const Duration(seconds: 1), (_) => _env());
+  }
+
+  @override
+  void dispose() {
+    _t?.cancel();
+    super.dispose();
+  }
+
+  void _load() async {
+    final r = await widget.e.rpc('geometry', {'section': section});
+    if (!mounted) return;
+    if (r is Map && r['elements'] != null) {
+      setState(() {
+        geo = r;
+        sections = (r['sec_names'] as List).cast<String>();
+      });
+      _frame();
+      _env();
+    } else {
+      // disconnected/timeout — retry
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted && geo.isEmpty) _load();
+      });
+    }
+  }
+
+  void _env() async {
+    final r = await widget.e.rpc('envelope', {'section': section});
+    if (r is Map && r['rings'] != null && mounted) {
+      setState(() => rings = r['rings']);
+    }
+  }
+
+  void _frame() {
+    final els = (geo['elements'] as List?) ?? [];
+    if (els.isEmpty) return;
+    double sx = 0, sy = 0, mnx = 1e9, mxx = -1e9, mny = 1e9, mxy = -1e9;
+    for (final e in els) {
+      sx += e['x'];
+      sy += e['y'];
+      mnx = math.min(mnx, e['x']);
+      mxx = math.max(mxx, e['x']);
+      mny = math.min(mny, e['y']);
+      mxy = math.max(mxy, e['y']);
+    }
+    cam.tx = sx / els.length;
+    cam.ty = sy / els.length;
+    cam.dist = math.max(6, (mxx - mnx + mxy - mny) * 0.6);
+    _startDist = cam.dist;
+  }
+
+  List<double> _slice(String pv, String marker) {
+    final arr = widget.e.array(pv);
+    final out = <double>[];
+    for (final m in (geo[marker] as List?) ?? []) {
+      final g = m['g'] as int;
+      if (g < arr.length) out.add(arr[g]);
+    }
+    return out;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Column(children: [
+        Row(children: [
+          const Text('Section: '),
+          DropdownButton<String>(
+            value: sections.contains(section) ? section : null,
+            hint: Text(section),
+            dropdownColor: kCard,
+            items: [
+              for (final s in sections)
+                DropdownMenuItem(value: s, child: Text(s))
+            ],
+            onChanged: (v) => setState(() {
+              section = v!;
+              geo = {};
+              _load();
+            }),
+          ),
+        ]),
+        Expanded(
+          flex: 3,
+          child: Card(
+            child: ClipRect(
+              child: GestureDetector(
+                onScaleStart: (d) => _startDist = cam.dist,
+                onScaleUpdate: (d) => setState(() {
+                  if (d.pointerCount >= 2) {
+                    cam.dist = (_startDist / d.scale).clamp(2.0, 200.0);
+                  }
+                  cam.yaw -= d.focalPointDelta.dx * 0.008;
+                  cam.pitch = (cam.pitch + d.focalPointDelta.dy * 0.008)
+                      .clamp(-1.55, 1.55);
+                }),
+                child: CustomPaint(
+                    size: Size.infinite,
+                    painter: Scene3DPainter(
+                        buildMachineScene(geo, rings, widget.e), cam)),
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: Row(children: [
+            Expanded(
+                child: chartCard(
+                    '$section orbit x/y [mm]',
+                    CustomPaint(
+                        size: Size.infinite,
+                        painter: SeriesPainter(_slice('PIP2:BPM:X', 'bpm'),
+                            kAccent,
+                            data2: _slice('PIP2:BPM:Y', 'bpm'),
+                            color2: kWarn,
+                            symmetric: true)))),
+            const SizedBox(width: 8),
+            Expanded(
+                child: chartCard(
+                    '$section loss [W/m]',
+                    CustomPaint(
+                        size: Size.infinite,
+                        painter: SeriesPainter(_slice('PIP2:BLM:WPM', 'blm'),
+                            kBad, bars: true, floor: 0)))),
+          ]),
+        ),
+      ]),
+    );
+  }
 }

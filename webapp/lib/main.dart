@@ -21,9 +21,8 @@ class _Pip2AppState extends State<Pip2App> {
   late final List<(String, IconData, Widget Function())> pages = [
     ('Dashboard', Icons.dashboard, () => DashboardPage(e: e)),
     ('3D machine', Icons.threed_rotation, () => Machine3DPage(e: e)),
-    ('Orbit', Icons.show_chart,
-        () => ArrayPage(e, 'Orbit x/y [mm] — 108 BPMs', 'PIP2:BPM:X',
-            pv2: 'PIP2:BPM:Y', symmetric: true)),
+    ('Orbit', Icons.show_chart, () => MultiOrbitPage(e: e)),
+    ('Section views', Icons.grid_view, () => SectionViewPage(e: e)),
     ('Losses', Icons.warning_amber,
         () => ArrayPage(e, 'Beam loss [W/m] — 120 BLMs', 'PIP2:BLM:WPM',
             bars: true, color: kBad)),

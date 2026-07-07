@@ -17,6 +17,7 @@ class Epics extends ChangeNotifier {
   final Set<String> _subs = {};
   int _rid = 0;
   final Map<int, Completer<dynamic>> _pending = {};
+  final List<String> _sendQueue = [];
 
   void _connect() {
     try {
@@ -34,8 +35,13 @@ class Epics extends ChangeNotifier {
 
   void _retry() {
     connected = false;
+    // fail any in-flight rpcs so callers retry instead of hanging forever
+    for (final c in _pending.values) {
+      if (!c.isCompleted) c.complete({'error': 'disconnected'});
+    }
+    _pending.clear();
     notifyListeners();
-    Timer(const Duration(seconds: 3), _connect);
+    Timer(const Duration(seconds: 2), _connect);
   }
 
   void _onMsg(dynamic data) {
@@ -61,18 +67,28 @@ class Epics extends ChangeNotifier {
     }
   }
 
+  void _send(String frame) {
+    if (connected && _ch != null) {
+      _ch!.sink.add(frame);
+    } else {
+      _sendQueue.add(frame);
+    }
+  }
+
   void put(String pv, num value) {
-    _ch?.sink.add(jsonEncode({'op': 'put', 'pv': pv, 'value': value}));
+    _send(jsonEncode({'op': 'put', 'pv': pv, 'value': value}));
   }
 
   Future<dynamic> rpc(String method, [Map<String, dynamic>? args]) {
     final id = ++_rid;
     final c = Completer<dynamic>();
     _pending[id] = c;
-    _ch?.sink.add(jsonEncode(
+    _send(jsonEncode(
         {'op': 'rpc', 'id': id, 'method': method, 'args': args ?? {}}));
-    return c.future.timeout(const Duration(seconds: 300),
-        onTimeout: () => {'error': 'timeout'});
+    return c.future.timeout(const Duration(seconds: 20), onTimeout: () {
+      _pending.remove(id);
+      return {'error': 'timeout'};
+    });
   }
 
   double scalar(String pv, [double dflt = 0]) {

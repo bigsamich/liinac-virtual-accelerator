@@ -354,7 +354,13 @@ async def _rpc(hub, ws, m):
                     if si is not None:
                         secs.append({"name": sname, "x": float(c[si][0]),
                                      "y": float(c[si][1])})
-                pf = [[float(p[0]), float(p[1])] for p in poly.tolist()]
+                if sec_filter:
+                    idxs = [i for i, e in enumerate(lat.elements)
+                            if e.section == sec_filter and e.length > 0]
+                    pf = [[float(c[i][0]), float(c[i][1])] for i in idxs]
+                else:
+                    pf = [[float(p[0]), float(p[1])]
+                          for p in poly.tolist()]
                 return {"poly": pf, "elements": els,
                         "bpm": marker(bpm_g, bpm_i),
                         "blm": marker(blm_g, blm_i),
