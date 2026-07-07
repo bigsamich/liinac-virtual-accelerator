@@ -308,8 +308,12 @@ class BeamPhysicsService(Service):
             if res.cloud is not None:
                 data["cloud"] = res.cloud
                 data["cloud_at"] = res.cloud_at
-            self.publish_stream("beam.deep", snap["pulse_id"], data)
-            time.sleep(0.05)
+            # deep diagnostic pass: ~0.5 Hz is plenty for phase-space /
+            # emittance / cloud, and each message is ~1 MB — publishing at
+            # pulse rate floods the GUI (renders can't keep up) and Redis.
+            # keep only a few entries: it is a latest-snapshot diagnostic.
+            self.publish_stream("beam.deep", snap["pulse_id"], data, maxlen=8)
+            time.sleep(2.0)
 
 
 if __name__ == "__main__":

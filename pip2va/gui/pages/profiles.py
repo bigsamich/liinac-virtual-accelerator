@@ -72,6 +72,7 @@ class ProfilesPage(Page):
 
         imgs = QHBoxLayout()
         self.ps_items = {}
+        self.ps_plots = {}
         for key, label in (("xxp", "x–x′"), ("yyp", "y–y′"), ("zd", "z–δ")):
             p = make_plot("", xlabel=label)
             item = pg.ImageItem(axisOrder="row-major")
@@ -79,6 +80,7 @@ class ProfilesPage(Page):
             p.addItem(item)
             imgs.addWidget(p, 1)
             self.ps_items[key] = item
+            self.ps_plots[key] = p
         self.body.addLayout(imgs, 2)
 
         # 3D beam cloud at a scanner station (GPU tracker, GL scatter)
@@ -207,6 +209,7 @@ class ProfilesPage(Page):
         self._cyc_gate = 0
         self.hub.beamState.connect(self._poll_cycle)
         self.hub.scan.connect(self._on_scan)
+        self.hub.deep.connect(self._on_deep)      # phase-space/emit/cloud
 
     def _on_scraper(self, _pid, data):
         if not self.isVisible():
@@ -269,7 +272,6 @@ class ProfilesPage(Page):
             if pts:
                 pts.sort()
                 curve.setData([p[0] for p in pts], [p[1] for p in pts])
-        self.hub.deep.connect(self._on_deep)
 
     def _on_scan(self, _pid, data):
         if data.get("name") != self.sel_ws.currentText():
@@ -288,6 +290,12 @@ class ProfilesPage(Page):
             img = data.get(f"ps:{sec}:{key}")
             if img is not None:
                 item.setImage(np.asarray(img), autoLevels=True)
+                ext = data.get(f"ps:{sec}:{key}:ext")
+                if ext is not None:
+                    x0, x1, y0, y1 = (float(v) for v in np.ravel(ext))
+                    item.setRect(pg.QtCore.QRectF(x0, y0, x1 - x0, y1 - y0))
+                    self.ps_plots[key].setRange(xRange=(x0, x1),
+                                                yRange=(y0, y1), padding=0.02)
         if "emit_s" in data and len(data["emit_s"]):
             self.c_ex.setData(data["emit_s"], data["emit_x_um"])
             self.c_ey.setData(data["emit_s"], data["emit_y_um"])

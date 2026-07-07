@@ -89,9 +89,11 @@ class Service:
             self.r.set(keys.heartbeat(self.name), int(time.time()), ex=5)
             self._last_hb = now
 
-    def publish_stream(self, product: str, pulse_id: int, data: dict):
+    def publish_stream(self, product: str, pulse_id: int, data: dict,
+                       maxlen: int | None = None):
         self.r.xadd(keys.stream(product), {"d": codec.pack(pulse_id, data)},
-                    maxlen=self.settings.stream_maxlen, approximate=True)
+                    maxlen=maxlen or self.settings.stream_maxlen,
+                    approximate=True)
 
     def publish_event(self, channel: str, payload: dict):
         self.r.publish(channel, json.dumps(payload))
