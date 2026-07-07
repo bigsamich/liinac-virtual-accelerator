@@ -9,6 +9,7 @@ The GUI never reads truth:beam — diag-sim turns it into noisy measurements.
 """
 from __future__ import annotations
 
+import json
 import logging
 import threading
 import time
@@ -160,6 +161,14 @@ class BeamPhysicsService(Service):
                              "detail": f"source glitch {kick:+.1f} mrad "
                                        f"x{self._errant_left + 1} pulses"},
                             maxlen=500, approximate=True)
+        if pulse_id % 20 == 0:
+            vb = self.r.get("state:vacuum.by_section")
+            if vb:
+                try:
+                    self.engine.phys["pressure_by_section"] = \
+                        {k: float(v) for k, v in json.loads(vb).items()}
+                except ValueError:
+                    pass
         res = self.engine.run(ds, beam_on=beam_on, errant_kick_mrad=kick)
         self._latest = {"ds": ds, "beam_on": beam_on, "pulse_id": pulse_id}
         if not hasattr(self, "_wcm_js"):

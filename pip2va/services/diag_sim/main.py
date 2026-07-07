@@ -86,6 +86,22 @@ class DiagSimService(Service):
         schema.register_settings(self.r, "source",
             {"current_ma": {"lo": 0.0, "hi": 15.0, "unit": "mA"}},
             pv="PIP2:SRC")
+        self.gauges = [e for e in self.lat.elements if e.type == "gauge"]
+        import json as _jj
+        self.r.set("lattice:gauge.index",
+                   _jj.dumps([g.name for g in self.gauges]))
+        # base pressure by region: cold SRF sections run cleaner
+        self._vac_base = np.array(
+            [2e-9 if g.section in ("HWR", "SSR1", "SSR2", "LB650", "HB650")
+             else 2e-8 for g in self.gauges])
+        self._vac = self._vac_base.copy()
+        schema.register_stream(self.r, "vacuum.pressure",
+            {"torr": {"unit": "torr"}},
+            pv="PIP2:VAC", index_key="lattice:gauge.index")
+        schema.register_settings(self.r, "vacuum",
+            {"leak_torr": {"lo": 0.0, "hi": 1e-4},
+             "leak_gauge": {"lo": 0, "hi": 39}},
+            pv="PIP2:VAC")
         self.scrapers = [e for e in self.lat.elements
                          if e.type == "scraper2"]
         import json as _j
@@ -199,6 +215,7 @@ class DiagSimService(Service):
                           + rng.normal(0, tfl), 0.0)
         self.publish_stream("toroid.current", pulse_id, {"i_ma": i_ma})
 
+        self._vacuum(pulse_id)
         self._scrapers(pulse_id, tr)
         self._allison(pulse_id, tr)
         self._waveforms(pulse_id, tr, i_ma, wpm)
@@ -206,6 +223,40 @@ class DiagSimService(Service):
         self._wire_scans(pulse_id)
         self._lw_scans(pulse_id, tr)
         self._profiler_cycle(pulse_id)
+
+    # ------------------------------------------------------------- vacuum
+
+    def _vacuum(self, pulse_id: int):
+        """Gauge pressures: OU wander around region base + injectable
+        leak (settings:vacuum:main leak_gauge/leak_torr) that spreads to
+        neighboring gauges at 10%. Published every 4th pulse."""
+        if pulse_id % 4:
+            return
+        n = len(self.gauges)
+        if not n:
+            return
+        a = 0.02
+        self._vac += (-a * (self._vac - self._vac_base)
+                      + 0.03 * self._vac_base * self.rng.standard_normal(n))
+        self._vac = np.maximum(self._vac, 1e-10)
+        st = self.read_hash(keys.settings("vacuum", "main"))
+        leak = float(st.get("leak_torr", 0.0))
+        p_out = self._vac.copy()
+        if leak > 0:
+            g = int(float(st.get("leak_gauge", 0))) % n
+            p_out[g] += leak
+            if g > 0:
+                p_out[g - 1] += 0.1 * leak
+            if g < n - 1:
+                p_out[g + 1] += 0.1 * leak
+        self.publish_stream("vacuum.pressure", pulse_id,
+                            {"torr": p_out.astype(np.float64)})
+        # regional pressures for the beam physics (gas stripping)
+        by_sec = {}
+        for g, pv in zip(self.gauges, p_out):
+            by_sec[g.section] = max(by_sec.get(g.section, 0.0), float(pv))
+        import json as _jj
+        self.r.set("state:vacuum.by_section", _jj.dumps(by_sec))
 
     # ----------------------------------------------------- Allison scanner
 

@@ -20,6 +20,7 @@ ELEMENT_TYPES = {
     # passive/diagnostic species from the LINAC2 diagram (drift transport)
     "valve", "skew_quad", "halo", "bsm", "septum", "orbump", "foil", "sweep",
     "scraper2", "allison", "ffc", "eid", "absorber", "dpi", "rfsep", "mwpm",
+    "pump", "gauge",
 }
 
 

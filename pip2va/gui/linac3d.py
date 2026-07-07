@@ -46,6 +46,8 @@ TYPE_COLORS = {
     "dpi":      (0.40, 0.60, 0.60, 1.0),
     "rfsep":    (1.00, 0.50, 0.60, 1.0),
     "mwpm":     (0.65, 0.85, 0.55, 1.0),
+    "pump":     (0.35, 0.45, 0.55, 1.0),
+    "gauge":    (0.85, 0.65, 0.95, 1.0),
 }
 
 
@@ -100,6 +102,8 @@ TYPE_SHAPES = {
     "dpi":      ("cyl", dict(radius=0.6)),
     "rfsep":    ("box", dict(ly=1.2, lz=0.9)),
     "mwpm":     ("box", dict(ly=0.35, lz=1.1)),
+    "pump":     ("cyl", dict(radius=0.5)),
+    "gauge":    ("cyl", dict(radius=0.25)),
 }
 ORBIT_EXAG = 0.25       # display metres per mm of beam coordinate
 LOSS_SCALE = 2.0        # spike height = LOSS_SCALE * log10(1 + W/m)

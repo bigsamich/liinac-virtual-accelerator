@@ -32,6 +32,7 @@ DEVICE_CODE = {
     "orbump": "ORB", "foil": "FOIL", "sweep": "SWM",
     "scraper2": "SCRP", "allison": "ASCN", "ffc": "FFC", "eid": "EID",
     "absorber": "ABS", "dpi": "DPI", "rfsep": "RFSEP", "mwpm": "MWPM",
+    "pump": "PMP", "gauge": "VG",
 }
 # signal codes (sim field -> official-style signal)
 SIGNAL = {"amp": "AMPL", "phase": "PHS", "detuning_hz": "DET",
@@ -41,7 +42,8 @@ SIGNAL = {"amp": "AMPL", "phase": "PHS", "detuning_hz": "DET",
           "duty": "DUTY", "x": "XPOS", "y": "YPOS", "wpm": "LOSS",
           "i_ma": "CURRENT", "w_tof": "WTOF", "sum": "SUM", "notch": "NOTCH",
           "turn": "TURN", "pos_mm": "POS", "bias_v": "BIAS",
-          "i_ua": "CURRENT", "eps_ummrad": "EMIT"}
+          "i_ua": "CURRENT", "eps_ummrad": "EMIT",
+          "torr": "PRES"}
 
 _CAV_PER_CM = {"HWR": 8, "SSR1": 8, "SSR2": 5, "LB650": 4, "HB650": 6}
 _SEC_BASE = {"HWR": 1000, "SSR1": 2000, "SSR2": 3000,

@@ -343,7 +343,10 @@ class EnvelopeEngine:
                         ths=math.sqrt(max(sig[5, 5], 0.0)),
                         ibst_scale=self.phys.get("ibst_scale", 1.0),
                         gas_scale=self.phys.get("gas_scale", 1.0),
-                        pressure_torr=self.phys.get("pressure_torr", 1e-8)) * L
+                        pressure_torr=self.phys.get(
+                            "pressure_by_section", {}).get(
+                            el.section,
+                            self.phys.get("pressure_torr", 1e-8))) * L
                 f_lost = min(1.0, f_scrape + f_base)
                 if f_lost > 0.0:
                     p_w = (f_lost * f_surv * i_ma * 1e-3 * self.duty

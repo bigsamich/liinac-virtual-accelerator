@@ -79,6 +79,22 @@ elements:
   params:
     leg: B
   knobs: {}
+- name: LEBT:PMP2
+  type: pump
+  s: 0.0
+  length: 0.0
+  section: LEBT
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: LEBT:VG2
+  type: gauge
+  s: 0.0
+  length: 0.0
+  section: LEBT
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: LEBT:SRC
   type: source
   s: 0.0
@@ -682,6 +698,22 @@ elements:
   length: 0.12
   section: MEBT
   aperture_radius: 0.014
+  params: {}
+  knobs: {}
+- name: MEBT:PMP27
+  type: pump
+  s: 10.83
+  length: 0.0
+  section: MEBT
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: MEBT:VG27
+  type: gauge
+  s: 10.83
+  length: 0.0
+  section: MEBT
+  aperture_radius: 0.02
   params: {}
   knobs: {}
 - name: MEBT:Q11
@@ -1841,6 +1873,22 @@ elements:
   aperture_radius: 0.0165
   params: {}
   knobs: {}
+- name: HWR:PMP12
+  type: pump
+  s: 21.67
+  length: 0.0
+  section: HWR
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: HWR:VG12
+  type: gauge
+  s: 21.67
+  length: 0.0
+  section: HWR
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: HWR:CAV7
   type: rfgap
   s: 21.67
@@ -2729,6 +2777,22 @@ elements:
   knobs:
     amp: settings:rf:SSR1:CAV14
     phase: settings:rf:SSR1:CAV14
+- name: SSR1:PMP23
+  type: pump
+  s: 32.62
+  length: 0.0
+  section: SSR1
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: SSR1:VG23
+  type: gauge
+  s: 32.62
+  length: 0.0
+  section: SSR1
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: SSR1:D23
   type: drift
   s: 32.62
@@ -3518,6 +3582,22 @@ elements:
   aperture_radius: 0.02
   params: {}
   knobs: {}
+- name: SSR2:PMP8
+  type: pump
+  s: 43.53
+  length: 0.0
+  section: SSR2
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: SSR2:VG8
+  type: gauge
+  s: 43.53
+  length: 0.0
+  section: SSR2
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: SSR2:SOL7
   type: solenoid
   s: 43.53
@@ -4257,6 +4337,22 @@ elements:
   aperture_radius: 0.02
   params: {}
   knobs: {}
+- name: SSR2:PMP22
+  type: pump
+  s: 54.5
+  length: 0.0
+  section: SSR2
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: SSR2:VG22
+  type: gauge
+  s: 54.5
+  length: 0.0
+  section: SSR2
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: SSR2:CAV24
   type: rfgap
   s: 54.5
@@ -4632,6 +4728,14 @@ elements:
   knobs:
     amp: settings:rf:SSR2:CAV30
     phase: settings:rf:SSR2:CAV30
+- name: SSR2:VG37
+  type: gauge
+  s: 60.1
+  length: 0.0
+  section: SSR2
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: SSR2:D36
   type: drift
   s: 60.1
@@ -4986,6 +5090,22 @@ elements:
   knobs:
     amp: settings:rf:LB650:CAV1
     phase: settings:rf:LB650:CAV1
+- name: LB650:PMP11
+  type: pump
+  s: 65.68
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: LB650:VG11
+  type: gauge
+  s: 65.68
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: LB650:D2
   type: drift
   s: 65.68
@@ -5424,6 +5544,22 @@ elements:
   knobs:
     amp: settings:rf:LB650:CAV9
     phase: settings:rf:LB650:CAV9
+- name: LB650:PMP26
+  type: pump
+  s: 76.53
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: LB650:VG26
+  type: gauge
+  s: 76.53
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: LB650:D16
   type: drift
   s: 76.53
@@ -5862,6 +5998,22 @@ elements:
   knobs:
     amp: settings:rf:LB650:CAV17
     phase: settings:rf:LB650:CAV17
+- name: LB650:PMP4
+  type: pump
+  s: 87.38
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: LB650:VG4
+  type: gauge
+  s: 87.38
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: LB650:D30
   type: drift
   s: 87.38
@@ -6300,6 +6452,22 @@ elements:
   knobs:
     amp: settings:rf:LB650:CAV25
     phase: settings:rf:LB650:CAV25
+- name: LB650:PMP25
+  type: pump
+  s: 98.23
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: LB650:VG25
+  type: gauge
+  s: 98.23
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: LB650:D44
   type: drift
   s: 98.23
@@ -6736,6 +6904,22 @@ elements:
   aperture_radius: 0.0415
   params: {}
   knobs: {}
+- name: LB650:PMP10
+  type: pump
+  s: 109.28
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: LB650:VG10
+  type: gauge
+  s: 109.28
+  length: 0.0
+  section: LB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: LB650:CAV34
   type: rfgap
   s: 109.28
@@ -7069,6 +7253,22 @@ elements:
   knobs:
     amp: settings:rf:HB650:CAV5
     phase: settings:rf:HB650:CAV5
+- name: HB650:PMP24
+  type: pump
+  s: 120.28
+  length: 0.0
+  section: HB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: HB650:VG24
+  type: gauge
+  s: 120.28
+  length: 0.0
+  section: HB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: HB650:D6
   type: drift
   s: 120.28
@@ -7374,6 +7574,22 @@ elements:
   knobs:
     amp: settings:rf:HB650:CAV12
     phase: settings:rf:HB650:CAV12
+- name: HB650:PMP6
+  type: pump
+  s: 131.18
+  length: 0.0
+  section: HB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: HB650:VG6
+  type: gauge
+  s: 131.18
+  length: 0.0
+  section: HB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: HB650:D16
   type: drift
   s: 131.18
@@ -7554,6 +7770,14 @@ elements:
   knobs:
     amp: settings:rf:HB650:CAV15
     phase: settings:rf:HB650:CAV15
+- name: HB650:VG40
+  type: gauge
+  s: 136.73
+  length: 0.0
+  section: HB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: HB650:D22
   type: drift
   s: 136.73
@@ -7743,6 +7967,22 @@ elements:
   length: 0.05
   section: HB650
   aperture_radius: 0.059
+  params: {}
+  knobs: {}
+- name: HB650:PMP21
+  type: pump
+  s: 142.18
+  length: 0.0
+  section: HB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: HB650:VG21
+  type: gauge
+  s: 142.18
+  length: 0.0
+  section: HB650
+  aperture_radius: 0.02
   params: {}
   knobs: {}
 - name: HB650:D28
@@ -8039,6 +8279,22 @@ elements:
   knobs:
     amp: settings:rf:HB650:CAV25
     phase: settings:rf:HB650:CAV25
+- name: HB650:PMP15
+  type: pump
+  s: 153.33
+  length: 0.0
+  section: HB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: HB650:VG15
+  type: gauge
+  s: 153.33
+  length: 0.0
+  section: HB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: HB650:D38
   type: drift
   s: 153.33
@@ -8170,6 +8426,14 @@ elements:
   length: 0.25
   section: HB650
   aperture_radius: 0.059
+  params: {}
+  knobs: {}
+- name: HB650:VG39
+  type: gauge
+  s: 158.98
+  length: 0.0
+  section: HB650
+  aperture_radius: 0.02
   params: {}
   knobs: {}
 - name: HB650:CAV30
@@ -8353,6 +8617,22 @@ elements:
   knobs:
     amp: settings:rf:HB650:CAV32
     phase: settings:rf:HB650:CAV32
+- name: HB650:PMP29
+  type: pump
+  s: 164.48
+  length: 0.0
+  section: HB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: HB650:VG29
+  type: gauge
+  s: 164.48
+  length: 0.0
+  section: HB650
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: HB650:D48
   type: drift
   s: 164.48
@@ -8696,6 +8976,22 @@ elements:
   aperture_radius: 0.0225
   params:
     design_current: 0.0
+  knobs: {}
+- name: BTL:PMP3
+  type: pump
+  s: 174.83
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: BTL:VG3
+  type: gauge
+  s: 174.83
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
   knobs: {}
 - name: BTL:HALO1
   type: halo
@@ -9102,6 +9398,22 @@ elements:
     kind: wire
     bins: 64
   knobs: {}
+- name: BTL:PMP30
+  type: pump
+  s: 185.08
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: BTL:VG30
+  type: gauge
+  s: 185.08
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: BTL:D10
   type: drift
   s: 185.08
@@ -9312,6 +9624,22 @@ elements:
     max_current: 134.5
   knobs:
     current: settings:magnet:BTL:Q11
+- name: BTL:PMP14
+  type: pump
+  s: 196.43
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: BTL:VG14
+  type: gauge
+  s: 196.43
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: BTL:C11
   type: corrector
   s: 196.43
@@ -9508,6 +9836,14 @@ elements:
     noise_frac: 0.05
     dark_wpm: 0.001
   knobs: {}
+- name: BTL:VG33
+  type: gauge
+  s: 206.48
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: BTL:B5
   type: dipole
   s: 206.48
@@ -9567,6 +9903,14 @@ elements:
     max_current: 153.91
   knobs:
     current: settings:magnet:BTL:Q14
+- name: BTL:VG35
+  type: gauge
+  s: 212.28
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: BTL:C14
   type: corrector
   s: 212.28
@@ -9689,6 +10033,22 @@ elements:
   length: 0.35
   section: BTL
   aperture_radius: 0.0225
+  params: {}
+  knobs: {}
+- name: BTL:PMP9
+  type: pump
+  s: 217.98
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: BTL:VG9
+  type: gauge
+  s: 217.98
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
   params: {}
   knobs: {}
 - name: BTL:B8
@@ -9866,6 +10226,22 @@ elements:
     angle_deg: 7.0
     b_t: 0.24
   knobs: {}
+- name: BTL:PMP18
+  type: pump
+  s: 229.18
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: BTL:VG18
+  type: gauge
+  s: 229.18
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: BTL:D29
   type: drift
   s: 229.18
@@ -10003,6 +10379,14 @@ elements:
     noise_frac: 0.05
     dark_wpm: 0.001
   knobs: {}
+- name: BTL:VG36
+  type: gauge
+  s: 235.08
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: BTL:D32
   type: drift
   s: 235.08
@@ -10058,6 +10442,22 @@ elements:
   params:
     angle_deg: 7.0
     b_t: 0.24
+  knobs: {}
+- name: BTL:PMP16
+  type: pump
+  s: 240.68
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: BTL:VG16
+  type: gauge
+  s: 240.68
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
   knobs: {}
 - name: BTL:D34
   type: drift
@@ -10305,6 +10705,14 @@ elements:
   aperture_radius: 0.0225
   params: {}
   knobs: {}
+- name: BTL:VG31
+  type: gauge
+  s: 251.43
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: BTL:Q23
   type: quad
   s: 251.43
@@ -10514,6 +10922,22 @@ elements:
     noise_frac: 0.05
     dark_wpm: 0.001
   knobs: {}
+- name: BTL:PMP5
+  type: pump
+  s: 261.68
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: BTL:VG5
+  type: gauge
+  s: 261.68
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: BTL:B18
   type: dipole
   s: 261.68
@@ -10558,6 +10982,14 @@ elements:
   length: 0.35
   section: BTL
   aperture_radius: 0.0225
+  params: {}
+  knobs: {}
+- name: BTL:VG38
+  type: gauge
+  s: 267.28
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
   params: {}
   knobs: {}
 - name: BTL:Q26
@@ -10688,6 +11120,22 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
+  knobs: {}
+- name: BTL:PMP20
+  type: pump
+  s: 272.83
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: BTL:VG20
+  type: gauge
+  s: 272.83
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
   knobs: {}
 - name: BTL:D49
   type: drift
@@ -10861,6 +11309,22 @@ elements:
   params:
     angle_deg: 7.5
     b_t: 0.24
+  knobs: {}
+- name: BTL:PMP17
+  type: pump
+  s: 284.33
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: BTL:VG17
+  type: gauge
+  s: 284.33
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
   knobs: {}
 - name: BTL:D54
   type: drift
@@ -11090,6 +11554,14 @@ elements:
   aperture_radius: 0.0225
   params: {}
   knobs: {}
+- name: BTL:VG32
+  type: gauge
+  s: 294.98
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: BTL:Q33
   type: quad
   s: 294.98
@@ -11299,6 +11771,22 @@ elements:
     noise_frac: 0.05
     dark_wpm: 0.001
   knobs: {}
+- name: BTL:PMP7
+  type: pump
+  s: 305.23
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: BTL:VG7
+  type: gauge
+  s: 305.23
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: BTL:B28
   type: dipole
   s: 305.23
@@ -11358,6 +11846,14 @@ elements:
     max_current: 147.84
   knobs:
     current: settings:magnet:BTL:Q36
+- name: BTL:VG34
+  type: gauge
+  s: 311.03
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: BTL:C36
   type: corrector
   s: 311.03
@@ -11480,6 +11976,22 @@ elements:
   length: 0.35
   section: BTL
   aperture_radius: 0.0225
+  params: {}
+  knobs: {}
+- name: BTL:PMP19
+  type: pump
+  s: 316.73
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: BTL:VG19
+  type: gauge
+  s: 316.73
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
   params: {}
   knobs: {}
 - name: BTL:B31
@@ -11656,6 +12168,22 @@ elements:
   params:
     angle_deg: 7.5
     b_t: 0.24
+  knobs: {}
+- name: BTL:PMP13
+  type: pump
+  s: 327.93
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: BTL:VG13
+  type: gauge
+  s: 327.93
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
   knobs: {}
 - name: BTL:D74
   type: drift
@@ -11878,6 +12406,22 @@ elements:
     max_current: 136.09
   knobs:
     current: settings:magnet:BTL:Q43
+- name: BTL:PMP28
+  type: pump
+  s: 338.73
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: BTL:VG28
+  type: gauge
+  s: 338.73
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
 - name: BTL:C43
   type: corrector
   s: 338.73
@@ -12088,4 +12632,20 @@ elements:
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
+  knobs: {}
+- name: BTL:PMP1
+  type: pump
+  s: 349.54
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
+  knobs: {}
+- name: BTL:VG1
+  type: gauge
+  s: 349.54
+  length: 0.0
+  section: BTL
+  aperture_radius: 0.02
+  params: {}
   knobs: {}

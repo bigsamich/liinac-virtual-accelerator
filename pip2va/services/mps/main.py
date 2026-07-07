@@ -76,7 +76,32 @@ class MpsService(Service):
         if channel == keys.CH_FAULT and isinstance(data, dict):
             self._event("device_fault", str(data.get("key", "?")))
 
+    VAC_TRIP_TORR = 5e-7
+
+    def _vacuum_interlock(self):
+        e = self.r.xrevrange(keys.stream("vacuum.pressure"), count=1)
+        if not e:
+            return
+        _, d = codec.unpack(e[0][1][b"d"])
+        p = d.get("torr")
+        if p is None or not len(p):
+            return
+        import numpy as _np
+        j = int(_np.argmax(p))
+        permit = self.r.get("state:mps.permit") in (b"1", "1", None)
+        if float(p[j]) > self.VAC_TRIP_TORR and permit:
+            import json as _jj
+            names = _jj.loads(self.r.get("lattice:gauge.index") or "[]")
+            nm = names[j] if j < len(names) else f"VG{j}"
+            self.r.set("state:mps.permit", 0)
+            self._event("trip", f"VACUUM {nm} {float(p[j]):.2e} torr "
+                                f"(limit {self.VAC_TRIP_TORR:.0e})")
+            self.publish_event(keys.CH_MPS, {"permit": 0, "vacuum": nm})
+
     def on_tick(self, pulse_id: int):
+        if pulse_id % 4 == 0:
+            self._vacuum_interlock()
+
         entries = self.r.xrevrange(keys.stream("blm.losses"), count=1)
         if entries:
             _, wpm = codec.unpack(entries[0][1][b"d"])
