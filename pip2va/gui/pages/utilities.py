@@ -72,11 +72,50 @@ class UtilitiesPage(Page):
         row.addWidget(self.p_cryo, 2)
         self.body.addLayout(row, 2)
 
+        # ---- vacuum: 40 gauges (log) + leak injector
+        vrow = QHBoxLayout()
+        vrow.addWidget(QLabel("<b>Vacuum</b>  inject leak: gauge#"))
+        self.sp_vg = QDoubleSpinBox(); self.sp_vg.setRange(0, 39)
+        self.sp_vg.setDecimals(0)
+        vrow.addWidget(self.sp_vg)
+        vrow.addWidget(QLabel("size"))
+        self.sp_leak = QDoubleSpinBox(); self.sp_leak.setRange(0, 99)
+        self.sp_leak.setDecimals(2); self.sp_leak.setSuffix(" e-7 torr")
+        vrow.addWidget(self.sp_leak)
+        self.btn_leak = QPushButton("Apply leak")
+        self.btn_clear_leak = QPushButton("Clear")
+        vrow.addWidget(self.btn_leak); vrow.addWidget(self.btn_clear_leak)
+        vrow.addStretch(1)
+        self.body.addLayout(vrow)
+        self.p_vac = CrosshairPlot("log10 P [torr]", xlabel="gauge")
+        self.vac_bars = pg.BarGraphItem(x=np.arange(40),
+                                        height=np.zeros(40), width=0.7,
+                                        brush="#ba68c8")
+        self.p_vac.addItem(self.vac_bars)
+        self.p_vac.pw.setYRange(-9.5, -5.5)
+        self.body.addWidget(self.p_vac, 2)
+        self.btn_leak.clicked.connect(lambda: (
+            self.hub.set_setting("vacuum", "main", "leak_gauge",
+                                 int(self.sp_vg.value())),
+            self.hub.set_setting("vacuum", "main", "leak_torr",
+                                 self.sp_leak.value() * 1e-7)))
+        self.btn_clear_leak.clicked.connect(lambda: self.hub.set_setting(
+            "vacuum", "main", "leak_torr", 0.0))
+        self.hub.vacuum.connect(self._on_vac)
+
         self._lcw_hist = collections.deque(maxlen=600)
         self._gate = 0
         self.btn_apply.clicked.connect(self._apply)
         self.btn_clear.clicked.connect(self._clear)
         self.hub.beamState.connect(self._on_state)
+
+    def _on_vac(self, _pid, data):
+        if not self.isVisible():
+            return
+        p = np.asarray(data.get("torr", []), dtype=float)
+        if len(p):
+            self.vac_bars.setOpts(x=np.arange(len(p)),
+                                  height=np.log10(np.maximum(p, 1e-10)))
 
     # ------------------------------------------------------------- controls
 

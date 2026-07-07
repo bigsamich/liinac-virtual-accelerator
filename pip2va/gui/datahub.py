@@ -24,6 +24,7 @@ STREAM_SIGNALS = {
     "wf.wcm": "wcm",
     "scraper.current": "scraper",
     "profile.allison": "allison",
+    "vacuum.pressure": "vacuum",
     "beam.deep": "deep",
     "profile.scan": "scan",
     "wf.toroid": "wfToroid",
@@ -41,6 +42,7 @@ class DataHub(QThread):
     wcm = pyqtSignal(int, object)
     scraper = pyqtSignal(int, object)
     allison = pyqtSignal(int, object)
+    vacuum = pyqtSignal(int, object)
     deep = pyqtSignal(int, object)
     scan = pyqtSignal(int, object)
     wfToroid = pyqtSignal(int, object)

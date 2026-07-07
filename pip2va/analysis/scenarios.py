@@ -13,6 +13,27 @@ from . import llm
 # Scenario schema: faults -> injected via fault:* keys (cleared by operator /
 # TTL); settings -> sabotaged setpoints the operator must find and restore.
 SCENARIOS = {
+    "Vacuum leak": {
+        "level": "medium",
+        "desc": "A vacuum leak opens somewhere in the SC linac. Pressure "
+                "climbs, gas-stripping losses rise in that section, then "
+                "the vacuum interlock trips. Find the gauge (Utilities/"
+                "EPICS), stop the leak, recover.",
+        "faults": [],
+        "settings": [("vacuum", "main", "leak_torr", 1.5e-6),
+                     ("vacuum", "main", "leak_gauge", 24)],
+        "par": 150.0,
+    },
+    "Source changeover": {
+        "level": "medium",
+        "desc": "The East source (ISRC:0110) is failing — glitch rate is "
+                "up. Swap to the West source (leg B), ride out the "
+                "changeover transient, and re-establish nominal delivery "
+                "(leg B runs 2.5% low: compensate at the source setpoint).",
+        "faults": [("source", "main", "glitchy", 8.0, 0)],
+        "settings": [],
+        "par": 180.0,
+    },
     "Cavity trip in the spokes": {
         "level": "easy",
         "desc": "An SSR2 cavity quenches. Diagnose which one, reset it, and "

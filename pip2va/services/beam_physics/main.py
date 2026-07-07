@@ -151,7 +151,8 @@ class BeamPhysicsService(Service):
                 self._errant_left -= 1
                 kick = self._errant_kick
             elif self._rng.random() < self._errant_rate * (
-                    1.6 if getattr(self, '_leg', 'A') == 'B' else 1.0):
+                    1.6 if getattr(self, '_leg', 'A') == 'B' else 1.0) * (
+                    self._glitch_fault()):
                 self._errant_left = int(self._rng.integers(2, 4))
                 self._errant_kick = float(self._rng.choice([-1, 1])
                                           * self._rng.uniform(2.0, 5.0))
@@ -210,6 +211,14 @@ class BeamPhysicsService(Service):
             log.warning("envelope pass lag %.1f ms", lag_ms)
 
     # ------------------------------------------------------------ deep pass
+
+    def _glitch_fault(self) -> float:
+        if not hasattr(self, "_gf_t") or time.time() - self._gf_t > 2.0:
+            self._gf_t = time.time()
+            f = self.r.hgetall(keys.fault("source", "main"))
+            self._gf = (float(f.get(b"magnitude", 1.0))
+                        if f.get(b"type") == b"glitchy" else 1.0)
+        return max(self._gf, 1.0)
 
     def _wcm_sig_ps(self, res):
         out = []

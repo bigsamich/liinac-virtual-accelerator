@@ -124,6 +124,17 @@ PRESETS = {
                  "steps": 5, "dwell_s": 3.0, "restore": True,
                  "rebaseline": True},
     },
+    "halo-jaw-scan": {
+        "teaches": "integrated halo profile: insert the MEBT top jaw from "
+                   "retracted to 3 mm while reading the biased jaw current "
+                   "— the position/current curve IS the tail integral",
+        "plan": {"name": "halo-jaw-scan", "kind": "ramp",
+                 "description": "MEBT:SCRPT jaw 30 -> 3 mm, biased 150 V",
+                 "pre": {"settings:scraper:MEBT:SCRPT": {"bias_v": 150.0}},
+                 "sweeps": [{"cls": "scraper", "device": "MEBT:SCRPT",
+                             "field": "pos_mm", "from": 30.0, "to": 3.0}],
+                 "steps": 12, "dwell_s": 2.0, "restore": True},
+    },
     "buncher-phase-scan": {
         "teaches": "longitudinal capture sensitivity at the front end "
                    "(informs 'Buncher trip' and HWR loss patterns)",
