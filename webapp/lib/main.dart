@@ -106,7 +106,7 @@ class _Pip2AppState extends State<Pip2App> {
     epics.subscribe(const [
       'PIP2:BEAM:W', 'PIP2:BEAM:T', 'PIP2:BEAM:IOUT', 'PIP2:BEAM:PULSE',
       'PIP2:MPS:PERMIT', 'PIP2:BPM:X', 'PIP2:BPM:Y', 'PIP2:BLM:WPM',
-      'PIP2:BCM:I', 'PIP2:VAC:TORR',
+      'PIP2:BCM:I_MA', 'PIP2:VAC:TORR',
     ]);
   }
 
@@ -220,7 +220,7 @@ class StatusPage extends StatelessWidget {
         Expanded(
             child: Row(children: [
           Expanded(
-              child: _mini('BCM currents [mA]', epics.array('PIP2:BCM:I'),
+              child: _mini('BCM currents [mA]', epics.array('PIP2:BCM:I_MA'),
                   kOk)),
           const SizedBox(width: 12),
           Expanded(

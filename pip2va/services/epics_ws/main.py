@@ -134,6 +134,13 @@ async def ws_handler(request):
     return ws
 
 
+@web.middleware
+async def no_cache(request, handler):
+    resp = await handler(request)
+    resp.headers["Cache-Control"] = "no-store, must-revalidate"
+    return resp
+
+
 async def index(request):
     return web.FileResponse(os.path.join(WEB_DIR, "index.html"))
 
@@ -144,7 +151,7 @@ def main():
         raise SystemExit("p4p required")
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    app = web.Application()
+    app = web.Application(middlewares=[no_cache])
     app["hub"] = Hub(loop)
     app.router.add_get("/ws", ws_handler)
     if os.path.isdir(WEB_DIR):
