@@ -62,45 +62,69 @@ class DashboardPage extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        Row(children: [
-          bigValue('Energy', e.scalar('PIP2:BEAM:W').toStringAsFixed(1), 'MeV',
-              kAccent),
-          bigValue('Transmission', (100 * t).toStringAsFixed(2), '%',
-              t > 0.95 ? kOk : kBad),
-          bigValue('Delivered', e.scalar('PIP2:BEAM:IOUT').toStringAsFixed(3),
-              'mA', kAccent),
-          bigValue('Injection η', inj.toStringAsFixed(1), 'score',
-              inj > 80 ? kOk : kWarn),
-        ]),
+        LayoutBuilder(builder: (c, cons) {
+          final narrow = cons.maxWidth < 600;
+          final cards = [
+            bigValue('Energy', e.scalar('PIP2:BEAM:W').toStringAsFixed(1),
+                'MeV', kAccent),
+            bigValue('Transmission', (100 * t).toStringAsFixed(2), '%',
+                t > 0.95 ? kOk : kBad),
+            bigValue('Delivered',
+                e.scalar('PIP2:BEAM:IOUT').toStringAsFixed(3), 'mA', kAccent),
+            bigValue('Injection η', inj.toStringAsFixed(1), 'score',
+                inj > 80 ? kOk : kWarn),
+          ];
+          if (narrow) {
+            return Column(children: [
+              Row(children: [cards[0], cards[1]]),
+              Row(children: [cards[2], cards[3]]),
+            ]);
+          }
+          return Row(children: cards);
+        }),
         const SizedBox(height: 10),
         Expanded(
-          child: Row(children: [
-            Expanded(
-                child: chartCard(
-                    'BCM current [mA]',
-                    CustomPaint(
-                        size: Size.infinite,
-                        painter: SeriesPainter(e.array('PIP2:BCM:I_MA'), kOk,
-                            bars: true, floor: 0)))),
-            const SizedBox(width: 8),
-            Expanded(
-                child: chartCard(
-                    'Beam loss [W/m]',
-                    CustomPaint(
-                        size: Size.infinite,
-                        painter: SeriesPainter(e.array('PIP2:BLM:WPM'), kBad,
-                            bars: true, floor: 0)))),
-            const SizedBox(width: 8),
-            Expanded(
-                child: chartCard(
-                    'Orbit x/y [mm]',
-                    CustomPaint(
-                        size: Size.infinite,
-                        painter: SeriesPainter(e.array('PIP2:BPM:X'), kAccent,
-                            data2: e.array('PIP2:BPM:Y'),
-                            color2: kWarn,
-                            symmetric: true)))),
-          ]),
+          child: LayoutBuilder(builder: (c, cons) {
+            final narrow = cons.maxWidth < 600;
+            final charts = [
+              chartCard(
+                  'BCM current [mA]',
+                  CustomPaint(
+                      size: Size.infinite,
+                      painter: SeriesPainter(e.array('PIP2:BCM:I_MA'), kOk,
+                          bars: true, floor: 0))),
+              chartCard(
+                  'Beam loss [W/m]',
+                  CustomPaint(
+                      size: Size.infinite,
+                      painter: SeriesPainter(e.array('PIP2:BLM:WPM'), kBad,
+                          bars: true, floor: 0))),
+              chartCard(
+                  'Orbit x/y [mm]',
+                  CustomPaint(
+                      size: Size.infinite,
+                      painter: SeriesPainter(e.array('PIP2:BPM:X'), kAccent,
+                          data2: e.array('PIP2:BPM:Y'),
+                          color2: kWarn,
+                          symmetric: true))),
+            ];
+            if (narrow) {
+              return Column(
+                  children: charts
+                      .map((w) => Expanded(
+                          child: Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: w)))
+                      .toList());
+            }
+            return Row(
+                children: [
+                  for (var i = 0; i < charts.length; i++) ...[
+                    Expanded(child: charts[i]),
+                    if (i < charts.length - 1) const SizedBox(width: 8),
+                  ]
+                ]);
+          }),
         ),
       ]),
     );
