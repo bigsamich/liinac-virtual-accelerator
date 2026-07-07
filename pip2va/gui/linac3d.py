@@ -180,6 +180,13 @@ class Linac3D(QWidget):
 
         self._space = False          # hold Space to pan instead of rotate
         self._pan_last = None
+        # timer-driven continuous motion for held keys (OS key auto-repeat
+        # is unreliable under Xvfb/VNC, so drive it ourselves at a fixed rate)
+        self._held: set = set()
+        from PyQt6.QtCore import QTimer
+        self._nav_timer = QTimer(self)
+        self._nav_timer.setInterval(30)
+        self._nav_timer.timeout.connect(self._nav_tick)
         self.view = gl.GLViewWidget()
         self.view.installEventFilter(self)
         self.view.setMouseTracking(True)
@@ -374,6 +381,33 @@ class Linac3D(QWidget):
         self.view.setCameraPosition(distance=max(10.0, span * 0.7))
         self.view.update()
 
+    def _nav_tick(self):
+        """Apply motion for currently-held keys, ~33x/s (smooth hold)."""
+        from PyQt6.QtCore import Qt
+        if self.view is None or not self._held:
+            self._nav_timer.stop()
+            return
+        STEP, PX = 2.2, 13          # deg / px per tick
+        orb = {Qt.Key.Key_Left: (-STEP, 0), Qt.Key.Key_Right: (STEP, 0),
+               Qt.Key.Key_Up: (0, STEP), Qt.Key.Key_Down: (0, -STEP)}
+        panv = {Qt.Key.Key_Left: (PX, 0), Qt.Key.Key_Right: (-PX, 0),
+                Qt.Key.Key_Up: (0, PX), Qt.Key.Key_Down: (0, -PX)}
+        for k in list(self._held):
+            if k in orb:
+                if self._space:
+                    dx, dy = panv[k]
+                    self.view.pan(dx, dy, 0, relative="view")
+                else:
+                    az, el = orb[k]
+                    self.view.orbit(az, el)
+            elif k == Qt.Key.Key_Comma:
+                self.view.setCameraPosition(
+                    distance=self.view.opts["distance"] * 0.97)
+            elif k == Qt.Key.Key_Period:
+                self.view.setCameraPosition(
+                    distance=self.view.opts["distance"] / 0.97)
+        self.view.update()
+
     def _preset(self, nm):
         d = self.view.opts["distance"]
         if nm == "Top":
@@ -434,29 +468,21 @@ class Linac3D(QWidget):
                 self.view.unsetCursor()
                 return True
             # ---- keyboard-only navigation: arrows rotate, Space+arrows pan,
-            # comma/period zoom (all auto-repeat so holding keeps moving)
-            if ev.type() == QEvent.Type.KeyPress:
-                k = ev.key()
-                STEP, PX = 6.0, 45          # deg per press, px per press
-                orb = {Qt.Key.Key_Left: (-STEP, 0), Qt.Key.Key_Right: (STEP, 0),
-                       Qt.Key.Key_Up: (0, STEP), Qt.Key.Key_Down: (0, -STEP)}
-                panv = {Qt.Key.Key_Left: (PX, 0), Qt.Key.Key_Right: (-PX, 0),
-                        Qt.Key.Key_Up: (0, PX), Qt.Key.Key_Down: (0, -PX)}
-                if k in orb:
-                    if self._space:
-                        dx, dy = panv[k]
-                        self.view.pan(dx, dy, 0, relative="view")
-                    else:
-                        az, el = orb[k]
-                        self.view.orbit(az, el)
-                    self.view.update()
-                    return True
-                if k in (Qt.Key.Key_Comma, Qt.Key.Key_Period):
-                    f = 0.9 if k == Qt.Key.Key_Comma else 1.0 / 0.9
-                    self.view.setCameraPosition(
-                        distance=self.view.opts["distance"] * f)
-                    self.view.update()
-                    return True
+            # comma/period zoom. Register held keys; a timer drives the
+            # motion so holding a key keeps moving (see _nav_tick).
+            NAV = (Qt.Key.Key_Left, Qt.Key.Key_Right, Qt.Key.Key_Up,
+                   Qt.Key.Key_Down, Qt.Key.Key_Comma, Qt.Key.Key_Period)
+            if ev.type() == QEvent.Type.KeyPress and ev.key() in NAV:
+                self._held.add(ev.key())
+                if not self._nav_timer.isActive():
+                    self._nav_timer.start()
+                return True
+            if ev.type() == QEvent.Type.KeyRelease and ev.key() in NAV \
+                    and not ev.isAutoRepeat():
+                self._held.discard(ev.key())
+                if not self._held:
+                    self._nav_timer.stop()
+                return True
             if self._space and ev.type() == QEvent.Type.MouseButtonPress:
                 self._pan_last = ev.position()
                 self.view.setCursor(Qt.CursorShape.ClosedHandCursor)
