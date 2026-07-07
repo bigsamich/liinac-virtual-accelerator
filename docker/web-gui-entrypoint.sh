@@ -14,6 +14,11 @@ cat > /usr/share/novnc/index.html <<'HTML'
 <!doctype html><meta http-equiv="refresh"
  content="0; url=vnc.html?autoconnect=true&resize=scale&reconnect=true&show_dot=true">
 HTML
+# FORCE local scaling for every client, overriding any stale browser
+# setting — guarantees the whole desktop fits (no right-side clipping)
+echo '{"resize":"scale"}' > /usr/share/novnc/mandatory.json
+echo '{"resize":"scale","autoconnect":"true","reconnect":"true"}' \
+    > /usr/share/novnc/defaults.json
 websockify --web /usr/share/novnc 6080 localhost:5900 &
 python -m pip2va.mobile &
 # restart the GUI if it ever exits; the display session persists
