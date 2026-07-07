@@ -31,7 +31,7 @@ x-epics-env: &epics-env
   # ---- PVA protocol IOC servers ----
   EPICS_PVAS_INTF_ADDR_LIST: "239.128.1.6"      # mcast search listen
   EPICS_PVAS_AUTO_BEACON_ADDR_LIST: "NO"        # no broadcast beacons
-  EPICS_PVAS_BEACON_ADDR_LIST: "239.128.1.7,10" # send mcast beacons
+  EPICS_PVAS_BEACON_ADDR_LIST: "239.128.1.7"    # send mcast beacons
 
 services:
   redis:
