@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'epics.dart';
 import 'pages.dart';
+import 'pages2.dart';
 
 void main() => runApp(const Pip2App());
 
@@ -16,15 +17,30 @@ class _Pip2AppState extends State<Pip2App> {
   late final Epics e;
   int page = 0;
 
-  static const nav = [
-    (Icons.dashboard, 'Status'),
-    (Icons.show_chart, 'Orbit'),
-    (Icons.warning_amber, 'Losses'),
-    (Icons.settings_input_antenna, 'RF'),
-    (Icons.tune, 'Magnets'),
-    (Icons.opacity, 'Vacuum'),
-    (Icons.science, 'Studies'),
-    (Icons.smart_toy, 'Ask'),
+  late final List<(String, IconData, Widget Function())> pages = [
+    ('Dashboard', Icons.dashboard, () => DashboardPage(e: e)),
+    ('Machine synoptic', Icons.linear_scale, () => MachinePage(e: e)),
+    ('Orbit', Icons.show_chart,
+        () => ArrayPage(e, 'Orbit x/y [mm] — 108 BPMs', 'PIP2:BPM:X',
+            pv2: 'PIP2:BPM:Y', symmetric: true)),
+    ('Losses', Icons.warning_amber,
+        () => ArrayPage(e, 'Beam loss [W/m] — 120 BLMs', 'PIP2:BLM:WPM',
+            bars: true, color: kBad)),
+    ('Profiles', Icons.blur_on, () => ProfilesPage(e: e)),
+    ('Bunch monitor', Icons.graphic_eq, () => BunchPage(e: e)),
+    ('Strip tool', Icons.timeline, () => StripToolPage(e: e)),
+    ('RF', Icons.settings_input_antenna,
+        () => DeviceTablePage(e: e, cls: 'rf', title: 'RF cavities')),
+    ('Magnets', Icons.tune,
+        () => DeviceTablePage(e: e, cls: 'magnet', title: 'Magnets')),
+    ('Source & LEBT', Icons.wb_incandescent, () => SourcePage(e: e)),
+    ('Vacuum', Icons.opacity, () => UtilitiesPage(e: e)),
+    ('MPS', Icons.shield, () => MpsPage(e: e)),
+    ('Snapshots', Icons.camera_alt, () => SnapshotsPage(e: e)),
+    ('Physics', Icons.functions, () => PhysicsPage(e: e)),
+    ('Studies', Icons.science, () => StudiesPage(e: e)),
+    ('Training', Icons.school, () => TrainingPage(e: e)),
+    ('Ask', Icons.smart_toy, () => AskPage(e: e)),
   ];
 
   @override
@@ -35,34 +51,10 @@ class _Pip2AppState extends State<Pip2App> {
     e = Epics('$scheme://${loc.authority}/ws');
     e.subscribe(const [
       'PIP2:BEAM:W', 'PIP2:BEAM:T', 'PIP2:BEAM:IOUT', 'PIP2:BEAM:PULSE',
-      'PIP2:MPS:PERMIT', 'PIP2:BPM:X', 'PIP2:BPM:Y', 'PIP2:BLM:WPM',
-      'PIP2:BCM:I_MA', 'PIP2:VAC:TORR', 'PIP2:INJ:SCORE',
+      'PIP2:BEAM:LAG', 'PIP2:MPS:PERMIT', 'PIP2:BPM:X', 'PIP2:BPM:Y',
+      'PIP2:BLM:WPM', 'PIP2:BCM:I_MA', 'PIP2:VAC:TORR', 'PIP2:INJ:SCORE',
       'PIP2:RF:DETUNING_HZ', 'PIP2:MAG:VALUES',
     ]);
-  }
-
-  Widget _body() {
-    switch (page) {
-      case 0:
-        return DashboardPage(e: e);
-      case 1:
-        return ArrayPage(e, 'Orbit x/y [mm] — 108 BPMs', 'PIP2:BPM:X',
-            pv2: 'PIP2:BPM:Y', symmetric: true);
-      case 2:
-        return ArrayPage(e, 'Beam loss [W/m] — 120 BLMs', 'PIP2:BLM:WPM',
-            bars: true, color: kBad);
-      case 3:
-        return RfPage(e: e);
-      case 4:
-        return ArrayPage(e, 'Magnet readbacks [A]', 'PIP2:MAG:VALUES',
-            symmetric: true, color: kAccent);
-      case 5:
-        return UtilitiesPage(e: e);
-      case 6:
-        return StudiesPage(e: e);
-      default:
-        return AskPage(e: e);
-    }
   }
 
   @override
@@ -75,36 +67,47 @@ class _Pip2AppState extends State<Pip2App> {
       home: AnimatedBuilder(
         animation: e,
         builder: (context, _) {
-          final wide = MediaQuery.of(context).size.width > 720;
-          if (wide) {
-            return Scaffold(
-              body: Row(children: [
-                NavigationRail(
-                  selectedIndex: page,
-                  onDestinationSelected: (i) => setState(() => page = i),
-                  backgroundColor: kCard,
-                  labelType: NavigationRailLabelType.all,
-                  destinations: [
-                    for (final n in nav)
-                      NavigationRailDestination(
-                          icon: Icon(n.$1), label: Text(n.$2)),
-                  ],
-                ),
-                Expanded(child: _body()),
-              ]),
-            );
-          }
+          final permit = e.scalar('PIP2:MPS:PERMIT') > 0.5;
           return Scaffold(
-            body: SafeArea(child: _body()),
-            bottomNavigationBar: NavigationBar(
-              selectedIndex: page,
-              onDestinationSelected: (i) => setState(() => page = i),
+            appBar: AppBar(
               backgroundColor: kCard,
-              destinations: [
-                for (final n in nav)
-                  NavigationDestination(icon: Icon(n.$1), label: n.$2),
-              ],
+              title: Row(children: [
+                Text(pages[page].$1),
+                const Spacer(),
+                Text('${e.scalar('PIP2:BEAM:W').toStringAsFixed(0)} MeV  '
+                    '${(100 * e.scalar('PIP2:BEAM:T')).toStringAsFixed(1)}%',
+                    style: const TextStyle(fontSize: 14)),
+                const SizedBox(width: 10),
+                Icon(Icons.circle,
+                    size: 12, color: permit ? kOk : kBad),
+                const SizedBox(width: 4),
+                Icon(Icons.wifi,
+                    size: 14, color: e.connected ? kOk : kBad),
+              ]),
             ),
+            drawer: Drawer(
+              backgroundColor: kCard,
+              child: ListView(children: [
+                const DrawerHeader(
+                    child: Center(
+                        child: Text('PIP-II\nVirtual Accelerator',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold)))),
+                for (var i = 0; i < pages.length; i++)
+                  ListTile(
+                    dense: true,
+                    selected: i == page,
+                    leading: Icon(pages[i].$2),
+                    title: Text(pages[i].$1),
+                    onTap: () {
+                      setState(() => page = i);
+                      Navigator.pop(context);
+                    },
+                  ),
+              ]),
+            ),
+            body: pages[page].$3(),
           );
         },
       ),

@@ -79,6 +79,7 @@ class DashboardPage extends StatelessWidget {
                 child: chartCard(
                     'BCM current [mA]',
                     CustomPaint(
+                        size: Size.infinite,
                         painter: SeriesPainter(e.array('PIP2:BCM:I_MA'), kOk,
                             bars: true, floor: 0)))),
             const SizedBox(width: 8),
@@ -86,6 +87,7 @@ class DashboardPage extends StatelessWidget {
                 child: chartCard(
                     'Beam loss [W/m]',
                     CustomPaint(
+                        size: Size.infinite,
                         painter: SeriesPainter(e.array('PIP2:BLM:WPM'), kBad,
                             bars: true, floor: 0)))),
             const SizedBox(width: 8),
@@ -93,6 +95,7 @@ class DashboardPage extends StatelessWidget {
                 child: chartCard(
                     'Orbit x/y [mm]',
                     CustomPaint(
+                        size: Size.infinite,
                         painter: SeriesPainter(e.array('PIP2:BPM:X'), kAccent,
                             data2: e.array('PIP2:BPM:Y'),
                             color2: kWarn,
@@ -160,6 +163,7 @@ class RfPage extends StatelessWidget {
             child: chartCard(
                 'All cavity detuning [Hz]',
                 CustomPaint(
+                    size: Size.infinite,
                     painter: SeriesPainter(
                         e.array('PIP2:RF:DETUNING_HZ'), kWarn,
                         symmetric: true)))),
@@ -212,6 +216,7 @@ class UtilitiesPage extends StatelessWidget {
             child: chartCard(
                 'Vacuum log10(P) [torr] — 40 gauges',
                 CustomPaint(
+                    size: Size.infinite,
                     painter: SeriesPainter(vac, const Color(0xFFBA68C8),
                         bars: true)))),
         const SizedBox(height: 8),

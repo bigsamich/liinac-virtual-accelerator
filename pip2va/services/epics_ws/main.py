@@ -23,6 +23,7 @@ import os
 import time
 
 import redis as redis_lib
+from pip2va.common import codec, keys
 from aiohttp import WSMsgType, web
 
 log = logging.getLogger("epics-ws")
@@ -178,6 +179,152 @@ async def _rpc(hub, ws, m):
                              for f in d.glob("result-*.json")),
                             reverse=True)[:20]
                 return {"results": fs}
+            if method == "device_list":
+                import json as _jj
+                from pip2va.common.lattice import load_lattice
+                from pip2va.common import naming
+                lat = load_lattice()
+                nm = naming.Namer(lat)
+                cls = args.get("cls")
+                out = []
+                for e in lat.elements:
+                    if cls == "magnet" and e.type in (
+                            "quad", "solenoid", "corrector"):
+                        fields = (["current_x", "current_y"]
+                                  if e.type == "corrector" else ["current"])
+                        for f in fields:
+                            sig = {"current": "I", "current_x": "IX",
+                                   "current_y": "IY"}[f]
+                            out.append({
+                                "name": e.name, "section": e.section,
+                                "type": e.type,
+                                "rb": nm.pv(e.name, "MAG", f),
+                                "sp": nm.pv(e.name, "MAG", f, setting=True),
+                                "official": nm.map[e.name]["component"]})
+                    elif cls == "rf" and e.type in ("rfgap", "rfq"):
+                        out.append({
+                            "name": e.name, "section": e.section,
+                            "amp_rb": nm.pv(e.name, "LLRF", "amp"),
+                            "amp_sp": nm.pv(e.name, "LLRF", "amp", setting=True),
+                            "ph_rb": nm.pv(e.name, "LLRF", "phase"),
+                            "ph_sp": nm.pv(e.name, "LLRF", "phase",
+                                           setting=True),
+                            "det_rb": nm.pv(e.name, "LLRF", "detuning_hz"),
+                            "official": nm.map[e.name]["component"]})
+                return {"devices": out}
+            if method == "events":
+                out = []
+                for _, f in r.xrevrange(keys.stream("mps.events"),
+                                        count=int(args.get("n", 40))):
+                    out.append({
+                        "kind": f.get(b"kind", b"").decode(),
+                        "detail": f.get(b"detail", b"").decode(),
+                        "t": float(f.get(b"t", 0))})
+                return {"events": out}
+            if method == "settings":
+                cls, dev = args["cls"], args.get("dev", "main")
+                h = r.hgetall(keys.settings(cls, dev))
+                return {k.decode(): v.decode() for k, v in h.items()}
+            if method == "set":
+                import json as _jj
+                key = keys.settings(args["cls"], args.get("dev", "main"))
+                r.hset(key, args["field"], args["value"])
+                from pip2va.common import audit
+                audit.log_setting(r, key, args["field"],
+                                  args["value"], "flutter")
+                r.publish(keys.CH_SETTINGS, _jj.dumps({"key": key}))
+                return {"ok": True}
+            if method == "snapshots":
+                from pip2va.common import snapshots
+                act = args.get("action", "list")
+                if act == "save":
+                    snapshots.save(r, args["name"])
+                    return {"ok": True, "saved": args["name"]}
+                if act == "restore":
+                    r.hset("settings:autotune:main", "restore", 1)
+                    return {"ok": True}
+                snaps = snapshots.list_snapshots()
+                return {"names": [x.get("name", str(x)) if isinstance(x, dict)
+                                  else str(x) for x in snaps]}
+            if method == "scan_request":
+                kind = args.get("kind", "wire")
+                nmd = args["name"]
+                if kind == "laserwire":
+                    r.hset(f"req:lw:{nmd}", mapping={
+                        "points": args.get("points", 48),
+                        "ppp": 1, "halo": args.get("halo", 0)})
+                elif kind == "allison":
+                    r.hset("req:allison", mapping={"steps": 48})
+                else:
+                    r.hset(f"req:wire:{nmd}", mapping={
+                        "points": args.get("points", 64), "ppp": 1})
+                return {"ok": True}
+            if method == "phys":
+                if args.get("set"):
+                    r.hset("settings:physics:main",
+                           args["field"], args["value"])
+                    return {"ok": True}
+                h = r.hgetall("settings:physics:main")
+                return {k.decode(): v.decode() for k, v in h.items()}
+            if method == "scenario":
+                from pip2va.analysis import scenarios
+                act = args.get("action")
+                if act == "list":
+                    return {"scenarios": [
+                        {"name": k, "level": v.get("level"),
+                         "desc": v.get("desc")}
+                        for k, v in scenarios.SCENARIOS.items()]}
+                return {"error": "scenario control via GUI only"}
+            if method == "scan_latest":
+                e = r.xrevrange(keys.stream("profile.scan"), count=1)
+                if not e:
+                    return {"scan": None}
+                _, d = codec.unpack(e[0][1][b"d"])
+                return {"name": d.get("name", ""),
+                        "done": float(d.get("done", 0)),
+                        "pos": [float(x) for x in d.get("pos_mm", [])],
+                        "ix": [float(x) for x in d.get("ix", [])],
+                        "iy": [float(x) for x in d.get("iy", [])]}
+            if method == "allison_latest":
+                e = r.xrevrange(keys.stream("profile.allison"), count=1)
+                if not e:
+                    return {"img": None}
+                _, d = codec.unpack(e[0][1][b"d"])
+                return {"n": int(d["n"][0]), "done": float(d["done"][0]),
+                        "img": [float(x) for x in d["img"]],
+                        "eps": float(d["eps_ummrad"][0]),
+                        "alpha": float(d["alpha"][0]),
+                        "beta": float(d["beta_m"][0])}
+            if method == "wcm_latest":
+                e = r.xrevrange(keys.stream("wf.wcm"), count=1)
+                if not e:
+                    return {"q": None}
+                _, d = codec.unpack(e[0][1][b"d"])
+                nm = args.get("name", "MEBT:WCM1")
+                q = d.get(f"{nm}:q_nc")
+                pat = d.get("pat")
+                bpg = {k.decode(): v.decode()
+                       for k, v in r.hgetall("state:bpg").items()}
+                return {"q": [float(x) for x in q] if q is not None else [],
+                        "pat": [float(x) for x in pat]
+                                if pat is not None else [],
+                        "sig_ps": float(d.get(f"{nm}:sig_ps", [0])[0]),
+                        "bpg": bpg}
+            if method == "geometry":
+                from pip2va.common.lattice import load_lattice
+                from pip2va.gui.linac3d import floor_map
+                lat = load_lattice()
+                c, h, poly = floor_map(lat)
+                blms = lat.instruments("blm")
+                bl_idx = [i for i, e in enumerate(lat.elements)
+                          if e.type == "blm"]
+                secs = [{"name": s.name, "s": s.s_start}
+                        for s in lat.sections]
+                return {"poly": [[float(p[0]), float(p[1])]
+                                 for p in poly.tolist()],
+                        "blm_xy": [[float(c[i][0]), float(c[i][1])]
+                                   for i in bl_idx],
+                        "sections": secs}
             return {"error": f"unknown method {method}"}
         except Exception as e:
             return {"error": str(e)}
