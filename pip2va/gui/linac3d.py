@@ -182,10 +182,19 @@ class Linac3D(QWidget):
         idx = {id(e): k for k, e in enumerate(lat.elements)}
         sel = (lambda e: section is None or e.section == section)
 
+        # floor grid spans the full machine footprint (the BTL arcs now
+        # curve well beyond the old fixed grid — keep them on the grid)
+        import numpy as _np
+        _xy = _np.vstack([centers, poly]) if len(centers) else poly
+        _xmin, _xmax = float(_xy[:, 0].min()), float(_xy[:, 0].max())
+        _ymin, _ymax = float(_xy[:, 1].min()), float(_xy[:, 1].max())
+        _pad = 20.0
+        _gx = (_xmax - _xmin) + 2 * _pad
+        _gy = (_ymax - _ymin) + 2 * _pad
         grid = gl.GLGridItem()
-        grid.setSize(240, 120)
+        grid.setSize(_gx, _gy)
         grid.setSpacing(10, 10)
-        grid.translate(90, 0, -0.6)
+        grid.translate((_xmin + _xmax) / 2, (_ymin + _ymax) / 2, -0.6)
         self.view.addItem(grid)
 
         # XYZ gizmo

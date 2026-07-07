@@ -6,7 +6,9 @@ export LIBGL_ALWAYS_SOFTWARE=1
 export GALLIUM_DRIVER=llvmpipe
 export PIP2VA_SOFT_GL=1
 export PIP2VA_MAXIMIZE=1
-Xvfb :1 -screen 0 1920x1080x24 &
+# wider virtual display so the full dashboard fits (13 sections + 3 side-by-
+# side plots exceed 1920px); noVNC scales it down to the client window
+Xvfb :1 -screen 0 2560x1440x24 &
 sleep 1
 x11vnc -display :1 -forever -shared -nopw -quiet -noxdamage &
 VER=$(date +%s)
