@@ -13,8 +13,9 @@ x-service: &svc
   restart: unless-stopped
 
 # EPICS network configuration — multicast discovery (no broadcast).
-# EPICS_HOST_INTERFACE (the local interface IP to send/receive multicast on)
-# is per-host; set it in .env, e.g. EPICS_HOST_INTERFACE=10.10.20.167
+# EPICS_HOST_INTERFACE is the local interface NAME (not IP) to send/receive
+# multicast on; per-host, set it in .env — e.g. EPICS_HOST_INTERFACE=enP7s7
+# (find it with:  ip -o addr show | grep <host-ip> )
 x-epics-env: &epics-env
   # ---- CA protocol clients ----
   EPICS_CA_AUTO_ADDR_LIST: "NO"                 # no broadcast search
