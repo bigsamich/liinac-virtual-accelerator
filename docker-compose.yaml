@@ -52,11 +52,17 @@ services:
     build:
       context: .
       dockerfile: docker/epics-gateway.Dockerfile
-    # PVA discovery (UDP 5076 broadcast / TCP 5075) needs host networking
+    # PVA discovery (UDP 5076 broadcast / TCP 5075) needs host networking —
+    # this puts the PVA server directly on the host so remote EPICS clients
+    # (pvget, Phoebus, PyDM) connect to <host-ip>:5075/5076 with no mapping.
     network_mode: host
     environment:
       PIP2VA_REDIS_URL: redis://localhost:6379/0
       PIP2VA_EPICS_HZ: "10"
+      # advertise + beacon on all interfaces so other machines auto-discover
+      EPICS_PVAS_INTF_ADDR_LIST: "0.0.0.0"
+      EPICS_PVAS_BEACON_ADDR_LIST: "255.255.255.255"
+      EPICS_PVAS_AUTO_BEACON_ADDR_LIST: "YES"
     depends_on:
       redis:
         condition: service_healthy
