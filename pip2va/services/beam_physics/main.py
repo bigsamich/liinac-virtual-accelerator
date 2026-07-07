@@ -194,6 +194,52 @@ class BeamPhysicsService(Service):
                  for e in self.lat.elements if e.type == "scraper2"],
                 dtype=np.float32),
         })
+        # ---- Booster injection figure of merit (at the foil)
+        try:
+            from pip2va.physics import injection as _inj
+            if not hasattr(self, "_foil_j"):
+                self._foil_j = next(
+                    (i for i, e in enumerate(self.lat.elements)
+                     if e.type == "foil"), len(res.s) - 1)
+                self.r.hsetnx(keys.settings("injection", "main"),
+                              "bump0_mm", 8.0)
+                self.r.hsetnx(keys.settings("injection", "main"),
+                              "decay_turns", 60.0)
+                from pip2va.common import schema
+                schema.register_settings(self.r, "injection",
+                    {"bump0_mm": {"lo": 0.5, "hi": 25.0, "unit": "mm"},
+                     "decay_turns": {"lo": 5.0, "hi": 285.0}},
+                    pv="PIP2:INJ")
+            j = self._foil_j
+            inj_st = self.read_hash(keys.settings("injection", "main"))
+            bpg_ok = True
+            try:
+                mm = self.r.hget("state:bpg", "mismatch_buckets")
+                bpg_ok = (mm is None) or int(mm) == 0
+            except (TypeError, ValueError):
+                pass
+            chop = ds.get("MEBT:CHOP1", {})
+            from pip2va.common.bpg import avg_duty
+            duty = avg_duty(chop) if chop else 0.4
+            dpp = float(np.sqrt(max(res.sig_z[j], 1e-9)) * 0.0)  # placeholder
+            # momentum spread at the foil from the sigma matrix delta term
+            dpp = float(getattr(res, "dpp_rms", 0.0007) or 0.0007)
+            q = _inj.score(
+                i_out_ma=float(res.current_ma[j] if hasattr(
+                    res.current_ma, "__len__") else res.current_ma),
+                sig_x_mm=float(res.sig_x[j]) * 1e3,
+                sig_y_mm=float(res.sig_y[j]) * 1e3,
+                cx_mm=float(res.cx[j]) * 1e3,
+                cy_mm=float(res.cy[j]) * 1e3,
+                dpp_rms=dpp,
+                bump0_mm=float(inj_st.get("bump0_mm", 8.0)),
+                decay_turns=float(inj_st.get("decay_turns", 60.0)),
+                notch_ok=bpg_ok, duty=duty)
+            if beam_on:
+                self.r.hset("state:injection", mapping={
+                    k: round(float(v), 4) for k, v in q.items()})
+        except Exception:
+            pass
         lag_ms = (time.perf_counter() - t0) * 1e3
         pipe = self.r.pipeline(transaction=False)
         pipe.hset(keys.truth("beam"), "d", blob)

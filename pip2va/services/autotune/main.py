@@ -322,6 +322,8 @@ class AutotuneService(Service):
                                  for v in np.mean(xs, axis=0)]
             cap["orbit_y_mm"] = [round(float(v) * 1e3, 4)
                                  for v in np.mean(ys, axis=0)]
+        inj = {k.decode(): float(v) for k, v in
+               self.r.hgetall("state:injection").items()}
         scr_ua = 0.0
         e_s = self.r.xrevrange(keys.stream("scraper.current"), count=1)
         if e_s:
@@ -343,6 +345,9 @@ class AutotuneService(Service):
                 emit_y = float(dd["emit_y_um"][-1])
         return {"step": k + 1, **cap, "rf_det_rms_hz": round(det_rms, 2),
                 "scraper_sum_ua": round(scr_ua, 3),
+                "inj_score": round(inj.get("score", 0.0), 2),
+                "inj_protons": inj.get("protons_per_pulse", 0.0),
+                "inj_foil_hits": round(inj.get("foil_hits", 0.0), 2),
                 "emit_x_um": emit_x, "emit_y_um": emit_y,
                 "set_values": [float(v) for v in
                                self._study.get("values",

@@ -27,7 +27,7 @@ class OverviewPage(Page):
         self.v_t = BigValue("Transmission", "%", "{:.2f}")
         self.v_i = BigValue("Beam current (BTL)", "mA", "{:.3f}")
         self.v_loss = BigValue("Worst BLM", "W/m", "{:.3f}")
-        self.v_charge = BigValue("Pulse charge", "µC", "{:.3f}")
+        self.v_charge = BigValue("Injection η", "score", "{:.1f}")
         self.v_pulse = BigValue("Pulse", "", "{:.0f}")
         for v in (self.v_w, self.v_t, self.v_i, self.v_loss,
                   self.v_charge, self.v_pulse):
@@ -166,7 +166,10 @@ class OverviewPage(Page):
             self.view3d.update_current(i[:n], self._tor_s[:n])
         if n >= 3:
             self.v_i.set(float(i[-1]))
-            self.v_charge.set(float(i[-1]) * 1e-3 * self.pulse_ms * 1e3)
+            inj = self.hub.r.hget("state:injection", "score")
+            if inj is not None:
+                v = float(inj)
+                self.v_charge.set(v, "#2ecc71" if v > 80 else "#ffb74d")
             if self._gate % 4 == 0:
                 r = np.maximum(i[:-1], 1e-6)
                 tt = np.clip(100.0 * i[1:] / r, 0, 110)
