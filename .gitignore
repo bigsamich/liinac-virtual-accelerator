@@ -16,3 +16,4 @@ scripts/distill/merged*/
 scripts/distill/out*/
 webapp/build/
 webapp/.dart_tool/
+.env
