@@ -127,7 +127,7 @@ class RfSimService(Service):
                           if c.section == sec][a:b]
                     for j in js:
                         self.model.ext_det[j] += \
-                            -(self.model.dfdp[j] / 1.333) * dp
+                            -(self.model.bank.dfdp[j] / 1.333) * dp
             except (ValueError, KeyError):
                 pass
         for k in self.r.scan_iter("fault:rf:*"):

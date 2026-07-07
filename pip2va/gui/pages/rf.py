@@ -104,8 +104,11 @@ class RfPage(Page):
         det_bar.addWidget(self.btn_scan)
         det_bar.addWidget(self.btn_reset)
         self.body.addLayout(det_bar)
-        self.p_det = CrosshairPlot("detuning [Hz]", xlabel="pulse")
-        self.c_det = self.p_det.plot(pen=pg.mkPen(theme.ACCENT, width=1.5), name="detuning")
+        self.p_det = CrosshairPlot("detuning Δf [Hz]", xlabel="pulse")
+        self.p_det.pw.setTitle("Selected cavity — detuning history")
+        self.p_det.addLegend(offset=(6, 6))
+        self.c_det = self.p_det.plot(pen=pg.mkPen(theme.ACCENT, width=1.5),
+                                     name="detuning")
         self.body.addWidget(self.p_det, 1)
 
         self._index: list[str] | None = None

@@ -64,15 +64,22 @@ class ProfilesPage(Page):
         cols.addLayout(right, 1)
         self.body.addLayout(cols, 1)
 
-        # LEFT — wire profile
-        self.p_prof = make_plot("counts", xlabel="position [mm]")
-        self.c_x = self.p_prof.plot(pen=pg.mkPen(theme.ACCENT, width=2),
-                                    name="x")
-        self.c_y = self.p_prof.plot(pen=pg.mkPen("#ffb74d", width=2),
-                                    name="y")
-        self.c_fit = self.p_prof.plot(
-            pen=pg.mkPen(theme.OK, style=pg.QtCore.Qt.PenStyle.DashLine))
+        # LEFT — wire/laser profile
+        self.p_prof = make_plot("counts / signal", xlabel="wire position [mm]")
+        self.p_prof.setTitle(f"Profile scan: {self.sel_ws.currentText()} "
+                             f"(data vs fit) — shows the SELECTED scanner")
         self.p_prof.addLegend(offset=(6, 6))
+        self.sel_ws.currentTextChanged.connect(
+            lambda n: self.p_prof.setTitle(
+                f"Profile scan: {n} (data vs fit) — shows the SELECTED scanner"))
+        self.c_x = self.p_prof.plot(pen=pg.mkPen(theme.ACCENT, width=2),
+                                    name="x data")
+        self.c_y = self.p_prof.plot(pen=pg.mkPen("#ffb74d", width=2),
+                                    name="y data")
+        self.c_fit = self.p_prof.plot(
+            pen=pg.mkPen(theme.OK, width=2,
+                         style=pg.QtCore.Qt.PenStyle.DashLine),
+            name="Gaussian fit (x)")
         left.addWidget(self.p_prof, 2)
 
         # LEFT — phase-space images (x-x', y-y', z-δ side by side)
@@ -87,8 +94,12 @@ class ProfilesPage(Page):
         imgs = QHBoxLayout()
         self.ps_items = {}
         self.ps_plots = {}
-        for key, label in (("xxp", "x–x′"), ("yyp", "y–y′"), ("zd", "z–δ")):
-            p = make_plot("", xlabel=label)
+        for key, title, xl, yl in (
+                ("xxp", "x–x′", "x [m]", "x′ [rad]"),
+                ("yyp", "y–y′", "y [m]", "y′ [rad]"),
+                ("zd", "z–δ", "z [m]", "δp/p")):
+            p = make_plot(yl, xlabel=xl)
+            p.setTitle(title)
             item = pg.ImageItem(axisOrder="row-major")
             item.setLookupTable(pg.colormap.get("viridis").getLookupTable())
             p.addItem(item)
@@ -99,11 +110,12 @@ class ProfilesPage(Page):
 
         # LEFT — emittance vs s
         self.p_emit = make_plot("εₙ [µm]", xlabel="s [m]")
-        self.c_ex = self.p_emit.plot(pen=pg.mkPen(theme.ACCENT, width=1.5),
-                                     name="εx")
-        self.c_ey = self.p_emit.plot(pen=pg.mkPen("#ffb74d", width=1.5),
-                                     name="εy")
+        self.p_emit.setTitle("Normalised emittance vs position")
         self.p_emit.addLegend(offset=(6, 6))
+        self.c_ex = self.p_emit.plot(pen=pg.mkPen(theme.ACCENT, width=1.5),
+                                     name="εx (norm)")
+        self.c_ey = self.p_emit.plot(pen=pg.mkPen("#ffb74d", width=1.5),
+                                     name="εy (norm)")
         left.addWidget(self.p_emit, 2)
 
         # RIGHT — 3D beam cloud (large)
@@ -136,14 +148,15 @@ class ProfilesPage(Page):
             self.hub.select_3d_station(self.sel_3d.currentText())
 
         # RIGHT — cycle sigma(s): lasers vs wires
-        self.p_sig = CrosshairPlot("rms size [mm]", xlabel="s [m]")
+        self.p_sig = CrosshairPlot("rms beam size σ [mm]", xlabel="s [m]")
+        self.p_sig.pw.setTitle("Cycle scan: laser vs wire RMS sizes")
+        self.p_sig.addLegend(offset=(6, 6), labelTextSize="8pt")
         self.c_lwx = self.p_sig.plot(pen=None, symbol="o", symbolSize=7,
                                      symbolBrush="#4fc3f7", name="laser σx")
         self.c_lwy = self.p_sig.plot(pen=None, symbol="s", symbolSize=7,
                                      symbolBrush="#81c784", name="laser σy")
         self.c_wsx = self.p_sig.plot(pen=None, symbol="t", symbolSize=8,
                                      symbolBrush="#ffb74d", name="wire σx")
-        self.p_sig.addLegend(offset=(6, 6), labelTextSize="8pt")
         right.addWidget(self.p_sig, 2)
 
         # RIGHT — Allison scanner
