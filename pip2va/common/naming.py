@@ -113,17 +113,16 @@ class Namer:
                     mebt_cell += 1
                 ident = 300 + max(mebt_cell, 1) * 10 + 1
                 comp, system = "LWFE", "MEBT"
-            elif sec == "BTL":
+            elif sec in ("BTL", "ARC1", "ARC2", "BINJ", "BAL"):
                 if e.type == "quad":
                     btl_q += 1
-                # 70xx straight-ahead until first dipole region handled by
-                # quad counter mapping onto the 8xxx lines
-                ident = 8000 + btl_q
-                comp, system = "LBTL", "BTL"
-                if e.type in ("orbump", "foil"):
-                    comp, ident = "BSTR", 8510 if e.type == "orbump" else 8500
-                elif e.type == "sweep":
-                    comp, ident = "LBAL", 8601 + btl_q % 10
+                # 8xxx transfer-line numbering per ED0011740
+                base = {"BTL": 8100, "ARC1": 8000, "ARC2": 8400,
+                        "BINJ": 8500, "BAL": 8600}[sec]
+                comp = {"BTL": "LBTL", "ARC1": "LBTL", "ARC2": "LBTL",
+                        "BINJ": "BSTR", "BAL": "LBAL"}[sec]
+                ident = base + btl_q
+                system = sec
             else:
                 ident, comp, system = 0, "LACC", sec
             self.map[e.name] = {

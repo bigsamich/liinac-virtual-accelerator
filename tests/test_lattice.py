@@ -3,7 +3,7 @@ import pytest
 
 from pip2va.common.lattice import load_lattice
 
-SECTIONS = ["LEBT", "RFQ", "MEBT", "HWR", "SSR1", "SSR2", "LB650", "HB650", "BTL"]
+SECTIONS = ["LEBT","RFQ","MEBT","HWR","SSR1","SSR2","LB650","HB650","BTL","ARC1","ARC2","BINJ","BAL"]
 
 
 @pytest.fixture(scope="module")
