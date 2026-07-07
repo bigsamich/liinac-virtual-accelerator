@@ -226,7 +226,11 @@ def main():
     win = MainWindow(hub)
     import os as _os
     if _os.environ.get("PIP2VA_MAXIMIZE"):
-        win.showMaximized()
+        # no window manager in the headless container -> showMaximized is
+        # not honored; pin the window to exactly fill the virtual screen
+        geo = app.primaryScreen().geometry()
+        win.setGeometry(geo)
+        win.show()
     else:
         win.show()
     sys.exit(app.exec())
