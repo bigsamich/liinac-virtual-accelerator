@@ -36,11 +36,14 @@ class AskPanel(QWidget):
         self.ed.setPlaceholderText(
             "Ask the machine… (status? what happens if I raise the source "
             "to 6 mA? can I run unchopped? why is BTL:BLM1 high?)")
+        self.btn_status = QPushButton("Status")
+        self.btn_status.setToolTip("one-click AI status report")
         self.btn = QPushButton("Ask")
         self.btn_hide = QPushButton("×")
         self.btn_hide.setFixedWidth(24)
         self.btn_hide.setToolTip("hide the answer")
         row.addWidget(self.ed, 1)
+        row.addWidget(self.btn_status)
         row.addWidget(self.btn)
         row.addWidget(self.btn_hide)
         lay.addLayout(row)
@@ -50,20 +53,28 @@ class AskPanel(QWidget):
         self.txt.hide()
         lay.addWidget(self.txt)
         self.btn.clicked.connect(self._ask)
+        self.btn_status.clicked.connect(self._status)
         self.ed.returnPressed.connect(self._ask)
         self.btn_hide.clicked.connect(self.txt.hide)
 
-    def _ask(self):
-        q = self.ed.text().strip()
+    def _status(self):
+        self._ask("Give me a concise status report: energy, transmission, "
+                  "delivered current, injection score, beam permit, worst "
+                  "loss and location, and anything abnormal right now.")
+
+    def _ask(self, preset=None):
+        q = preset if isinstance(preset, str) else self.ed.text().strip()
         if not q or (self._worker and self._worker.isRunning()):
             return
         self.txt.show()
         self.txt.setPlainText("thinking…")
         self.btn.setEnabled(False)
+        self.btn_status.setEnabled(False)
         self._worker = AskWorker(self.hub.r, q)
         self._worker.done.connect(self._answered)
         self._worker.start()
 
     def _answered(self, text, engine):
         self.btn.setEnabled(True)
+        self.btn_status.setEnabled(True)
         self.txt.setPlainText(f"[{engine}]\n{text}")
