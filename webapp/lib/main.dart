@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'epics.dart';
 import 'pages.dart';
 import 'pages2.dart';
+import 'scene3d.dart';
 
 void main() => runApp(const Pip2App());
 
@@ -19,7 +20,7 @@ class _Pip2AppState extends State<Pip2App> {
 
   late final List<(String, IconData, Widget Function())> pages = [
     ('Dashboard', Icons.dashboard, () => DashboardPage(e: e)),
-    ('Machine synoptic', Icons.linear_scale, () => MachinePage(e: e)),
+    ('3D machine', Icons.threed_rotation, () => Machine3DPage(e: e)),
     ('Orbit', Icons.show_chart,
         () => ArrayPage(e, 'Orbit x/y [mm] — 108 BPMs', 'PIP2:BPM:X',
             pv2: 'PIP2:BPM:Y', symmetric: true)),
@@ -27,6 +28,7 @@ class _Pip2AppState extends State<Pip2App> {
         () => ArrayPage(e, 'Beam loss [W/m] — 120 BLMs', 'PIP2:BLM:WPM',
             bars: true, color: kBad)),
     ('Profiles', Icons.blur_on, () => ProfilesPage(e: e)),
+    ('Beam spot 3D', Icons.lens_blur, () => Profile3DPage(e: e)),
     ('Bunch monitor', Icons.graphic_eq, () => BunchPage(e: e)),
     ('Strip tool', Icons.timeline, () => StripToolPage(e: e)),
     ('RF', Icons.settings_input_antenna,
@@ -47,6 +49,8 @@ class _Pip2AppState extends State<Pip2App> {
   void initState() {
     super.initState();
     final loc = Uri.base;
+    final pp = int.tryParse(loc.queryParameters['p'] ?? '');
+    if (pp != null && pp >= 0 && pp < pages.length) page = pp;
     final scheme = loc.scheme == 'https' ? 'wss' : 'ws';
     e = Epics('$scheme://${loc.authority}/ws');
     e.subscribe(const [

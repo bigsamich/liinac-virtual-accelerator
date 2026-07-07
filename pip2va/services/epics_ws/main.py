@@ -312,19 +312,101 @@ async def _rpc(hub, ws, m):
                         "bpg": bpg}
             if method == "geometry":
                 from pip2va.common.lattice import load_lattice
-                from pip2va.gui.linac3d import floor_map
+                from pip2va.common.geometry import floor_map, TYPE_COLORS
+                import math as _m
                 lat = load_lattice()
                 c, h, poly = floor_map(lat)
-                blms = lat.instruments("blm")
-                bl_idx = [i for i, e in enumerate(lat.elements)
-                          if e.type == "blm"]
-                secs = [{"name": s.name, "s": s.s_start}
-                        for s in lat.sections]
-                return {"poly": [[float(p[0]), float(p[1])]
-                                 for p in poly.tolist()],
-                        "blm_xy": [[float(c[i][0]), float(c[i][1])]
-                                   for i in bl_idx],
-                        "sections": secs}
+                sec_filter = args.get("section")
+                els = []
+                for i, e in enumerate(lat.elements):
+                    if e.type in ("drift", "aperture"):
+                        continue
+                    if sec_filter and e.section != sec_filter:
+                        continue
+                    col = TYPE_COLORS.get(e.type, (0.6, 0.6, 0.6, 1.0))
+                    els.append({
+                        "x": float(c[i][0]), "y": float(c[i][1]),
+                        "th": float(h[i]), "len": max(float(e.length), 0.35),
+                        "type": e.type,
+                        "rgb": [col[0], col[1], col[2]]})
+                bpms = lat.instruments("bpm")
+                bpm_i = [i for i, e in enumerate(lat.elements)
+                         if e.type == "bpm"
+                         and (not sec_filter or e.section == sec_filter)]
+                blm_i = [i for i, e in enumerate(lat.elements)
+                         if e.type == "blm"
+                         and (not sec_filter or e.section == sec_filter)]
+                bpm_g = [i for i, e in enumerate(lat.elements)
+                         if e.type == "bpm"]
+                blm_g = [i for i, e in enumerate(lat.elements)
+                         if e.type == "blm"]
+                def marker(gi_list, i_list):
+                    idxmap = {gi: k for k, gi in enumerate(gi_list)}
+                    return [{"x": float(c[i][0]), "y": float(c[i][1]),
+                             "nx": float(-_m.sin(h[i])),
+                             "ny": float(_m.cos(h[i])),
+                             "g": idxmap[i]} for i in i_list]
+                secs = []
+                mask = ([sec_filter] if sec_filter else None)
+                for sname in (mask or [s.name for s in lat.sections]):
+                    si = next((i for i, e in enumerate(lat.elements)
+                               if e.section == sname), None)
+                    if si is not None:
+                        secs.append({"name": sname, "x": float(c[si][0]),
+                                     "y": float(c[si][1])})
+                pf = [[float(p[0]), float(p[1])] for p in poly.tolist()]
+                return {"poly": pf, "elements": els,
+                        "bpm": marker(bpm_g, bpm_i),
+                        "blm": marker(blm_g, blm_i),
+                        "sections": secs,
+                        "sec_names": [s.name for s in lat.sections]}
+            if method == "envelope":
+                from pip2va.common.lattice import load_lattice
+                from pip2va.common.geometry import floor_map
+                import math as _m
+                blob = r.hget("truth:beam", "d")
+                if blob is None:
+                    return {"rings": []}
+                _, tr = codec.unpack(blob)
+                lat = load_lattice()
+                c, h, _ = floor_map(lat)
+                sec_filter = args.get("section")
+                step = 1 if sec_filter else 4
+                rings = []
+                for i in range(0, len(lat.elements), step):
+                    e = lat.elements[i]
+                    if e.length <= 0:
+                        continue
+                    if sec_filter and e.section != sec_filter:
+                        continue
+                    if i >= len(tr["sig_x"]):
+                        break
+                    rings.append({
+                        "x": float(c[i][0]), "y": float(c[i][1]),
+                        "nx": float(-_m.sin(h[i])), "ny": float(_m.cos(h[i])),
+                        "cx": float(tr["cx"][i]) * 1e3,
+                        "cy": float(tr["cy"][i]) * 1e3,
+                        "sx": float(tr["sig_x"][i]) * 1e3,
+                        "sy": float(tr["sig_y"][i]) * 1e3})
+                return {"rings": rings}
+            if method == "cloud":
+                e = r.xrevrange(keys.stream("beam.deep"), count=1)
+                if not e:
+                    return {"cloud": None}
+                _, d = codec.unpack(e[0][1][b"d"])
+                cl = d.get("cloud")
+                if cl is None:
+                    return {"cloud": None, "station": d.get("cloud_at")}
+                import numpy as _np
+                a = _np.asarray(cl, dtype=float)
+                if a.shape[0] != 3:
+                    a = a.T
+                n = a.shape[1]
+                stp = max(1, n // 4000)
+                return {"x": [float(v) for v in a[0, ::stp]],
+                        "y": [float(v) for v in a[1, ::stp]],
+                        "z": [float(v) for v in a[2, ::stp]],
+                        "station": d.get("cloud_at", "")}
             return {"error": f"unknown method {method}"}
         except Exception as e:
             return {"error": str(e)}
