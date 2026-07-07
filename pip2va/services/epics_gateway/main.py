@@ -31,7 +31,7 @@ from pip2va.common.config import Settings
 log = logging.getLogger("epics-gateway")
 
 try:
-    from p4p.nt import NTScalar
+    from p4p.nt import NTScalar, NTURI
     from p4p.server import Server
     from p4p.server.thread import SharedPV
     HAVE_P4P = True
@@ -46,7 +46,8 @@ class _AskRPC:
     Accepts the question as query.query / q / question / text, or a plain
     NTScalar string argument."""
 
-    def __init__(self, r):
+    def __init__(self, name, r):
+        self.name = name
         self.r = r
 
     @staticmethod
@@ -61,11 +62,18 @@ class _AskRPC:
                 return str(got)
         return None
 
+    def _usage(self):
+        return (f"{self.name}: PVA RPC to the local PIP-II AI. "
+                f"Call e.g.  pvcall {self.name} query='<your question>'. "
+                f"Argument: query (string; q/question/text also accepted). "
+                f"Returns an NTScalar string answer. GET/introspect the PV to "
+                f"see the NTURI request template.")
+
     def rpc(self, pv, op):
         try:
             q = self._question(op.value())
-            if not q:
-                op.done(error="missing question (use query=...)")
+            if not q or q.strip().lower() in ("help", "?"):
+                op.done(NTScalar("s").wrap(self._usage()))
                 return
             from pip2va.analysis import assistant
             answer, engine = assistant.ask(self.r, q)
@@ -184,11 +192,15 @@ class Gateway:
             self.pvs[name] = pv
         for name in self.dev_rb:
             self.pvs[name] = SharedPV(nt=NTScalar("d"), initial=0.0)
-        # LLM RPC: EPICS clients ask the local AI and get a text reply
+        # LLM RPC: EPICS clients ask the local AI and get a text reply.
+        # The channel introspects as an NTURI request template, so clients
+        # (Phoebus, pvcall) discover it is an RPC and see the 'query' arg.
         self.ai_pv = f"{prefix}:AI:ASK" if prefix else "PIP2:AI:ASK"
-        self.pvs[self.ai_pv] = SharedPV(handler=_AskRPC(self.r),
-                                        nt=NTScalar("s"), initial="")
-        log.info("LLM RPC PV: %s", self.ai_pv)
+        tmpl = NTURI([("query", "s")]).wrap(
+            self.ai_pv, kws={"query": "ask the PIP-II AI a question"})
+        self.pvs[self.ai_pv] = SharedPV(handler=_AskRPC(self.ai_pv, self.r),
+                                        initial=tmpl)
+        log.info("LLM RPC PV: %s (self-describing NTURI)", self.ai_pv)
         log.info("PVA registry: %d PVs (%d writable, %d per-device RB)",
                  len(self.pvs),
                  sum(1 for d in self.plan.values() if d["kind"] == "write"),
