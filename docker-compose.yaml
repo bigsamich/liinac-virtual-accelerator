@@ -66,6 +66,10 @@ services:
     build:
       context: .
       dockerfile: docker/epics-ws.Dockerfile
+      args:
+        # WEBAPP_MODE=none skips the Flutter build (no 2 GB SDK pull):
+        #   WEBAPP_MODE=none docker compose build epics-ws
+        WEBAPP_MODE: ${WEBAPP_MODE:-full}
     network_mode: host          # PVA discovery + serves :8085
     environment:
       PIP2VA_REDIS_URL: redis://localhost:6379/0
