@@ -59,10 +59,12 @@ services:
     environment:
       PIP2VA_REDIS_URL: redis://localhost:6379/0
       PIP2VA_EPICS_HZ: "10"
-      # advertise + beacon on all interfaces so other machines auto-discover
-      EPICS_PVAS_INTF_ADDR_LIST: "0.0.0.0"
-      EPICS_PVAS_BEACON_ADDR_LIST: "255.255.255.255"
-      EPICS_PVAS_AUTO_BEACON_ADDR_LIST: "YES"
+      # ---- PVA multicast discovery (no broadcast) ----
+      EPICS_PVAS_INTF_ADDR_LIST: "239.128.1.6,8"
+      EPICS_PVAS_BEACON_ADDR_LIST: "239.128.1.7,10"
+      EPICS_PVAS_AUTO_BEACON_ADDR_LIST: "NO"
+      EPICS_PVA_AUTO_ADDR_LIST: "NO"
+      EPICS_PVA_ADDR_LIST: "239.128.1.6"
     depends_on:
       redis:
         condition: service_healthy
@@ -79,6 +81,9 @@ services:
     network_mode: host          # PVA discovery + serves :8085
     environment:
       PIP2VA_REDIS_URL: redis://localhost:6379/0
+      # PVA client: reach the server via the multicast group (no broadcast)
+      EPICS_PVA_AUTO_ADDR_LIST: "NO"
+      EPICS_PVA_ADDR_LIST: "239.128.1.6"
     depends_on:
       redis:
         condition: service_healthy
