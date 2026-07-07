@@ -12,6 +12,26 @@ x-service: &svc
       condition: service_healthy
   restart: unless-stopped
 
+# EPICS network configuration — multicast discovery (no broadcast).
+# EPICS_HOST_INTERFACE (the local interface IP to send/receive multicast on)
+# is per-host; set it in .env, e.g. EPICS_HOST_INTERFACE=10.10.20.167
+x-epics-env: &epics-env
+  # ---- CA protocol clients ----
+  EPICS_CA_AUTO_ADDR_LIST: "NO"                 # no broadcast search
+  EPICS_CA_ADDR_LIST: "239.128.1.6"             # mcast searches
+  EPICS_CA_MCAST_TTL: "32"                      # search (and beacon) TTL
+  # ---- CA protocol IOC servers ----
+  EPICS_CAS_INTF_ADDR_LIST: "239.128.1.6"       # mcast search listen
+  EPICS_CAS_AUTO_BEACON_ADDR_LIST: "NO"         # no broadcast beacons
+  EPICS_CAS_BEACON_ADDR_LIST: "239.128.1.7"     # send mcast beacons
+  # ---- PVA protocol clients ----
+  EPICS_PVA_AUTO_ADDR_LIST: "NO"                # no broadcast search
+  EPICS_PVA_ADDR_LIST: "239.128.1.6,8@${EPICS_HOST_INTERFACE}"  # mcast (PVXS)
+  # ---- PVA protocol IOC servers ----
+  EPICS_PVAS_INTF_ADDR_LIST: "239.128.1.6"      # mcast search listen
+  EPICS_PVAS_AUTO_BEACON_ADDR_LIST: "NO"        # no broadcast beacons
+  EPICS_PVAS_BEACON_ADDR_LIST: "239.128.1.7,10" # send mcast beacons
+
 services:
   redis:
     image: redis:7-alpine
@@ -57,14 +77,10 @@ services:
     # (pvget, Phoebus, PyDM) connect to <host-ip>:5075/5076 with no mapping.
     network_mode: host
     environment:
+      <<: *epics-env
       PIP2VA_REDIS_URL: redis://localhost:6379/0
       PIP2VA_EPICS_HZ: "10"
-      # ---- PVA multicast discovery (no broadcast) ----
-      EPICS_PVAS_INTF_ADDR_LIST: "239.128.1.6,8"
-      EPICS_PVAS_BEACON_ADDR_LIST: "239.128.1.7,10"
-      EPICS_PVAS_AUTO_BEACON_ADDR_LIST: "NO"
-      EPICS_PVA_AUTO_ADDR_LIST: "NO"
-      EPICS_PVA_ADDR_LIST: "239.128.1.6"
+      PIP2VA_PV_PREFIX: "${PIP2VA_PV_PREFIX:-SPARK}"
     depends_on:
       redis:
         condition: service_healthy
@@ -80,10 +96,8 @@ services:
         WEBAPP_MODE: ${WEBAPP_MODE:-full}
     network_mode: host          # PVA discovery + serves :8085
     environment:
+      <<: *epics-env
       PIP2VA_REDIS_URL: redis://localhost:6379/0
-      # PVA client: reach the server via the multicast group (no broadcast)
-      EPICS_PVA_AUTO_ADDR_LIST: "NO"
-      EPICS_PVA_ADDR_LIST: "239.128.1.6"
     depends_on:
       redis:
         condition: service_healthy
