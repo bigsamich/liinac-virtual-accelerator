@@ -76,10 +76,10 @@ sections:
   s_end: 217.98
   w_out: 800.0
 - name: ARC2
-  s_start: 220.43
+  s_start: 252.98
   w_in: 800.0
   freq_mhz: null
-  s_end: 252.98
+  s_end: 281.88
   w_out: 800.0
 - name: BINJ
   s_start: 345.33
@@ -9532,7 +9532,7 @@ elements:
   aperture_radius: 0.0225
   params:
     angle_deg: 6.787
-    b_t: 0.236
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX203
   type: blm
@@ -9560,7 +9560,7 @@ elements:
   aperture_radius: 0.0225
   params:
     angle_deg: 6.787
-    b_t: 0.236
+    b_t: 0.24
   knobs: {}
 - name: BTL:D13
   type: drift
@@ -9713,7 +9713,7 @@ elements:
   aperture_radius: 0.0225
   params:
     angle_deg: 6.787
-    b_t: 0.236
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX308
   type: blm
@@ -9741,7 +9741,7 @@ elements:
   aperture_radius: 0.0225
   params:
     angle_deg: 6.787
-    b_t: 0.236
+    b_t: 0.24
   knobs: {}
 - name: BTL:D17
   type: drift
@@ -9876,7 +9876,7 @@ elements:
   aperture_radius: 0.0225
   params:
     angle_deg: 6.787
-    b_t: 0.236
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX304
   type: blm
@@ -9904,7 +9904,7 @@ elements:
   aperture_radius: 0.0225
   params:
     angle_deg: 6.787
-    b_t: 0.236
+    b_t: 0.24
   knobs: {}
 - name: BTL:D21
   type: drift
@@ -10039,7 +10039,7 @@ elements:
   aperture_radius: 0.0225
   params:
     angle_deg: 6.787
-    b_t: 0.236
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX309
   type: blm
@@ -10083,13 +10083,13 @@ elements:
   aperture_radius: 0.0225
   params:
     angle_deg: 6.787
-    b_t: 0.236
+    b_t: 0.24
   knobs: {}
 - name: BTL:D25
   type: drift
   s: 220.43
   length: 0.35
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params: {}
   knobs: {}
@@ -10097,7 +10097,7 @@ elements:
   type: quad
   s: 220.78
   length: 0.2
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
@@ -10110,7 +10110,7 @@ elements:
   type: corrector
   s: 220.98
   length: 0.05
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     bl_per_amp: 0.00025
@@ -10122,7 +10122,7 @@ elements:
   type: bpm
   s: 221.03
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     noise_um: 10.0
@@ -10133,7 +10133,7 @@ elements:
   type: blm
   s: 221.03
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 1.0
   params:
     noise_frac: 0.05
@@ -10144,7 +10144,7 @@ elements:
   type: wire_scanner
   s: 221.03
   length: 0.05
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     kind: wire
@@ -10154,7 +10154,7 @@ elements:
   type: drift
   s: 221.08
   length: 1.3
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params: {}
   knobs: {}
@@ -10162,7 +10162,7 @@ elements:
   type: quad
   s: 222.38
   length: 0.2
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
@@ -10175,7 +10175,7 @@ elements:
   type: corrector
   s: 222.58
   length: 0.05
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     bl_per_amp: 0.00025
@@ -10187,7 +10187,7 @@ elements:
   type: bpm
   s: 222.63
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     noise_um: 10.0
@@ -10198,7 +10198,7 @@ elements:
   type: drift
   s: 222.63
   length: 1.3
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params: {}
   knobs: {}
@@ -10206,27 +10206,25 @@ elements:
   type: blm
   s: 223.93
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
   knobs: {}
 - name: BTL:B9
-  type: dipole
+  type: drift
   s: 223.93
   length: 2.45
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
-  params:
-    angle_deg: 6.787
-    b_t: 0.236
+  params: {}
   knobs: {}
 - name: BTL:BLMX310
   type: blm
   s: 226.38
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     noise_frac: 0.05
@@ -10236,25 +10234,23 @@ elements:
   type: drift
   s: 226.38
   length: 0.35
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params: {}
   knobs: {}
 - name: BTL:B10
-  type: dipole
+  type: drift
   s: 226.73
   length: 2.45
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
-  params:
-    angle_deg: 6.787
-    b_t: 0.236
+  params: {}
   knobs: {}
 - name: BTL:PMP18
   type: pump
   s: 229.18
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 0.02
   params: {}
   knobs: {}
@@ -10262,7 +10258,7 @@ elements:
   type: gauge
   s: 229.18
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 0.02
   params: {}
   knobs: {}
@@ -10270,7 +10266,7 @@ elements:
   type: drift
   s: 229.18
   length: 0.35
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params: {}
   knobs: {}
@@ -10278,7 +10274,7 @@ elements:
   type: quad
   s: 229.53
   length: 0.2
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
@@ -10291,7 +10287,7 @@ elements:
   type: corrector
   s: 229.73
   length: 0.05
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     bl_per_amp: 0.00025
@@ -10303,7 +10299,7 @@ elements:
   type: bpm
   s: 229.78
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     noise_um: 10.0
@@ -10314,7 +10310,7 @@ elements:
   type: blm
   s: 229.78
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 1.0
   params:
     noise_frac: 0.05
@@ -10325,7 +10321,7 @@ elements:
   type: drift
   s: 229.78
   length: 1.3
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params: {}
   knobs: {}
@@ -10333,7 +10329,7 @@ elements:
   type: quad
   s: 231.08
   length: 0.2
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
@@ -10346,7 +10342,7 @@ elements:
   type: corrector
   s: 231.28
   length: 0.05
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     bl_per_amp: 0.00025
@@ -10358,7 +10354,7 @@ elements:
   type: bpm
   s: 231.33
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     noise_um: 10.0
@@ -10369,7 +10365,7 @@ elements:
   type: drift
   s: 231.33
   length: 1.3
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params: {}
   knobs: {}
@@ -10377,27 +10373,25 @@ elements:
   type: blm
   s: 232.63
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
   knobs: {}
 - name: BTL:B11
-  type: dipole
+  type: drift
   s: 232.63
   length: 2.45
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
-  params:
-    angle_deg: 6.787
-    b_t: 0.236
+  params: {}
   knobs: {}
 - name: BTL:BLMX305
   type: blm
   s: 235.08
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     noise_frac: 0.05
@@ -10407,7 +10401,7 @@ elements:
   type: gauge
   s: 235.08
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 0.02
   params: {}
   knobs: {}
@@ -10415,7 +10409,7 @@ elements:
   type: drift
   s: 235.08
   length: 0.35
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params: {}
   knobs: {}
@@ -10423,27 +10417,25 @@ elements:
   type: blm
   s: 235.43
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
   knobs: {}
 - name: BTL:B12
-  type: dipole
+  type: drift
   s: 235.43
   length: 2.45
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
-  params:
-    angle_deg: 6.787
-    b_t: 0.236
+  params: {}
   knobs: {}
 - name: BTL:BLMX73
   type: blm
   s: 237.88
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     noise_frac: 0.05
@@ -10453,25 +10445,23 @@ elements:
   type: drift
   s: 237.88
   length: 0.35
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params: {}
   knobs: {}
 - name: BTL:B13
-  type: dipole
+  type: drift
   s: 238.23
   length: 2.45
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
-  params:
-    angle_deg: 6.787
-    b_t: 0.236
+  params: {}
   knobs: {}
 - name: BTL:PMP16
   type: pump
   s: 240.68
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 0.02
   params: {}
   knobs: {}
@@ -10479,7 +10469,7 @@ elements:
   type: gauge
   s: 240.68
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 0.02
   params: {}
   knobs: {}
@@ -10487,7 +10477,7 @@ elements:
   type: drift
   s: 240.68
   length: 0.35
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params: {}
   knobs: {}
@@ -10495,7 +10485,7 @@ elements:
   type: quad
   s: 241.03
   length: 0.2
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
@@ -10508,7 +10498,7 @@ elements:
   type: corrector
   s: 241.23
   length: 0.05
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     bl_per_amp: 0.00025
@@ -10520,7 +10510,7 @@ elements:
   type: bpm
   s: 241.28
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     noise_um: 10.0
@@ -10531,7 +10521,7 @@ elements:
   type: blm
   s: 241.28
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 1.0
   params:
     noise_frac: 0.05
@@ -10542,7 +10532,7 @@ elements:
   type: drift
   s: 241.28
   length: 1.3
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params: {}
   knobs: {}
@@ -10550,7 +10540,7 @@ elements:
   type: bsm
   s: 242.58
   length: 0.05
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params: {}
   knobs: {}
@@ -10558,7 +10548,7 @@ elements:
   type: toroid
   s: 242.63
   length: 0.05
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     noise_frac: 0.002
@@ -10568,7 +10558,7 @@ elements:
   type: quad
   s: 242.68
   length: 0.2
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
@@ -10581,7 +10571,7 @@ elements:
   type: corrector
   s: 242.88
   length: 0.05
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     bl_per_amp: 0.00025
@@ -10593,7 +10583,7 @@ elements:
   type: bpm
   s: 242.93
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     noise_um: 10.0
@@ -10604,7 +10594,7 @@ elements:
   type: drift
   s: 242.93
   length: 1.3
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params: {}
   knobs: {}
@@ -10612,27 +10602,25 @@ elements:
   type: blm
   s: 244.23
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
   knobs: {}
 - name: BTL:B14
-  type: dipole
+  type: drift
   s: 244.23
   length: 2.45
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
-  params:
-    angle_deg: 6.787
-    b_t: 0.236
+  params: {}
   knobs: {}
 - name: BTL:BLMX306
   type: blm
   s: 246.68
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     noise_frac: 0.05
@@ -10642,25 +10630,23 @@ elements:
   type: drift
   s: 246.68
   length: 0.35
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params: {}
   knobs: {}
 - name: BTL:B15
-  type: dipole
+  type: drift
   s: 247.03
   length: 2.45
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
-  params:
-    angle_deg: 6.787
-    b_t: 0.236
+  params: {}
   knobs: {}
 - name: BTL:D38
   type: drift
   s: 249.48
   length: 0.35
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params: {}
   knobs: {}
@@ -10668,7 +10654,7 @@ elements:
   type: quad
   s: 249.83
   length: 0.2
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
@@ -10681,7 +10667,7 @@ elements:
   type: corrector
   s: 250.03
   length: 0.05
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     bl_per_amp: 0.00025
@@ -10693,7 +10679,7 @@ elements:
   type: bpm
   s: 250.08
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     noise_um: 10.0
@@ -10704,7 +10690,7 @@ elements:
   type: blm
   s: 250.08
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 1.0
   params:
     noise_frac: 0.05
@@ -10715,7 +10701,7 @@ elements:
   type: wire_scanner
   s: 250.08
   length: 0.05
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     kind: wire
@@ -10725,7 +10711,7 @@ elements:
   type: drift
   s: 250.13
   length: 1.3
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params: {}
   knobs: {}
@@ -10733,7 +10719,7 @@ elements:
   type: gauge
   s: 251.43
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 0.02
   params: {}
   knobs: {}
@@ -10741,7 +10727,7 @@ elements:
   type: quad
   s: 251.43
   length: 0.2
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
@@ -10754,7 +10740,7 @@ elements:
   type: corrector
   s: 251.63
   length: 0.05
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     bl_per_amp: 0.00025
@@ -10766,7 +10752,7 @@ elements:
   type: bpm
   s: 251.68
   length: 0.0
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params:
     noise_um: 10.0
@@ -10777,7 +10763,7 @@ elements:
   type: drift
   s: 251.68
   length: 1.3
-  section: ARC2
+  section: BTL
   aperture_radius: 0.0225
   params: {}
   knobs: {}
@@ -10799,13 +10785,13 @@ elements:
   aperture_radius: 0.0225
   params:
     angle_deg: 6.787
-    b_t: 0.236
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX307
   type: blm
   s: 255.43
   length: 0.0
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     noise_frac: 0.05
@@ -10815,23 +10801,25 @@ elements:
   type: drift
   s: 255.43
   length: 0.35
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params: {}
   knobs: {}
 - name: BTL:B17
-  type: drift
+  type: dipole
   s: 255.78
   length: 2.45
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
-  params: {}
+  params:
+    angle_deg: 6.787
+    b_t: 0.24
   knobs: {}
 - name: BTL:D42
   type: drift
   s: 258.23
   length: 0.35
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params: {}
   knobs: {}
@@ -10839,7 +10827,7 @@ elements:
   type: quad
   s: 258.58
   length: 0.2
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
@@ -10852,7 +10840,7 @@ elements:
   type: corrector
   s: 258.78
   length: 0.05
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     bl_per_amp: 0.00025
@@ -10864,7 +10852,7 @@ elements:
   type: bpm
   s: 258.83
   length: 0.0
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     noise_um: 10.0
@@ -10875,7 +10863,7 @@ elements:
   type: blm
   s: 258.83
   length: 0.0
-  section: BTL
+  section: ARC2
   aperture_radius: 1.0
   params:
     noise_frac: 0.05
@@ -10886,7 +10874,7 @@ elements:
   type: drift
   s: 258.83
   length: 1.3
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params: {}
   knobs: {}
@@ -10894,7 +10882,7 @@ elements:
   type: quad
   s: 260.13
   length: 0.2
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
@@ -10907,7 +10895,7 @@ elements:
   type: corrector
   s: 260.33
   length: 0.05
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     bl_per_amp: 0.00025
@@ -10919,7 +10907,7 @@ elements:
   type: bpm
   s: 260.38
   length: 0.0
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     noise_um: 10.0
@@ -10930,7 +10918,7 @@ elements:
   type: drift
   s: 260.38
   length: 1.3
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params: {}
   knobs: {}
@@ -10938,7 +10926,7 @@ elements:
   type: blm
   s: 261.68
   length: 0.0
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     noise_frac: 0.05
@@ -10948,7 +10936,7 @@ elements:
   type: pump
   s: 261.68
   length: 0.0
-  section: BTL
+  section: ARC2
   aperture_radius: 0.02
   params: {}
   knobs: {}
@@ -10956,23 +10944,25 @@ elements:
   type: gauge
   s: 261.68
   length: 0.0
-  section: BTL
+  section: ARC2
   aperture_radius: 0.02
   params: {}
   knobs: {}
 - name: BTL:B18
-  type: drift
+  type: dipole
   s: 261.68
   length: 2.45
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
-  params: {}
+  params:
+    angle_deg: 6.787
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX311
   type: blm
   s: 264.13
   length: 0.0
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     noise_frac: 0.05
@@ -10982,23 +10972,25 @@ elements:
   type: drift
   s: 264.13
   length: 0.35
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params: {}
   knobs: {}
 - name: BTL:B19
-  type: drift
+  type: dipole
   s: 264.48
   length: 2.45
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
-  params: {}
+  params:
+    angle_deg: 6.787
+    b_t: 0.24
   knobs: {}
 - name: BTL:D46
   type: drift
   s: 266.93
   length: 0.35
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params: {}
   knobs: {}
@@ -11006,7 +10998,7 @@ elements:
   type: gauge
   s: 267.28
   length: 0.0
-  section: BTL
+  section: ARC2
   aperture_radius: 0.02
   params: {}
   knobs: {}
@@ -11014,7 +11006,7 @@ elements:
   type: quad
   s: 267.28
   length: 0.2
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
@@ -11027,7 +11019,7 @@ elements:
   type: corrector
   s: 267.48
   length: 0.05
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     bl_per_amp: 0.00025
@@ -11039,7 +11031,7 @@ elements:
   type: bpm
   s: 267.53
   length: 0.0
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     noise_um: 10.0
@@ -11050,7 +11042,7 @@ elements:
   type: blm
   s: 267.53
   length: 0.0
-  section: BTL
+  section: ARC2
   aperture_radius: 1.0
   params:
     noise_frac: 0.05
@@ -11061,7 +11053,7 @@ elements:
   type: drift
   s: 267.53
   length: 1.3
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params: {}
   knobs: {}
@@ -11069,7 +11061,7 @@ elements:
   type: quad
   s: 268.83
   length: 0.2
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
@@ -11082,7 +11074,7 @@ elements:
   type: corrector
   s: 269.03
   length: 0.05
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     bl_per_amp: 0.00025
@@ -11094,7 +11086,7 @@ elements:
   type: bpm
   s: 269.08
   length: 0.0
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     noise_um: 10.0
@@ -11105,7 +11097,7 @@ elements:
   type: drift
   s: 269.08
   length: 1.3
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params: {}
   knobs: {}
@@ -11113,25 +11105,27 @@ elements:
   type: blm
   s: 270.38
   length: 0.0
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
   knobs: {}
 - name: BTL:B20
-  type: drift
+  type: dipole
   s: 270.38
   length: 2.45
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
-  params: {}
+  params:
+    angle_deg: 6.787
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX312
   type: blm
   s: 272.83
   length: 0.0
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     noise_frac: 0.05
@@ -11141,7 +11135,7 @@ elements:
   type: pump
   s: 272.83
   length: 0.0
-  section: BTL
+  section: ARC2
   aperture_radius: 0.02
   params: {}
   knobs: {}
@@ -11149,7 +11143,7 @@ elements:
   type: gauge
   s: 272.83
   length: 0.0
-  section: BTL
+  section: ARC2
   aperture_radius: 0.02
   params: {}
   knobs: {}
@@ -11157,23 +11151,25 @@ elements:
   type: drift
   s: 272.83
   length: 0.35
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params: {}
   knobs: {}
 - name: BTL:B21
-  type: drift
+  type: dipole
   s: 273.18
   length: 2.45
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
-  params: {}
+  params:
+    angle_deg: 6.787
+    b_t: 0.24
   knobs: {}
 - name: BTL:D50
   type: drift
   s: 275.63
   length: 0.35
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params: {}
   knobs: {}
@@ -11181,7 +11177,7 @@ elements:
   type: quad
   s: 275.98
   length: 0.2
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
@@ -11194,7 +11190,7 @@ elements:
   type: corrector
   s: 276.18
   length: 0.05
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     bl_per_amp: 0.00025
@@ -11206,7 +11202,7 @@ elements:
   type: bpm
   s: 276.23
   length: 0.0
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     noise_um: 10.0
@@ -11217,7 +11213,7 @@ elements:
   type: blm
   s: 276.23
   length: 0.0
-  section: BTL
+  section: ARC2
   aperture_radius: 1.0
   params:
     noise_frac: 0.05
@@ -11228,7 +11224,7 @@ elements:
   type: drift
   s: 276.23
   length: 1.3
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params: {}
   knobs: {}
@@ -11236,7 +11232,7 @@ elements:
   type: quad
   s: 277.53
   length: 0.2
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     grad_per_amp: 0.1
@@ -11249,7 +11245,7 @@ elements:
   type: corrector
   s: 277.73
   length: 0.05
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     bl_per_amp: 0.00025
@@ -11261,7 +11257,7 @@ elements:
   type: bpm
   s: 277.78
   length: 0.0
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     noise_um: 10.0
@@ -11272,7 +11268,7 @@ elements:
   type: drift
   s: 277.78
   length: 1.3
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params: {}
   knobs: {}
@@ -11280,25 +11276,27 @@ elements:
   type: blm
   s: 279.08
   length: 0.0
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     noise_frac: 0.05
     dark_wpm: 0.001
   knobs: {}
 - name: BTL:B22
-  type: drift
+  type: dipole
   s: 279.08
   length: 2.45
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
-  params: {}
+  params:
+    angle_deg: 6.787
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX313
   type: blm
   s: 281.53
   length: 0.0
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params:
     noise_frac: 0.05
@@ -11308,17 +11306,19 @@ elements:
   type: drift
   s: 281.53
   length: 0.35
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
   params: {}
   knobs: {}
 - name: BTL:B23
-  type: drift
+  type: dipole
   s: 281.88
   length: 2.45
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
-  params: {}
+  params:
+    angle_deg: 6.787
+    b_t: 0.24
   knobs: {}
 - name: BTL:PMP17
   type: pump
