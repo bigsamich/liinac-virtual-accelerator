@@ -33,8 +33,13 @@ for f in kb:
     if not s or len(s) < 30:
         continue
     if f.get("kind") == "insight":
-        add(f"What is the operational insight about {dev}?", s)
-        add(f"What should I know before touching {dev}?", s)
+        for q in (f"What is the operational insight about {dev}?",
+                  f"What should I know before touching {dev}?",
+                  f"Tell me about {dev} on this machine.",
+                  f"Any measured wisdom regarding {dev}?",
+                  f"Summarize what we learned about {dev}.",
+                  f"Brief me on {dev}."):
+            add(q, s)
     else:
         add(f"What did we measure about {dev}?", s)
         m = re.search(r"trips the MPS at ([\d.+-]+)", s)
@@ -97,7 +102,7 @@ if os.environ.get("TEACHER_AUG", "1") == "1":
     random.shuffle(base)
     n_aug = 0
     for r0 in base:
-        if n_aug >= 400:
+        if n_aug >= 1200:
             break
         q0 = r0["messages"][1]["content"]
         a0 = r0["messages"][2]["content"]
@@ -119,6 +124,26 @@ if os.environ.get("TEACHER_AUG", "1") == "1":
         except Exception:
             continue
     print(f"teacher paraphrases: {n_aug}")
+
+# calibration: things the machine has NOT measured -> honest decline
+NEG = [
+ ("What is the Booster's extraction energy ramp rate?",
+  "That is outside this machine's measured knowledge — the study program "
+  "covers the linac and BTL through injection; Booster ramp parameters "
+  "are not instrumented here. Don't guess: consult Booster documentation."),
+ ("What is the exact Q0 of HB650 cavity 12 at 2 K?",
+  "Not directly measured by the study program. Cavity Q0 values are "
+  "design-class (>2e10 for 650 MHz ellipticals); the machine measures "
+  "field, detuning and forward power, not Q0. Say so rather than invent "
+  "a number."),
+ ("What was the beam current last Tuesday at 3 PM?",
+  "Historical point queries need the archiver/trends, not recall — check "
+  "the strip tool or phone trends. The knowledge base stores findings, "
+  "not raw history."),
+]
+for q, a in NEG:
+    add(q, a)
+    add(q.replace("What is", "Tell me"), a)
 
 random.seed(7)
 random.shuffle(rows)
