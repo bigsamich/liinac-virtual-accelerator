@@ -100,7 +100,9 @@ class _Pip2AppState extends State<Pip2App> {
     super.initState();
     final loc = Uri.base;
     final scheme = loc.scheme == 'https' ? 'wss' : 'ws';
-    epics = Epics('$scheme://${loc.host}/ws');
+    // authority = host:port — Uri.host alone drops the port (ws would
+    // silently aim at :80 and the app shows no values)
+    epics = Epics('$scheme://${loc.authority}/ws');
     epics.subscribe(const [
       'PIP2:BEAM:W', 'PIP2:BEAM:T', 'PIP2:BEAM:IOUT', 'PIP2:BEAM:PULSE',
       'PIP2:MPS:PERMIT', 'PIP2:BPM:X', 'PIP2:BPM:Y', 'PIP2:BLM:WPM',
