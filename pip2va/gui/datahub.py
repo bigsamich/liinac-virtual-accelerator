@@ -127,6 +127,44 @@ class DataHub(QThread):
         self._running = False
         self.wait(2000)
 
+    # ------------------------------------------------------- DVR (pause/rewind)
+
+    def set_running(self, run: bool):
+        self.r.set("state:sim.run", "1" if run else "0")
+
+    def step_once(self):
+        self.r.incr("state:sim.step")
+
+    def is_running(self) -> bool:
+        return self.r.get("state:sim.run") not in (b"0", "0")
+
+    def history_len(self) -> int:
+        try:
+            return self.r.xlen(keys.stream("beam.state"))
+        except redis.RedisError:
+            return 0
+
+    def seek(self, offset: int):
+        """Replay the frame `offset` entries back from the latest (0 = live
+        edge) across every stream, so all pages jump to that moment."""
+        for product, sig in STREAM_SIGNALS.items():
+            try:
+                ents = self.r.xrevrange(keys.stream(product), count=offset + 1)
+            except redis.RedisError:
+                continue
+            if len(ents) > offset and b"d" in ents[offset][1]:
+                try:
+                    pid, data = codec.unpack(ents[offset][1][b"d"])
+                    getattr(self, sig).emit(pid, data)
+                except Exception:
+                    pass
+        try:
+            bs = self.r.xrevrange(keys.stream("beam.state"), count=offset + 1)
+            if len(bs) > offset:
+                self.beamState.emit(json.loads(bs[offset][1][b"d"]))
+        except Exception:
+            pass
+
     # ------------------------------------------------------------ commands
 
     def set_setting(self, cls: str, name: str, field: str, value):

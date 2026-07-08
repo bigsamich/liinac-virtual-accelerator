@@ -35,6 +35,9 @@ class MainWindow(QMainWindow):
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(0)
         outer.addWidget(self._build_banner())
+        from .playback import PlaybackBar
+        self.playback = PlaybackBar(hub)
+        outer.addWidget(self.playback)
         lay = QHBoxLayout()
         lay.setContentsMargins(0, 0, 0, 0)
         lay.setSpacing(0)

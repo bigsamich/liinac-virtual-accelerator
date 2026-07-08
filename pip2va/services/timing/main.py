@@ -28,15 +28,27 @@ class TimingService(Service):
         self._running = True
         period = 1.0 / self.tick_hz
         next_t = time.monotonic() + period
+        self._last_step = int(self.r.get("state:sim.step") or 0)
         while self._running:
+            # ---- pause / single-step control (DVR) ----
+            if self.r.get("state:sim.run") == b"0":
+                step = int(self.r.get("state:sim.step") or 0)
+                if step == self._last_step:
+                    time.sleep(0.03)          # frozen: hold the clock
+                    self.heartbeat()
+                    continue
+                self._last_step = step        # one step requested -> tick once
+                next_t = time.monotonic() + period
+            else:
+                now = time.monotonic()
+                if now < next_t:
+                    time.sleep(min(next_t - now, 0.05))
+                    continue
+                # absolute schedule: late ticks don't shift the timebase
+                next_t += period
+                if now - next_t > 1.0:        # fell way behind: resync
+                    next_t = now + period
             now = time.monotonic()
-            if now < next_t:
-                time.sleep(min(next_t - now, 0.05))
-                continue
-            # absolute schedule: late ticks don't shift the timebase
-            next_t += period
-            if now - next_t > 1.0:      # fell way behind (suspend): resync
-                next_t = now + period
             self.pulse_id += 1
             payload = {"pulse_id": self.pulse_id, "t": time.time()}
             self.r.publish(keys.CH_TICK, json.dumps(payload))

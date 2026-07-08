@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379/0"
     backend: str = "auto"       # auto | numpy | cupy
     tick_hz: float = 20.0
-    stream_maxlen: int = 1200   # ~1 minute of 20 Hz history
+    stream_maxlen: int = 100    # 5 s of 20 Hz history (DVR rewind buffer)
     macro_particles: int = 100_000
 
 

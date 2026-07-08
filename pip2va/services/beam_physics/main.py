@@ -243,7 +243,7 @@ class BeamPhysicsService(Service):
         lag_ms = (time.perf_counter() - t0) * 1e3
         pipe = self.r.pipeline(transaction=False)
         pipe.hset(keys.truth("beam"), "d", blob)
-        pipe.hset("state:beam", mapping={
+        bstate = {
             "pulse_id": pulse_id,
             "w_out": float(res.w[-1]),
             "transmission": float(res.transmission[-1]),
@@ -251,7 +251,12 @@ class BeamPhysicsService(Service):
             "lag_ms": lag_ms,
             "stale": int(stale),
             "permit": int(beam_on),
-        })
+        }
+        pipe.hset("state:beam", mapping=bstate)
+        # also stream it so the aggregate values rewind with the DVR
+        pipe.xadd(keys.stream("beam.state"),
+                  {"d": json.dumps({k: float(v) for k, v in bstate.items()})},
+                  maxlen=self.settings.stream_maxlen, approximate=True)
         pipe.execute()
         if lag_ms > 45.0:
             log.warning("envelope pass lag %.1f ms", lag_ms)
