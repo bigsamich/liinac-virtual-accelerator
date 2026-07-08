@@ -17,3 +17,4 @@ scripts/distill/out*/
 webapp/build/
 webapp/.dart_tool/
 .env
+data/code_index.npz

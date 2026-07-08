@@ -38,3 +38,6 @@ reset:         ## nuclear reset: wipe all machine state, reboot to design
 	st={k.decode():v.decode() for k,v in r.hgetall('state:beam').items()}; \
 	print('MACHINE READY: W=%.1f MeV  T=%.4f' % \
 	(float(st['w_out']), float(st['transmission'])))" 
+
+code-index:    ## rebuild the code-RAG index (embeds the source; needs ollama)
+	.venv/bin/python -m pip2va.analysis.codebase

@@ -82,6 +82,8 @@ services:
       PIP2VA_REDIS_URL: redis://localhost:6379/0
       PIP2VA_EPICS_HZ: "10"
       PIP2VA_PV_PREFIX: "${PIP2VA_PV_PREFIX:-SPARK}"
+    volumes:      # KB + code-RAG index for the SPARK:AI:ASK RPC
+      - ${HOME}/.pip2va/studies:/root/.pip2va/studies
     depends_on:
       redis:
         condition: service_healthy

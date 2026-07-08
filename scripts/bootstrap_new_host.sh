@@ -31,6 +31,8 @@ if curl -sf http://localhost:11434/api/tags >/dev/null 2>&1; then
       -d '{"model":"qwen3-embedding:8b"}' >/dev/null
   if .venv/bin/python scripts/distill/bake_expert.py; then
     echo "  AI assistant ready (pip2va-expert)"
+    echo "building code-RAG index (source retrieval)…"
+    .venv/bin/python -m pip2va.analysis.codebase || echo "  code-index skipped"
   else
     echo "  !! bake failed — check 'ollama list' has qwen3.6, then rerun:"
     echo "     .venv/bin/python scripts/distill/bake_expert.py"

@@ -84,11 +84,20 @@ def ask(r, question: str, timeout: float = 240.0) -> tuple[str, str]:
     ctx = collect_context(r)
     findings = knowledge.context_semantic(
         question, n=10 if not llm.BAKED else 6)
+    # code-RAG: retrieve relevant source for implementation questions
+    # ("how do you measure BPMs?"); empty for pure machine/physics questions
+    try:
+        from . import codebase
+        code = codebase.code_context(question)
+    except Exception:
+        code = ""
+    code_block = f"\n\n{code}" if code else ""
     if llm.BAKED:
         # KB insights are baked into the model: send live data only (RAG)
         user = (f"LIVE MACHINE SNAPSHOT:\n{json.dumps(ctx, indent=1)}\n\n"
                 f"RECENT FINDINGS relevant to the question:\n"
-                f"{findings or '(none matched)'}\n\n"
+                f"{findings or '(none matched)'}"
+                f"{code_block}\n\n"
                 f"OPERATOR QUESTION: {question}")
     else:
         extra = "\n".join("- " + f.get("summary", "")
@@ -97,7 +106,8 @@ def ask(r, question: str, timeout: float = 240.0) -> tuple[str, str]:
         user = (f"LIVE MACHINE SNAPSHOT:\n{json.dumps(ctx, indent=1)}\n\n"
                 f"MEASURED FINDINGS relevant to the question:\n"
                 f"{findings or '(none matched)'}\n\n"
-                f"DISTILLED OPERATIONAL INSIGHTS:\n{extra}\n\n"
+                f"DISTILLED OPERATIONAL INSIGHTS:\n{extra}"
+                f"{code_block}\n\n"
                 f"OPERATOR QUESTION: {question}")
     if not llm.available():
         lines = [f"[LLM offline — snapshot] permit {ctx['beam_permit']}"]
