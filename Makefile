@@ -41,3 +41,6 @@ reset:         ## nuclear reset: wipe all machine state, reboot to design
 
 code-index:    ## rebuild the code-RAG index (embeds the source; needs ollama)
 	.venv/bin/python -m pip2va.analysis.codebase
+
+status:        ## system health check (services, machine, EPICS, AI, code-RAG)
+	@bash scripts/health_check.sh
