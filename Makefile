@@ -44,3 +44,6 @@ code-index:    ## rebuild the code-RAG index (embeds the source; needs ollama)
 
 status:        ## system health check (services, machine, EPICS, AI, code-RAG)
 	@bash scripts/health_check.sh
+
+bake:          ## (re)bake pip2va-expert: facts + KB insights into the model (needs ollama + qwen3.6)
+	.venv/bin/python scripts/distill/bake_expert.py
