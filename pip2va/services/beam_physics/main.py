@@ -202,9 +202,9 @@ class BeamPhysicsService(Service):
                     (i for i, e in enumerate(self.lat.elements)
                      if e.type == "foil"), len(res.s) - 1)
                 self.r.hsetnx(keys.settings("injection", "main"),
-                              "bump0_mm", 6.0)
+                              "bump0_mm", 8.0)
                 self.r.hsetnx(keys.settings("injection", "main"),
-                              "decay_turns", 15.0)
+                              "decay_turns", 12.0)
                 from pip2va.common import schema
                 schema.register_settings(self.r, "injection",
                     {"bump0_mm": {"lo": 0.5, "hi": 25.0, "unit": "mm"},
@@ -233,8 +233,8 @@ class BeamPhysicsService(Service):
                 cx_mm=float(res.cx[j]) * 1e3,
                 cy_mm=float(res.cy[j]) * 1e3,
                 dpp_rms=dpp,
-                bump0_mm=float(inj_st.get("bump0_mm", 6.0)),
-                decay_turns=float(inj_st.get("decay_turns", 15.0)),
+                bump0_mm=float(inj_st.get("bump0_mm", 8.0)),
+                decay_turns=float(inj_st.get("decay_turns", 12.0)),
                 notch_ok=bpg_ok, duty=duty)
             if beam_on:
                 self.r.hset("state:injection", mapping={

@@ -9204,7 +9204,7 @@ elements:
   aperture_radius: 0.0225
   params:
     v_mv: 1.3
-    phi_deg: -90.0
+    phi_deg: 90.0
     freq_mhz: 650.0
     family: debuncher
     v_max_mv: 1.5
@@ -9347,7 +9347,7 @@ elements:
   aperture_radius: 0.0225
   params:
     v_mv: 1.3
-    phi_deg: -90.0
+    phi_deg: 90.0
     freq_mhz: 650.0
     family: debuncher
     v_max_mv: 1.5

@@ -66,7 +66,7 @@ class MainWindow(QMainWindow):
             ("Overview", ["Dashboard"]),
             ("Instrumentation", ["Orbit", "Losses", "Profiles",
                                  "Scope", "Bunch Monitor",
-                                 "Strip Tool"]),
+                                 "Strip Tool", "Booster Injection"]),
             ("RF & Magnets", ["RF", "Magnets", "Source & LEBT"]),
             ("Operations", ["Studies", "Training", "Snapshots", "MPS"]),
             ("Machine", ["Physics", "Utilities"]),

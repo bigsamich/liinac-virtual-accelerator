@@ -17,7 +17,7 @@ def load_all():
     import importlib
     for mod in ("overview", "orbit", "losses", "magnets", "rf", "profiles",
                 "waveforms", "bunch_monitor", "striptool", "snapshots_page", "physics",
-                "training", "studies", "source", "utilities", "mps"):
+                "training", "studies", "source", "utilities", "mps", "injection"):
         try:
             importlib.import_module(f"{__name__}.{mod}")
         except ImportError:

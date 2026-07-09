@@ -6,8 +6,8 @@ Booster, from the *real* delivered beam (normalised emittance and momentum
 spread from the envelope, orbit at the foil) plus the injection knobs.
 
 The physics that sets the optimum:
-  - RF bucket capture: the momentum tails outside the Booster bucket
-    (~+/-0.2%) are lost; the chopper notch must clear the extraction kicker.
+  - RF bucket capture: the momentum tails outside the Booster adiabatic-capture
+    acceptance (~+/-0.3%) are lost; the chopper notch must clear the extraction kicker.
   - Space-charge tune shift (Laslett): the design driver. Painting spreads
     the beam to a larger emittance to keep the incoherent tune shift ΔQ_sc
     below the resonance limit (~0.35). Too-dense paint -> ΔQ over limit ->
@@ -24,7 +24,7 @@ from __future__ import annotations
 import math
 
 TURNS = 285
-BUCKET_DPP = 0.002          # Booster RF bucket half-height (dp/p)
+BUCKET_DPP = 0.003          # Booster adiabatic-capture momentum acceptance
 R_P = 1.5347e-18            # classical proton radius [m]
 GAMMA = 1.0 + 800.0 / 938.272   # 800 MeV kinetic
 BETA = math.sqrt(1.0 - 1.0 / GAMMA ** 2)

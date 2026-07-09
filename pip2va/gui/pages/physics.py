@@ -7,11 +7,56 @@ from __future__ import annotations
 
 import numpy as np
 from PyQt6.QtWidgets import (QDoubleSpinBox, QGridLayout, QGroupBox,
-                             QHBoxLayout, QLabel, QPushButton, QVBoxLayout)
+                             QHBoxLayout, QLabel, QPushButton, QTextEdit,
+                             QVBoxLayout)
 
 from .. import theme
 from . import register
 from .common import Page
+
+_MODEL_DOC = """
+<h3>What this simulator models — follow the beam</h3>
+
+<p><b>Engines.</b> Two coupled beam models run continuously. The
+<b>envelope engine</b> (<code>physics/envelope.py</code>) is the per-pulse
+core: it propagates the 6-D beam <i>moments</i> (the 6×6 σ-matrix — RMS
+sizes, divergences, energy spread and their correlations) element-by-element
+through the lattice at 20 Hz, giving orbit, sizes, transmission, loss power,
+emittance and dp/p. A free-running <b>GPU macro-particle tracker</b>
+(<code>physics/macro.py</code>, ~10⁵ particles on CuPy) tracks the full phase
+-space every few seconds for the 3-D cloud, halo and per-station emittance.</p>
+
+<p><b>① Ion source &amp; LEBT (30 keV).</b> A DC H⁻ beam, space-charge
+dominated, transported by solenoids. The source current and emittance seed
+the whole simulation; the low-energy space charge sets the initial size.</p>
+
+<p><b>② RFQ (→2.1 MeV, 162.5 MHz).</b> Bunches the DC beam and accelerates
+it — modelled as the matched transform to a bunched 2.1 MeV output.</p>
+
+<p><b>③ MEBT.</b> Matching quadrupoles, the <b>chopper</b> (builds the bunch
+pattern and the Booster extraction-kicker notch), and buncher cavities that
+set the longitudinal match into the SC linac.</p>
+
+<p><b>④ SC linac — HWR → SSR1 → SSR2 → LB650 → HB650 (→800 MeV).</b>
+Superconducting <b>RF cavities</b> accelerate; each is a live
+<b>cavity model</b> (<code>rf_sim</code>) with Lorentz-force detuning,
+He-pressure / piezo microphonics, forward power and quench. <b>Solenoids and
+quadrupoles</b> focus (magnet model, with as-built field errors). H⁻-specific
+losses — <b>intrabeam</b> and <b>residual-gas stripping</b> — plus a
+3-D-ellipsoid <b>space-charge</b> kick are folded in every step.</p>
+
+<p><b>⑤ BTL transfer line.</b> <b>Debunchers</b> rotate the longitudinal
+phase space to squeeze dp/p; two achromatic arcs and collimators steer the
+800 MeV beam to the stripping foil.</p>
+
+<p><b>⑥ Booster injection.</b> Foil stripping, multi-turn painting, and the
+space-charge tune shift set the figure of merit (see the Booster Injection
+page). Everything downstream — losses, orbit, RF, emittance — is measured by
+<b>diag-sim</b>, which turns ground truth into noisy instrument readings.</p>
+
+<p><i>The parameters below are the knobs into these models — change one and
+the beam-physics engine folds it in on the next pulse.</i></p>
+"""
 
 # (field, label, default, min, max, decimals, description)
 PARAMS = {
@@ -47,6 +92,12 @@ class PhysicsPage(Page):
     title = "Physics Model — Parameters & Live State"
 
     def build(self):
+        doc = QTextEdit()
+        doc.setReadOnly(True)
+        doc.setHtml(_MODEL_DOC)
+        doc.setMinimumHeight(260)
+        self.body.addWidget(doc)
+
         grid = QGridLayout()
         self._spins = {}
         live = self.hub.get_settings("physics", "main")
