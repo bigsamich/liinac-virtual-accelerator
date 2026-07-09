@@ -143,6 +143,26 @@ def floor_map(lat):
     return np.array(centers), np.array(headings), np.array(poly)
 
 
+def branch_floor(elements, x, y, th):
+    """Walk a branch stub from a start pose (x, y, heading th) — same rule as
+    floor_map. Returns element centres, headings, and the leg polyline."""
+    centers, headings = [], []
+    poly = [(x, y)]
+    for e in elements:
+        ang = math.radians(e.params.get("angle_deg", 0.0)) \
+            if e.type == "dipole" else 0.0
+        th_c = th - ang / 2.0
+        centers.append((x + math.cos(th_c) * e.length / 2.0,
+                        y + math.sin(th_c) * e.length / 2.0))
+        headings.append(th_c)
+        x += math.cos(th_c) * e.length
+        y += math.sin(th_c) * e.length
+        th -= ang
+        if e.length > 0:
+            poly.append((x, y))
+    return np.array(centers), np.array(headings), np.array(poly)
+
+
 class Linac3D(QWidget):
     def __init__(self, lat, parent=None, section=None, values=False):
         super().__init__(parent)
@@ -210,10 +230,28 @@ class Linac3D(QWidget):
         idx = {id(e): k for k, e in enumerate(lat.elements)}
         sel = (lambda e: section is None or e.section == section)
 
+        # branch legs (e.g. SAD straight-ahead dump): geometry-only stubs that
+        # peel off a main-path element and are drawn as a separate leg — the
+        # "second slice" of the floor plan. Shown on the full-machine view.
+        self._branches = []
+        _name_i = {e.name: k for k, e in enumerate(lat.elements)}
+        for br in getattr(lat, "branches", []):
+            oi = _name_i.get(br.origin)
+            if oi is None or section is not None or not br.elements:
+                continue
+            oc, oth = centers[oi], headings[oi]
+            oL = lat.elements[oi].length
+            bx = oc[0] + math.cos(oth) * oL / 2.0
+            by = oc[1] + math.sin(oth) * oL / 2.0
+            bc, bh, bp = branch_floor(br.elements, bx, by, oth)
+            self._branches.append((br, bc, bh, bp))
+
         # floor grid spans the full machine footprint (the BTL arcs now
         # curve well beyond the old fixed grid — keep them on the grid)
         import numpy as _np
         _xy = _np.vstack([centers, poly]) if len(centers) else poly
+        if self._branches:
+            _xy = _np.vstack([_xy] + [bp for (_b, _c, _h, bp) in self._branches])
         _xmin, _xmax = float(_xy[:, 0].min()), float(_xy[:, 0].max())
         _ymin, _ymax = float(_xy[:, 1].min()), float(_xy[:, 1].max())
         _pad = 20.0
@@ -280,6 +318,44 @@ class Linac3D(QWidget):
                                      faces=np.vstack(FF)),
                 color=col, shader="shaded", smooth=False,
                 computeNormals=True))
+
+        # branch legs (dump lines): orange floor line + element solids, so the
+        # SAD straight-ahead dump and its absorber show up as a second leg
+        for (br, bc, bh, bp) in self._branches:
+            self.view.addItem(gl.GLLinePlotItem(
+                pos=np.column_stack([bp[:, 0], bp[:, 1], np.zeros(len(bp))]),
+                color=(0.95, 0.45, 0.15, 0.9), width=2.5, antialias=True))
+            VV, FF, off = [], [], 0
+            for k, e in enumerate(br.elements):
+                if e.type not in TYPE_SHAPES:
+                    continue
+                kind, kw = TYPE_SHAPES[e.type]
+                L = max(e.length, 0.35)
+                v, f = (_cyl(kw["radius"], L) if kind == "cyl"
+                        else _box(L, kw["ly"], kw["lz"]))
+                th = bh[k]
+                R = np.array([[math.cos(th), -math.sin(th), 0],
+                              [math.sin(th), math.cos(th), 0], [0, 0, 1]])
+                v = v @ R.T
+                v[:, 0] += bc[k][0]
+                v[:, 1] += bc[k][1]
+                VV.append(v)
+                FF.append(f + off)
+                off += len(v)
+            if VV:
+                self.view.addItem(gl.GLMeshItem(
+                    meshdata=gl.MeshData(vertexes=np.vstack(VV),
+                                         faces=np.vstack(FF)),
+                    color=TYPE_COLORS["absorber"], shader="shaded",
+                    smooth=False, computeNormals=True))
+            try:
+                di = next(k for k, e in enumerate(br.elements)
+                          if e.type == "absorber")
+                self.view.addItem(gl.GLTextItem(
+                    pos=(bc[di][0], bc[di][1], 1.4),
+                    text=f"{br.name} dump", color=(255, 170, 90, 255)))
+            except Exception:
+                pass
 
         # hover targets: instruments + powered elements
         self._hover_els = [

@@ -10213,12 +10213,14 @@ elements:
     dark_wpm: 0.001
   knobs: {}
 - name: BTL:B9
-  type: drift
+  type: dipole
   s: 223.93
   length: 2.45
-  section: BTL
+  section: ARC1
   aperture_radius: 0.0225
-  params: {}
+  params:
+    angle_deg: 6.787
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX310
   type: blm
@@ -10239,12 +10241,14 @@ elements:
   params: {}
   knobs: {}
 - name: BTL:B10
-  type: drift
+  type: dipole
   s: 226.73
   length: 2.45
-  section: BTL
+  section: ARC1
   aperture_radius: 0.0225
-  params: {}
+  params:
+    angle_deg: 6.787
+    b_t: 0.24
   knobs: {}
 - name: BTL:PMP18
   type: pump
@@ -10380,12 +10384,14 @@ elements:
     dark_wpm: 0.001
   knobs: {}
 - name: BTL:B11
-  type: drift
+  type: dipole
   s: 232.63
   length: 2.45
-  section: BTL
+  section: ARC1
   aperture_radius: 0.0225
-  params: {}
+  params:
+    angle_deg: 6.787
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX305
   type: blm
@@ -10424,12 +10430,14 @@ elements:
     dark_wpm: 0.001
   knobs: {}
 - name: BTL:B12
-  type: drift
+  type: dipole
   s: 235.43
   length: 2.45
-  section: BTL
+  section: ARC1
   aperture_radius: 0.0225
-  params: {}
+  params:
+    angle_deg: 6.787
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX73
   type: blm
@@ -10450,12 +10458,14 @@ elements:
   params: {}
   knobs: {}
 - name: BTL:B13
-  type: drift
+  type: dipole
   s: 238.23
   length: 2.45
-  section: BTL
+  section: ARC1
   aperture_radius: 0.0225
-  params: {}
+  params:
+    angle_deg: 6.787
+    b_t: 0.24
   knobs: {}
 - name: BTL:PMP16
   type: pump
@@ -10609,12 +10619,14 @@ elements:
     dark_wpm: 0.001
   knobs: {}
 - name: BTL:B14
-  type: drift
+  type: dipole
   s: 244.23
   length: 2.45
-  section: BTL
+  section: ARC1
   aperture_radius: 0.0225
-  params: {}
+  params:
+    angle_deg: 6.787
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX306
   type: blm
@@ -10635,12 +10647,14 @@ elements:
   params: {}
   knobs: {}
 - name: BTL:B15
-  type: drift
+  type: dipole
   s: 247.03
   length: 2.45
-  section: BTL
+  section: ARC1
   aperture_radius: 0.0225
-  params: {}
+  params:
+    angle_deg: 6.787
+    b_t: 0.24
   knobs: {}
 - name: BTL:D38
   type: drift
@@ -11464,12 +11478,14 @@ elements:
     dark_wpm: 0.001
   knobs: {}
 - name: BTL:B24
-  type: drift
+  type: dipole
   s: 287.83
   length: 2.45
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
-  params: {}
+  params:
+    angle_deg: 6.787
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX314
   type: blm
@@ -11490,12 +11506,14 @@ elements:
   params: {}
   knobs: {}
 - name: BTL:B25
-  type: drift
+  type: dipole
   s: 290.63
   length: 2.45
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
-  params: {}
+  params:
+    angle_deg: 6.787
+    b_t: 0.24
   knobs: {}
 - name: BTL:D58
   type: drift
@@ -11623,12 +11641,14 @@ elements:
     dark_wpm: 0.001
   knobs: {}
 - name: BTL:B26
-  type: drift
+  type: dipole
   s: 296.53
   length: 2.45
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
-  params: {}
+  params:
+    angle_deg: 6.787
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX303
   type: blm
@@ -11649,12 +11669,14 @@ elements:
   params: {}
   knobs: {}
 - name: BTL:B27
-  type: drift
+  type: dipole
   s: 299.33
   length: 2.45
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
-  params: {}
+  params:
+    angle_deg: 6.787
+    b_t: 0.24
   knobs: {}
 - name: BTL:D62
   type: drift
@@ -11790,12 +11812,14 @@ elements:
   params: {}
   knobs: {}
 - name: BTL:B28
-  type: drift
+  type: dipole
   s: 305.23
   length: 2.45
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
-  params: {}
+  params:
+    angle_deg: 6.787
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX315
   type: blm
@@ -11816,12 +11840,14 @@ elements:
   params: {}
   knobs: {}
 - name: BTL:B29
-  type: drift
+  type: dipole
   s: 308.03
   length: 2.45
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
-  params: {}
+  params:
+    angle_deg: 6.787
+    b_t: 0.24
   knobs: {}
 - name: BTL:D66
   type: drift
@@ -11949,12 +11975,14 @@ elements:
     dark_wpm: 0.001
   knobs: {}
 - name: BTL:B30
-  type: drift
+  type: dipole
   s: 313.93
   length: 2.45
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
-  params: {}
+  params:
+    angle_deg: 6.787
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX316
   type: blm
@@ -11991,12 +12019,14 @@ elements:
   params: {}
   knobs: {}
 - name: BTL:B31
-  type: drift
+  type: dipole
   s: 316.73
   length: 2.45
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
-  params: {}
+  params:
+    angle_deg: 6.787
+    b_t: 0.24
   knobs: {}
 - name: BTL:D70
   type: drift
@@ -12126,12 +12156,14 @@ elements:
     dark_wpm: 0.001
   knobs: {}
 - name: BTL:B32
-  type: drift
+  type: dipole
   s: 322.68
   length: 2.45
-  section: BTL
+  section: ARC2
   aperture_radius: 0.0225
-  params: {}
+  params:
+    angle_deg: 6.787
+    b_t: 0.24
   knobs: {}
 - name: BTL:BLMX317
   type: blm
@@ -12631,3 +12663,80 @@ elements:
   aperture_radius: 0.02
   params: {}
   knobs: {}
+- name: BTL:DMP
+  type: absorber
+  s: 349.84
+  length: 1.0
+  section: BAL
+  aperture_radius: 0.05
+  params:
+    kind: beam_dump
+    rating_kw: 25.0
+  knobs: {}
+branches:
+- name: SAD
+  origin: BTL:SEPTUM
+  elements:
+  - name: SAD:D1
+    type: drift
+    s: 190.48
+    length: 3.0
+    section: SAD
+    aperture_radius: 0.03
+    params: {}
+    knobs: {}
+  - name: SAD:TOR
+    type: toroid
+    s: 190.53
+    length: 0.05
+    section: SAD
+    aperture_radius: 0.03
+    params:
+      noise_frac: 0.002
+      floor_ma: 0.005
+    knobs: {}
+  - name: SAD:D2
+    type: drift
+    s: 193.53
+    length: 3.0
+    section: SAD
+    aperture_radius: 0.03
+    params: {}
+    knobs: {}
+  - name: SAD:SCR
+    type: aperture
+    s: 193.63
+    length: 0.1
+    section: SAD
+    aperture_radius: 0.02
+    params:
+      kind: scraper
+    knobs: {}
+  - name: SAD:BLM
+    type: blm
+    s: 193.63
+    length: 0.0
+    section: SAD
+    aperture_radius: 0.05
+    params:
+      noise_frac: 0.05
+      dark_wpm: 0.001
+    knobs: {}
+  - name: SAD:D3
+    type: drift
+    s: 195.63
+    length: 2.0
+    section: SAD
+    aperture_radius: 0.05
+    params: {}
+    knobs: {}
+  - name: SAD:DMP
+    type: absorber
+    s: 196.63
+    length: 1.0
+    section: SAD
+    aperture_radius: 0.06
+    params:
+      kind: beam_dump
+      rating_kw: 100.0
+    knobs: {}

@@ -44,10 +44,21 @@ class Section(BaseModel):
     freq_mhz: float | None = None
 
 
+class Branch(BaseModel):
+    """A stub beam line that peels off the main path (e.g. the straight-ahead
+    dump). Its elements are NOT in Lattice.elements, so the beam-physics
+    engines never track them; they carry floor geometry + MPS/thermal data
+    only and are drawn as a separate leg in the 3-D synoptic."""
+    name: str
+    origin: str                 # main-path element the branch peels off from
+    elements: list[Element] = Field(default_factory=list)
+
+
 class Lattice(BaseModel):
     meta: dict
     sections: list[Section]
     elements: list[Element]
+    branches: list[Branch] = Field(default_factory=list)
 
     @property
     def total_length(self) -> float:
