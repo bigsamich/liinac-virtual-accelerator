@@ -86,7 +86,9 @@ STATE_PVS = {"PIP2:BEAM:W": "w_out", "PIP2:BEAM:T": "transmission",
              "PIP2:BEAM:IOUT": "i_out_ma", "PIP2:BEAM:PULSE": "pulse_id",
              "PIP2:BEAM:LAG": "lag_ms"}
 INJ_PVS = {"PIP2:INJ:SCORE": "score", "PIP2:INJ:PROTONS": "protons_per_pulse",
-           "PIP2:INJ:FOILHITS": "foil_hits", "PIP2:INJ:EPS": "eps_paint_um"}
+           "PIP2:INJ:FOILHITS": "foil_hits", "PIP2:INJ:EPS": "eps_paint_um",
+           "PIP2:INJ:DQSC": "dq_sc", "PIP2:INJ:EPSINJ": "eps_inj_um",
+           "PIP2:INJ:CAPTURE": "capture_eff"}
 
 
 def _dev_pv(prefix: str, device: str, field: str, suffix: str) -> str:

@@ -1,68 +1,106 @@
-"""Booster injection performance — the machine's actual figure of merit.
+"""Booster injection performance — the machine's figure of merit.
 
-Charge-exchange injection: each 0.55 ms linac pulse paints ~285 Booster
-turns through a stripping foil, with ORBUMP magnets collapsing the closed
-orbit across the foil to spread the painted emittance and minimize
-re-traversals (foil hits cause scattering, emittance growth, and foil
-heating). What matters:
+Charge-exchange (H- foil) injection at 800 MeV, painted over ~285 turns.
+This model scores each linac pulse on how well it would inject into the
+Booster, from the *real* delivered beam (normalised emittance and momentum
+spread from the envelope, orbit at the foil) plus the injection knobs.
 
-  - protons per pulse actually stacked (delivered charge x stripping x
-    bucket capture),
-  - bucket capture: dp/p must fit the Booster RF bucket (~+/-0.2%), and
-    the chopper pattern must respect the extraction-kicker notch,
-  - painted emittance vs target (Booster acceptance ~ 12 mm.mrad class),
-  - average foil hits per proton (heating / scattering budget, ~<6).
+The physics that sets the optimum:
+  - RF bucket capture: the momentum tails outside the Booster bucket
+    (~+/-0.2%) are lost; the chopper notch must clear the extraction kicker.
+  - Space-charge tune shift (Laslett): the design driver. Painting spreads
+    the beam to a larger emittance to keep the incoherent tune shift ΔQ_sc
+    below the resonance limit (~0.35). Too-dense paint -> ΔQ over limit ->
+    loss; too-diffuse -> overflows the Booster acceptance.
+  - Foil hits: protons re-traverse the foil while the injection bump still
+    overlaps it. Each traversal adds emittance by multiple Coulomb
+    scattering and heats the foil. Fast bump decay + adequate bump = fewer
+    hits.
 
-Scored per pulse from beam truth + settings. All inputs are knobs, so
-painting is study-able and optimizable.
+All inputs are knobs or real beam quantities, so it is fully study-able.
 """
 from __future__ import annotations
 
 import math
 
 TURNS = 285
-FOIL_STRIP_EFF = 0.98          # H- -> p conversion per traversal
-BUCKET_DPP = 0.002             # Booster RF bucket half-height
-EPS_TARGET_UM = 12.0           # painted-emittance target (norm, rms class)
+BUCKET_DPP = 0.002          # Booster RF bucket half-height (dp/p)
+R_P = 1.5347e-18            # classical proton radius [m]
+GAMMA = 1.0 + 800.0 / 938.272   # 800 MeV kinetic
+BETA = math.sqrt(1.0 - 1.0 / GAMMA ** 2)
+BG2 = BETA * GAMMA ** 2
+DQ_LIMIT = 0.35            # incoherent space-charge tune-shift limit
+ACCEPT_UM = 20.0           # Booster transverse acceptance (norm rms class)
+# carbon stripping foil ~600 µg/cm^2; Highland multiple-scattering rms angle
+_X_OVER_X0 = 600e-6 / 42.7
+_THETA_MS = (13.6 / (BETA * 800.0 + 938.272 * (GAMMA - 1))) * \
+    math.sqrt(_X_OVER_X0) * (1 + 0.038 * math.log(_X_OVER_X0))   # rad/traversal
+BETA_FOIL = 10.0           # Booster beta at the foil [m]
+DEPS_FOIL = 0.5 * BETA_FOIL * _THETA_MS ** 2 * 1e6   # µm norm growth per hit
 
 
-def score(i_out_ma: float, sig_x_mm: float, sig_y_mm: float,
-          cx_mm: float, cy_mm: float, dpp_rms: float,
-          bump0_mm: float, decay_turns: float,
+def score(i_out_ma: float, eps_x_um: float, eps_y_um: float,
+          sig_x_mm: float, sig_y_mm: float, cx_mm: float, cy_mm: float,
+          dpp_rms: float, bump0_mm: float, decay_turns: float,
           notch_ok: bool, duty: float) -> dict:
-    """Injection performance for one pulse."""
-    # protons delivered to the foil in 0.55 ms
-    q = i_out_ma * 1e-3 * 0.55e-3            # coulombs
-    protons_in = q / 1.602e-19
+    """Injection performance for one pulse. Emittances are normalised rms
+    [µm = mm·mrad]; sizes [mm]; dpp_rms dimensionless."""
+    # unphysical beam (tripped / diverged envelope): no meaningful score
+    if not all(math.isfinite(x) for x in
+               (eps_x_um, eps_y_um, sig_x_mm, sig_y_mm, dpp_rms, i_out_ma)) \
+            or max(eps_x_um, eps_y_um) > 500.0 or i_out_ma <= 0.0:
+        return {"protons_per_pulse": 0.0, "capture_eff": 0.0,
+                "eps_inj_um": 0.0, "eps_paint_um": 0.0, "dq_sc": 0.0,
+                "sc_loss_frac": 0.0, "accept_frac": 0.0, "foil_hits": 0.0,
+                "score": 0.0}
 
-    # bucket capture: momentum tails outside the bucket are lost at
-    # Booster capture; a missing/kicked notch costs the kicker-gap beam
-    frac_dpp = math.erf(BUCKET_DPP / max(dpp_rms, 1e-6) / math.sqrt(2))
-    eff = FOIL_STRIP_EFF * frac_dpp * (1.0 if notch_ok else 0.90)
+    # ---- protons delivered to the foil in one 0.55 ms pulse
+    protons_in = (i_out_ma * 1e-3 * 0.55e-3) / 1.602e-19
 
-    # painting: the bump collapses bump0 -> 0 over decay_turns; painted
-    # emittance ~ (bump amplitude relative to beam size)^2 term + beam
-    # emittance floor. Too-small bump = hot spot (foil hits), too-large =
-    # blows the acceptance.
-    sig = max((sig_x_mm + sig_y_mm) / 2.0, 0.3)
-    eps_paint = 2.5 + 0.09 * (bump0_mm ** 2) / sig
-    # foil hits: proton re-traverses the foil while the bump still
-    # overlaps it; faster decay + larger bump = fewer hits
-    overlap_turns = decay_turns * min(1.0, 2.2 * sig / max(bump0_mm, 0.5))
-    foil_hits = 1.0 + overlap_turns * 0.5
-    # orbit error at the foil directly biases painting + hits
+    # ---- RF bucket capture (longitudinal) + kicker-notch
+    capture = math.erf(BUCKET_DPP / max(dpp_rms, 1e-6) / math.sqrt(2)) \
+        * (1.0 if notch_ok else 0.90)
+
+    # ---- painting: spread the injected beam to a larger emittance. The bump
+    # sweeps the closed orbit across the injected beam; painted emittance
+    # grows with (bump amplitude / beam size)^2 above the injected floor.
+    sig = max((sig_x_mm + sig_y_mm) / 2.0, 0.2)
+    eps_inj = max((eps_x_um + eps_y_um) / 2.0, 0.05)
     orbit_err = math.hypot(cx_mm, cy_mm)
-    eps_paint *= 1.0 + 0.06 * orbit_err
-    foil_hits *= 1.0 + 0.10 * orbit_err
+    eps_paint = eps_inj * (1.0 + 0.6 * (bump0_mm / (2.0 * sig)) ** 2)
 
-    acc_frac = min(1.0, EPS_TARGET_UM / max(eps_paint, 1e-3)) ** 0.5
-    protons_stacked = protons_in * eff * min(acc_frac + 0.5, 1.0)
-    # composite score (0-100): stacked charge vs ideal, penalized by hits
-    ideal = 2.0e-3 * 0.55e-3 / 1.602e-19 * duty / 0.4
-    s100 = 100.0 * (protons_stacked / max(ideal, 1)) \
+    # ---- foil hits from the painting geometry, then scattering growth
+    overlap = decay_turns * min(1.0, 2.2 * sig / max(bump0_mm, 0.5))
+    foil_hits = (1.0 + 0.5 * overlap) * (1.0 + 0.10 * orbit_err)
+    eps_paint = eps_paint * (1.0 + 0.05 * orbit_err) + foil_hits * DEPS_FOIL
+
+    # ---- space-charge tune shift (Laslett, incoherent) over the painted
+    # circulating intensity; bunching factor from the chopper duty.
+    n_ring = protons_in                      # painted, one pulse
+    bf = max(duty, 0.05)                     # bunching factor ~ duty
+    eps_m = eps_paint * 1e-6                  # µm -> m·rad (normalised)
+    dq_sc = (n_ring * R_P) / (4 * math.pi * eps_m * BG2 * bf)
+
+    # ---- loss channels
+    #   space charge: resonance loss when |ΔQ| exceeds the limit
+    sc_frac = 1.0 - min(1.0, max(0.0, (dq_sc / DQ_LIMIT - 1.0)) * 0.5)
+    #   acceptance: painted emittance must fit the Booster acceptance
+    acc_frac = min(1.0, (ACCEPT_UM / max(eps_paint, 1e-3)) ** 0.5)
+
+    protons_stacked = protons_in * capture * sc_frac * acc_frac
+
+    # ---- composite score (0-100): stacked vs a 2 mA / matched ideal,
+    # penalised by the foil-hit budget (heating / scattering)
+    ideal = 2.0e-3 * 0.55e-3 / 1.602e-19 * (duty / 0.4)
+    s100 = 100.0 * (protons_stacked / max(ideal, 1.0)) \
         * min(1.0, 6.0 / max(foil_hits, 1.0)) ** 0.3
+
     return {"protons_per_pulse": protons_stacked,
-            "capture_eff": eff,
+            "capture_eff": capture,
+            "eps_inj_um": eps_inj,
             "eps_paint_um": eps_paint,
+            "dq_sc": dq_sc,
+            "sc_loss_frac": 1.0 - sc_frac,
+            "accept_frac": acc_frac,
             "foil_hits": foil_hits,
             "score": min(s100, 100.0)}

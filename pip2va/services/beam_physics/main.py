@@ -202,9 +202,9 @@ class BeamPhysicsService(Service):
                     (i for i, e in enumerate(self.lat.elements)
                      if e.type == "foil"), len(res.s) - 1)
                 self.r.hsetnx(keys.settings("injection", "main"),
-                              "bump0_mm", 8.0)
+                              "bump0_mm", 6.0)
                 self.r.hsetnx(keys.settings("injection", "main"),
-                              "decay_turns", 60.0)
+                              "decay_turns", 15.0)
                 from pip2va.common import schema
                 schema.register_settings(self.r, "injection",
                     {"bump0_mm": {"lo": 0.5, "hi": 25.0, "unit": "mm"},
@@ -221,19 +221,20 @@ class BeamPhysicsService(Service):
             chop = ds.get("MEBT:CHOP1", {})
             from pip2va.common.bpg import avg_duty
             duty = avg_duty(chop) if chop else 0.4
-            dpp = float(np.sqrt(max(res.sig_z[j], 1e-9)) * 0.0)  # placeholder
-            # momentum spread at the foil from the sigma matrix delta term
-            dpp = float(getattr(res, "dpp_rms", 0.0007) or 0.0007)
+            # real momentum spread + normalised emittance at the exit/foil
+            dpp = float(getattr(res, "dpp", 0.0) or 7e-4)
             q = _inj.score(
                 i_out_ma=float(res.current_ma[j] if hasattr(
                     res.current_ma, "__len__") else res.current_ma),
+                eps_x_um=float(getattr(res, "emit_x_um", 0.0)),
+                eps_y_um=float(getattr(res, "emit_y_um", 0.0)),
                 sig_x_mm=float(res.sig_x[j]) * 1e3,
                 sig_y_mm=float(res.sig_y[j]) * 1e3,
                 cx_mm=float(res.cx[j]) * 1e3,
                 cy_mm=float(res.cy[j]) * 1e3,
                 dpp_rms=dpp,
-                bump0_mm=float(inj_st.get("bump0_mm", 8.0)),
-                decay_turns=float(inj_st.get("decay_turns", 60.0)),
+                bump0_mm=float(inj_st.get("bump0_mm", 6.0)),
+                decay_turns=float(inj_st.get("decay_turns", 15.0)),
                 notch_ok=bpg_ok, duty=duty)
             if beam_on:
                 self.r.hset("state:injection", mapping={

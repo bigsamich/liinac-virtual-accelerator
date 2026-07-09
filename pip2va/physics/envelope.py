@@ -56,6 +56,7 @@ class EnvelopeResult:
     bpm_w: np.ndarray = None   # design-frame energy at BPMs [MeV]
     emit_x_um: float = 0.0
     emit_y_um: float = 0.0
+    dpp: float = 0.0
 
 
 class EnvelopeEngine:
@@ -390,6 +391,7 @@ class EnvelopeEngine:
             max(sig[0, 0] * sig[1, 1] - sig[0, 1] ** 2, 0.0))
         out.emit_y_um = 1e6 * bg_end * math.sqrt(
             max(sig[2, 2] * sig[3, 3] - sig[2, 3] ** 2, 0.0))
+        out.dpp = math.sqrt(max(sig[5, 5], 0.0))   # rms momentum spread at exit
         return out
 
     # ------------------------------------------------------------- internals
