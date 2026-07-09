@@ -20,6 +20,17 @@ import numpy as np
 from PyQt6.QtWidgets import (QCheckBox, QHBoxLayout, QLabel, QPushButton,
                              QVBoxLayout, QWidget)
 
+# pyqtgraph computes per-vertex mesh normals lazily at paint time by dividing
+# each face normal by its length. Zero-area (degenerate) faces -> divide by
+# zero -> a benign "invalid value encountered in divide" RuntimeWarning. Our
+# additive envelope tube can momentarily collapse (beam off / zero sigma), so
+# silence exactly that message from exactly that module; the NaN normals are
+# invisible on the translucent tube.
+import warnings as _warnings
+_warnings.filterwarnings(
+    "ignore", message="invalid value encountered in divide",
+    category=RuntimeWarning, module=r"pyqtgraph\.opengl\.MeshData")
+
 TYPE_COLORS = {
     "rfgap":    (1.00, 0.55, 0.10, 1.0),
     "rfq":      (1.00, 0.35, 0.10, 1.0),
@@ -627,8 +638,12 @@ class Linac3D(QWidget):
             c = self.centers[k]
             n = np.array([-math.sin(self.headings[k]),
                           math.cos(self.headings[k])])
-            r_t = (cx[k] + 2 * sx[k] * np.cos(ph)) * ex
-            r_v = (cy[k] + 2 * sy[k] * np.sin(ph)) * ex
+            # floor the 2-sigma radius so a zero-size (beam-off) ring stays a
+            # thin tube rather than collapsing to coincident, degenerate faces
+            rx = max(2 * sx[k], 1e-4)
+            ry = max(2 * sy[k], 1e-4)
+            r_t = (cx[k] + rx * np.cos(ph)) * ex
+            r_v = (cy[k] + ry * np.sin(ph)) * ex
             V[i * len(ph):(i + 1) * len(ph), 0] = c[0] + n[0] * r_t
             V[i * len(ph):(i + 1) * len(ph), 1] = c[1] + n[1] * r_t
             V[i * len(ph):(i + 1) * len(ph), 2] = r_v
