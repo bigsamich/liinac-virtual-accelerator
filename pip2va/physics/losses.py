@@ -12,6 +12,30 @@ PRESSURE_TORR = 1e-8
 E_CHARGE = 1.602e-19
 F_BUNCH_HZ = 162.5e6
 
+# Lorentz (magnetic) stripping — the signature H- transfer-line loss. The weak
+# outer electron is torn off by the motional electric field E = beta*gamma*c*B
+# seen in the ion rest frame. Rest-frame lifetime tau = (A1/E) exp(A2/E)
+# (Keating et al.); lab decay length L = beta*gamma*c*tau. Rises EXPONENTIALLY
+# with B, so the PIP-II BTL runs its dipoles at B ~= 0.24 T, deliberately below
+# the ~0.28 T knee (docs/research/pip2_machine_report.md:84) — negligible by
+# design, but it explodes if a dipole is over-powered.
+C_LIGHT = 299_792_458.0
+LORENTZ_A1 = 2.47e-6    # V s / m
+LORENTZ_A2 = 4.49e9     # V / m
+
+
+def lorentz_strip_frac_per_m(b_t: float, beta: float, gamma: float,
+                             scale: float = 1.0) -> float:
+    """Fractional H- beam loss per metre in a magnetic field ``b_t`` [T]."""
+    if b_t <= 0.0:
+        return 0.0
+    e_rest = beta * gamma * C_LIGHT * b_t          # motional field [V/m]
+    if e_rest <= 0.0:
+        return 0.0
+    tau = (LORENTZ_A1 / e_rest) * math.exp(LORENTZ_A2 / e_rest)  # rest frame [s]
+    lam = beta * gamma * C_LIGHT * tau             # lab decay length [m]
+    return scale / lam if lam > 0.0 else 0.0
+
 
 def tail_fraction(aperture: float, centroid: float, sigma: float) -> float:
     """Fraction of a 1D Gaussian (mean=centroid, std=sigma) outside +/-aperture."""

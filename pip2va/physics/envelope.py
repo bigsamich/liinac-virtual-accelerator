@@ -348,6 +348,14 @@ class EnvelopeEngine:
                             "pressure_by_section", {}).get(
                             el.section,
                             self.phys.get("pressure_torr", 1e-8))) * L
+                # Lorentz/magnetic stripping in dipoles (signature H- loss):
+                # negligible at the design 0.24 T, explodes if over-powered.
+                if typ == "dipole":
+                    b_t = el.params.get("b_t", 0.0)
+                    if b_t:
+                        f_base += loss_mod.lorentz_strip_frac_per_m(
+                            b_t, beta, gamma,
+                            self.phys.get("lorentz_scale", 1.0)) * L
                 f_lost = min(1.0, f_scrape + f_base)
                 if f_lost > 0.0:
                     p_w = (f_lost * f_surv * i_ma * 1e-3 * self.duty
