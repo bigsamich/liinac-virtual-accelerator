@@ -21,6 +21,7 @@ def capture(driver) -> dict:
         "global_seed": driver.settings.global_seed,
         "src_current_ma": driver.src_current_ma,
         "setpoints": dict(driver.setpoints),
+        "inj_knobs": dict(driver.inj_knobs),
         "devices": {
             dev.eid: {
                 "value": dev.value, "drift": dev.drift,
@@ -36,6 +37,8 @@ def restore(driver, snap: dict) -> None:
     driver.pulse_id = snap["pulse_id"]
     driver.src_current_ma = snap["src_current_ma"]
     driver.setpoints = dict(snap["setpoints"])
+    if "inj_knobs" in snap:
+        driver.inj_knobs = dict(snap["inj_knobs"])
     driver.settings = driver.settings.model_copy(
         update={"global_seed": snap["global_seed"]})
     dstate = snap["devices"]

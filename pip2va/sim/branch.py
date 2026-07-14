@@ -33,11 +33,13 @@ def metrics_of(stream: list[dict]) -> dict:
         return {}
     wb = np.array([s["worst_blm"] for s in stream])
     tr = np.array([s["transmission"] for s in stream])
+    inj = np.array([s.get("inj_score", 0.0) for s in stream])
     return {
         "worst_blm_mean": float(wb.mean()),
         "worst_blm_max": float(wb.max()),
         "transmission_min": float(tr.min()),
         "transmission_mean": float(tr.mean()),
+        "inj_score_mean": float(inj.mean()),
         "orbit_rms_mm": float(np.sqrt(np.mean(np.concatenate(
             [s["bpm_x"] ** 2 + s["bpm_y"] ** 2 for s in stream])))),
         "n_pulses": len(stream),

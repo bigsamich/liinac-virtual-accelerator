@@ -56,10 +56,18 @@ class SimDriver:
                 self.setpoints[f"{el.name}:{f}"] = sp
         self.pulse_id = 0
         self.src_current_ma: float | None = None
+        self._foil_j = next((i for i, e in enumerate(self.lat.elements)
+                             if e.type == "foil"), self.engine.n - 1)
+        # injection knobs (not physics devices) — optimizable objective inputs
+        self.inj_knobs = {"bump0_mm": 8.0, "decay_turns": 12.0, "duty": 0.4}
 
     # -- interactive/branch hook: change setpoints (applied on the next step) --
     def apply(self, setpoints: dict) -> None:
-        self.setpoints.update({k: float(v) for k, v in setpoints.items()})
+        for k, v in setpoints.items():
+            if k.startswith("inj:"):
+                self.inj_knobs[k[4:]] = float(v)
+            else:
+                self.setpoints[k] = float(v)
 
     # ------------------------------------------------------------- one pulse
     def step(self, beam_on: bool = True) -> dict:
@@ -86,10 +94,30 @@ class SimDriver:
             "w_out": float(res.w[-1]),
             "transmission": float(res.transmission[-1]),
             "worst_blm": float(np.max(res.blm_wpm)) if len(res.blm_wpm) else 0.0,
+            "inj_score": self._injection_score(res),
             "bpm_x": np.asarray(res.bpm_x, dtype=np.float64).copy(),
             "bpm_y": np.asarray(res.bpm_y, dtype=np.float64).copy(),
             "blm_wpm": np.asarray(res.blm_wpm, dtype=np.float64).copy(),
         }
+
+    def _injection_score(self, res) -> float:
+        """Booster injection figure of merit at the foil (same model the
+        beam-physics service publishes), from the envelope + injection knobs."""
+        from pip2va.physics import injection as _inj
+        j = self._foil_j
+        cm = res.current_ma
+        i_out = float(cm[j] if hasattr(cm, "__len__") else cm)
+        q = _inj.score(
+            i_out_ma=i_out,
+            eps_x_um=float(getattr(res, "emit_x_um", 0.0)),
+            eps_y_um=float(getattr(res, "emit_y_um", 0.0)),
+            sig_x_mm=float(res.sig_x[j]) * 1e3, sig_y_mm=float(res.sig_y[j]) * 1e3,
+            cx_mm=float(res.cx[j]) * 1e3, cy_mm=float(res.cy[j]) * 1e3,
+            dpp_rms=float(getattr(res, "dpp", 0.0) or 7e-4),
+            bump0_mm=self.inj_knobs["bump0_mm"],
+            decay_turns=self.inj_knobs["decay_turns"],
+            notch_ok=True, duty=self.inj_knobs["duty"])
+        return float(q["score"])
 
     # ------------------------------------------------------------- many pulses
     def run(self, n_pulses: int, inputs: dict | None = None) -> list[dict]:
