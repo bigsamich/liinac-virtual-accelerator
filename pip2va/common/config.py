@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     tick_hz: float = 20.0
     stream_maxlen: int = 100    # 5 s of 20 Hz history (DVR rewind buffer)
     macro_particles: int = 100_000
+    # --- determinism substrate ---
+    global_seed: int = 0xB00B5  # master seed; all noise derives from this
+    commit_horizon: int = 1     # pulses of input latency (deterministic apply)
 
 
 settings = Settings()

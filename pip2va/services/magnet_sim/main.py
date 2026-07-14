@@ -41,7 +41,8 @@ class MagnetSimService(Service):
                 self.r.hsetnx(skey, f, sp)
                 dev = FirstOrderDevice(
                     float(self.r.hget(skey, f)), TAU[el.type],
-                    RIPPLE[el.type], DRIFT_PER_HR[el.type], rng)
+                    RIPPLE[el.type], DRIFT_PER_HR[el.type], rng,
+                    eid=f"{el.name}:{f}")
                 self.devices.append((el, f, dev, skey, rkey))
         self.r.set("lattice:magnet.index",
                    json.dumps([f"{el.name}:{f}" for el, f, *_ in self.devices]))
@@ -94,7 +95,7 @@ class MagnetSimService(Service):
             elif dev.tripped and st is not None and st.get("reset"):
                 dev.try_reset()
                 pipe.hdel(skey, "reset")
-            rb = dev.step(self.dt)
+            rb = dev.step(self.dt, pulse_id=pulse_id)
             vals[i] = rb
             stats[i] = 1.0 if dev.tripped else 0.0
             cal = (el.params.get("field_per_amp")
