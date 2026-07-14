@@ -1,4 +1,4 @@
-.PHONY: up down logs gui test lattice smoke
+.PHONY: up down logs gui test lattice smoke determinism
 
 up:            ## build + start the backend stack
 	docker compose up -d --build
@@ -18,6 +18,10 @@ gui-web:       ## serve the full GUI in a browser (noVNC on :6080)
 
 test:
 	.venv/bin/python -m pytest tests/ -q
+
+determinism:   ## bit-exact golden-master gate (pin FP reduction order)
+	OMP_NUM_THREADS=1 .venv/bin/python -m pytest tests/test_determinism.py \
+	  tests/test_timetravel.py tests/test_branch.py tests/test_replay.py -q
 
 lattice:       ## regenerate + numerically re-match the lattice
 	.venv/bin/python scripts/gen_lattice.py
