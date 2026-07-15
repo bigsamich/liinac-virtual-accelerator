@@ -68,7 +68,8 @@ class MainWindow(QMainWindow):
                                  "Scope", "Bunch Monitor",
                                  "Strip Tool", "Booster Injection"]),
             ("RF & Magnets", ["RF", "Magnets", "Source & LEBT"]),
-            ("Operations", ["Studies", "Training", "Snapshots", "MPS"]),
+            ("Operations", ["Studies", "What-If", "Training", "Snapshots",
+                            "MPS"]),
             ("Machine", ["Physics", "Utilities"]),
         ]
         row_of = {lbl: i for i, (lbl, _) in enumerate(self._page_classes)}

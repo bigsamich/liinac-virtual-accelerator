@@ -16,12 +16,19 @@
 | **8 — Observability (core)** | `sim/replay.py` record-replay + `first_divergence` localizer; `make determinism` target | (this commit) |
 | **Bonus** | EPICS server multicast **iface-pinned** (`,ttl@$EPICS_HOST_INTERFACE`) so discovery survives container recreation — fixes the SPARK-not-discoverable bug; `docs/guides/08-determinism-and-branching.md` | (this commit) |
 
+## Phase 9 — GUI what-if page (landed)
+
+`gui/pages/whatif.py` — a "What-If" page under Operations: pick a knob
+(correctors or injection painting knobs), enter values, and fork a branch per
+value with CRN; a bar chart + table compare inj-score / worst-BLM / orbit-rms /
+transmission and mark the best. A one-click **Auto-tune injection** button runs
+`optimizer.autotune_injection`. All heavy work is on a QThread so the control
+room never freezes. Nav count 17→18; GUI smoke test updated. Remaining GUI:
+timeline/branch scrubber, causal inspector.
+
 ## Deliberately skipped
 
 - **Phase 5 (DES kernel)** — per instruction ("we do not need the kernel yet").
-- **Phase 9 (GUI pages)** — timeline/branch, what-if heatmap, auto-tune page,
-  causal inspector. Left for review; the engines are all in place and have
-  clean APIs (`branch.fork/evaluate`, `optimizer.*`, `replay.first_divergence`).
 - **Deeper Phase 8** — full causal *slicing* (read/write-set provenance per
   stage) beyond first-divergence localization.
 - **Phase 7 longitudinal dynamics** — Lorentz stripping landed; the (φ,W)
