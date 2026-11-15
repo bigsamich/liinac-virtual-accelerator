@@ -28,6 +28,8 @@ def test_explain_sends_the_page_and_question_under_its_own_prompt(monkeypatch):
     assert msgs[0]["role"] == "system" and msgs[0]["content"] == assistant.EXPLAIN_SYSTEM
     assert "virtual accelerator" not in msgs[0]["content"]
     assert "under 200 words" in msgs[0]["content"]
+    assert "PARAM PAGE HELP" in msgs[0]["content"]
+    assert "never what value to set" in msgs[0]["content"]
     assert sent[0]["options"]["num_predict"] >= 900
     assert PAGE in msgs[1]["content"] and "why is crate 21 zero?" in msgs[1]["content"]
     assert "SNAPSHOT" not in msgs[1]["content"]
