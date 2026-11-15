@@ -87,7 +87,8 @@ what they read now. For any line in alarm, with bad status, reading 'no answer',
 a sentinel value (999.99, -999.99, 1000) or zero where a value is expected, say
 so first and give the likely reasons, from the line itself and its neighbours.
 Only what is on the page is known: say when you are guessing, never invent
-devices or values, and never tell the operator to change a setting."""
+devices or values, and never tell the operator to change a setting.
+Answer in plain text (no Markdown), under 200 words, lines in alarm first."""
 
 EXPLAIN_ASK = "Explain these lines."
 
@@ -99,7 +100,7 @@ def explain(page: str, question: str, timeout: float = 120.0) -> tuple[str, str]
         return "The local model is not answering; nothing was explained.", "offline"
     user = f"PARAMETER PAGE LINES:\n{page}\n\nOPERATOR QUESTION: {question.strip() or EXPLAIN_ASK}"
     payload = {"model": llm.MODEL, "stream": False, "think": False,
-               "options": {"temperature": 0.2, "num_predict": 500},
+               "options": {"temperature": 0.2, "num_predict": 900},
                "messages": [{"role": "system", "content": EXPLAIN_SYSTEM},
                             {"role": "user", "content": user}]}
     req = urllib.request.Request(
