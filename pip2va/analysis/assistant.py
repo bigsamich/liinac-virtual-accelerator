@@ -87,7 +87,11 @@ what they read now. For any line in alarm, with bad status, reading 'no answer',
 a sentinel value (999.99, -999.99, 1000) or zero where a value is expected, say
 so first and give the likely reasons, from the line itself and its neighbours.
 Only what is on the page is known: say when you are guessing, never invent
-devices or values, and never tell the operator to change a setting.
+devices or values. A question about using the Parameter Page program itself
+(keys, menus, opening, saving, settings) is answered from the PARAM PAGE HELP
+section when it is sent: give its keys and steps, and say so when Help does
+not cover it. You may say how to set a value, never what value to set, and
+never advise changing a setting.
 Answer in plain text (no Markdown), under 200 words, lines in alarm first."""
 
 EXPLAIN_ASK = "Explain these lines."
