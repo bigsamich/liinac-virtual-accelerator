@@ -146,3 +146,15 @@ def test_epics_registry_pv_plan():
         ("rf", "SSR2:CAV17", "phase")
     assert plan["PIP2:BEAM:W"] == {"kind": "state", "field": "w_out"}
     assert plan["PIP2:MPS:PERMIT"]["kind"] == "permit"
+
+
+def test_epics_rescue_and_autotune_pvs():
+    """RESCUE and Auto-tune, the GUI's permit-strip buttons, as PVs."""
+    from pip2va.services.epics_gateway.main import build_pv_plan
+    plan = build_pv_plan({}, {})
+    assert plan["PIP2:AUTOTUNE:RESCUE"] == {
+        "kind": "write", "target": ("autotune", "main", "restore"),
+        "lo": 0, "hi": 1}
+    assert plan["PIP2:AUTOTUNE:ENABLE"] == {
+        "kind": "write", "target": ("autotune", "main", "enable"),
+        "lo": 0, "hi": 1}
