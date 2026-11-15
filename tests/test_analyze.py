@@ -53,3 +53,11 @@ def test_the_analyze_request_splits_plot_and_question(monkeypatch):
 def test_the_gateway_serves_analyze():
     src = open("pip2va/services/epics_gateway/main.py").read()
     assert ":AI:ANALYZE" in src and "assistant.analyze_request" in src
+
+
+def test_prompt_explains_measured_sections():
+    system = assistant.ANALYZE_SYSTEM
+    assert "LEVEL" in system and "EVENTS" in system
+    assert "measured by Plot over every sample" in system
+    assert "is not a reading" in system
+    assert "do not re-derive" in system
