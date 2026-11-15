@@ -79,6 +79,47 @@ def collect_context(r) -> dict:
     return ctx
 
 
+EXPLAIN_SYSTEM = """You help accelerator operators at Fermilab read a parameter page:
+a list of ACNET devices (AC) and EPICS PVs (EP) with their description, reading,
+setting, units, alarm limits and status characters, as shown in the console's
+Parameter Page. Explain, concisely and in plain words, what these lines are and
+what they read now. For any line in alarm, with bad status, reading 'no answer',
+a sentinel value (999.99, -999.99, 1000) or zero where a value is expected, say
+so first and give the likely reasons, from the line itself and its neighbours.
+Only what is on the page is known: say when you are guessing, never invent
+devices or values, and never tell the operator to change a setting."""
+
+EXPLAIN_ASK = "Explain these lines."
+
+
+def explain(page: str, question: str, timeout: float = 120.0) -> tuple[str, str]:
+    """Answer about parameter-page lines sent as text (no VA state). Returns
+    (answer, engine)."""
+    if not llm.available():
+        return "The local model is not answering; nothing was explained.", "offline"
+    user = f"PARAMETER PAGE LINES:\n{page}\n\nOPERATOR QUESTION: {question.strip() or EXPLAIN_ASK}"
+    payload = {"model": llm.MODEL, "stream": False, "think": False,
+               "options": {"temperature": 0.2, "num_predict": 500},
+               "messages": [{"role": "system", "content": EXPLAIN_SYSTEM},
+                            {"role": "user", "content": user}]}
+    req = urllib.request.Request(
+        f"{llm.OLLAMA_URL}/api/chat", data=json.dumps(payload).encode(),
+        headers={"Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            msg = json.loads(resp.read()).get("message", {})
+        return (msg.get("content") or msg.get("thinking") or "").strip(), f"llm:{llm.MODEL}"
+    except Exception as e:
+        return f"The local model did not answer: {e}", "offline"
+
+
+def explain_request(r, text: str) -> tuple[str, str]:
+    """The EXPLAIN RPC's one string: the page lines, then optionally a
+    line 'QUESTION: ...' after a blank line."""
+    page, sep, q = text.rpartition("\n\nQUESTION:")
+    return explain(page if sep else text, q if sep else "")
+
+
 def ask(r, question: str, timeout: float = 240.0) -> tuple[str, str]:
     """Returns (answer, engine)."""
     ctx = collect_context(r)
