@@ -47,9 +47,11 @@ class _AskRPC:
     Accepts the question as query.query / q / question / text, or a plain
     NTScalar string argument."""
 
-    def __init__(self, name, r):
+    def __init__(self, name, r, answer=None):
         self.name = name
         self.r = r
+        # (r, question) -> (answer, engine); AI:ASK's is the VA assistant
+        self.answer = answer
 
     @staticmethod
     def _question(v):
@@ -77,7 +79,7 @@ class _AskRPC:
                 op.done(NTScalar("s").wrap(self._usage()))
                 return
             from pip2va.analysis import assistant
-            answer, engine = assistant.ask(self.r, q)
+            answer, engine = (self.answer or assistant.ask)(self.r, q)
             op.done(NTScalar("s").wrap(f"[{engine}] {answer}"))
         except Exception as e:                 # pragma: no cover
             op.done(error=f"ask failed: {e}")
@@ -213,6 +215,14 @@ class Gateway:
         self.pvs[self.ai_pv] = SharedPV(handler=_AskRPC(self.ai_pv, self.r),
                                         initial=tmpl)
         log.info("LLM RPC PV: %s (self-describing NTURI)", self.ai_pv)
+        # Parameter-page explainer: the same RPC with a general prompt and no
+        # VA state; query = the page lines, then optionally "\n\nQUESTION: ...".
+        from pip2va.analysis import assistant
+        explain_pv = f"{prefix}:AI:EXPLAIN" if prefix else "PIP2:AI:EXPLAIN"
+        self.pvs[explain_pv] = SharedPV(
+            handler=_AskRPC(explain_pv, self.r, answer=assistant.explain_request),
+            initial=NTURI([("query", "s")]).wrap(
+                explain_pv, kws={"query": "parameter page lines to explain"}))
         log.info("PVA registry: %d PVs (%d writable, %d per-device RB)",
                  len(self.pvs),
                  sum(1 for d in self.plan.values() if d["kind"] == "write"),
