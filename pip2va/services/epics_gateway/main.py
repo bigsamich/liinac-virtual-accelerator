@@ -10,7 +10,8 @@ PV shapes generated per registry entry:
   streams:  <PV>:<FIELD>            full array (NTScalar 'ad')
             <PV>:<SEC>:<DEV>:<FIELD>_RB  per-device scalar (via index_key)
   settings: <PV>:<SEC>:<DEV>:<FIELD>_SP  writable, limit-clamped, audited
-  always:   PIP2:BEAM:W/T/IOUT/PULSE, PIP2:MPS:PERMIT, PIP2:MPS:RESET
+  always:   PIP2:BEAM:W/T/IOUT/PULSE, PIP2:MPS:PERMIT, PIP2:MPS:RESET,
+            PIP2:AUTOTUNE:RESCUE, PIP2:AUTOTUNE:ENABLE
 
 Run: python -m pip2va.services.epics_gateway.main (host networking for
 PVA discovery; compose service `epics-gateway`).
@@ -109,6 +110,15 @@ def build_pv_plan(streams: dict, settings: dict) -> dict:
     plan["PIP2:MPS:RESET"] = {"kind": "write",
                               "target": ("mps", "main", "reset"),
                               "lo": 0, "hi": 1}
+    # The GUI permit strip's other two buttons. RESCUE (restore=1) puts every
+    # setpoint back to design, resets tripped devices and re-arms the permit;
+    # autotune clears it when done. ENABLE runs the continuous orbit trim.
+    plan["PIP2:AUTOTUNE:RESCUE"] = {"kind": "write",
+                                    "target": ("autotune", "main", "restore"),
+                                    "lo": 0, "hi": 1}
+    plan["PIP2:AUTOTUNE:ENABLE"] = {"kind": "write",
+                                    "target": ("autotune", "main", "enable"),
+                                    "lo": 0, "hi": 1}
     for product, m in streams.items():
         for fld, meta in m["fields"].items():
             plan[f"{m['pv']}:{fld.upper()}"] = {
