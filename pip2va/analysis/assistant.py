@@ -98,15 +98,39 @@ Answer in plain text (no Markdown), under 200 words, lines in alarm first."""
 EXPLAIN_ASK = "Explain these lines."
 
 
-def explain(page: str, question: str, timeout: float = 120.0) -> tuple[str, str]:
-    """Answer about parameter-page lines sent as text (no VA state). Returns
+ANALYZE_SYSTEM = """You help accelerator operators at Fermilab read a plot from the console's
+Plot program: ACNET devices and EPICS PVs over a time window, or the latest
+waveform, sent as each trace's figures (samples, latest value, mean, spread,
+range with its times, drift, rate, a 12-step profile, gaps) and the
+correlations between traces. Write it like a short shift-log note: what each
+trace did over the window (steady, drifting, stepping, oscillating, noisy,
+gone quiet), when it changed and by how much, and which traces move together.
+Say anything odd first: gaps or no data, sentinel values (999.99, -999.99,
+1000), spikes, zero where a value is expected. Only what is sent is known: say
+when you are guessing, never invent devices, values or times. A question
+about using the Plot program itself (keys, views, adding traces, saving) is
+answered from the PLOT HELP section when it is sent: give its keys and steps.
+When Help does not cover it, say so and point to Help (the ? key); do not
+guess at keys or menus.
+You may say how to set a value, never what value to set, and never advise
+changing a setting. Answer in plain text (no Markdown), under 200 words,
+the oddest thing first."""
+
+ANALYZE_ASK = "Summarise this plot."
+
+
+def explain(page: str, question: str, timeout: float = 120.0, *,
+            system: str = EXPLAIN_SYSTEM, head: str = "PARAMETER PAGE LINES",
+            ask: str = EXPLAIN_ASK) -> tuple[str, str]:
+    """Answer about parameter-page lines sent as text (no VA state); with
+    `system`, `head` and `ask`, about any other text (a plot). Returns
     (answer, engine)."""
     if not llm.available():
         return "The local model is not answering; nothing was explained.", "offline"
-    user = f"PARAMETER PAGE LINES:\n{page}\n\nOPERATOR QUESTION: {question.strip() or EXPLAIN_ASK}"
+    user = f"{head}:\n{page}\n\nOPERATOR QUESTION: {question.strip() or ask}"
     payload = {"model": llm.MODEL, "stream": False, "think": False,
                "options": {"temperature": 0.2, "num_predict": 900},
-               "messages": [{"role": "system", "content": EXPLAIN_SYSTEM},
+               "messages": [{"role": "system", "content": system},
                             {"role": "user", "content": user}]}
     req = urllib.request.Request(
         f"{llm.OLLAMA_URL}/api/chat", data=json.dumps(payload).encode(),
@@ -124,6 +148,18 @@ def explain_request(r, text: str) -> tuple[str, str]:
     line 'QUESTION: ...' after a blank line."""
     page, sep, q = text.rpartition("\n\nQUESTION:")
     return explain(page if sep else text, q if sep else "")
+
+
+def analyze(plot: str, question: str, timeout: float = 120.0) -> tuple[str, str]:
+    """A shift-log summary of a Plot window sent as text. (answer, engine)"""
+    return explain(plot, question, timeout, system=ANALYZE_SYSTEM, head="PLOT",
+                   ask=ANALYZE_ASK)
+
+
+def analyze_request(r, text: str) -> tuple[str, str]:
+    """The ANALYZE RPC's one string: the plot, then perhaps 'QUESTION: ...'."""
+    plot, sep, q = text.rpartition("\n\nQUESTION:")
+    return analyze(plot if sep else text, q if sep else "")
 
 
 def ask(r, question: str, timeout: float = 240.0) -> tuple[str, str]:

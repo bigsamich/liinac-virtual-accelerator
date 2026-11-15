@@ -223,6 +223,13 @@ class Gateway:
             handler=_AskRPC(explain_pv, self.r, answer=assistant.explain_request),
             initial=NTURI([("query", "s")]).wrap(
                 explain_pv, kws={"query": "parameter page lines to explain"}))
+        # Plot's Analyze: the same, with a shift-log prompt; query = the
+        # plot's figures, then optionally "\n\nQUESTION: ...".
+        analyze_pv = f"{prefix}:AI:ANALYZE" if prefix else "PIP2:AI:ANALYZE"
+        self.pvs[analyze_pv] = SharedPV(
+            handler=_AskRPC(analyze_pv, self.r, answer=assistant.analyze_request),
+            initial=NTURI([("query", "s")]).wrap(
+                analyze_pv, kws={"query": "plot figures to summarise"}))
         log.info("PVA registry: %d PVs (%d writable, %d per-device RB)",
                  len(self.pvs),
                  sum(1 for d in self.plan.values() if d["kind"] == "write"),
